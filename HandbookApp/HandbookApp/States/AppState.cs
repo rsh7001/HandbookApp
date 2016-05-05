@@ -14,12 +14,13 @@
 //    limitations under the License.
 //
 
-
+using System.Collections.Immutable;
 
 
 namespace HandbookApp.States
 {
     public class AppState
     {
+        public ImmutableDictionary<string, Article>Articles { get; set; }
     }
 }
