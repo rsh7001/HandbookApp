@@ -42,6 +42,7 @@
     <Compile Include="Reducers\ArticleReducers.cs" />
     <Compile Include="States\AppState.cs" />
     <Compile Include="States\Article.cs" />
+    <Compile Include="Views\MainPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
