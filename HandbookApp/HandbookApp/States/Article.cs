@@ -15,12 +15,24 @@
 //
 
 
+using System;
+
 namespace HandbookApp.States
 {
-    public class Article
+    public class Article : IEquatable<Article>
     {
         public string ArticleId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
+
+        public bool Equals(Article a)
+        {
+            if (a == null)
+            {
+                return false;
+            }
+
+            return (ArticleId == a.ArticleId) && (Title == a.Title) && (Content == a.Content);
+        }
     }
 }

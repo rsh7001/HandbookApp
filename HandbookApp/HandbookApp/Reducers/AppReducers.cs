@@ -14,9 +14,9 @@
 //    limitations under the License.
 //
 
-using HandbookApp.States;
-using Redux;
 
+using Redux;
+using HandbookApp.States;
 
 namespace HandbookApp.Reducers
 {

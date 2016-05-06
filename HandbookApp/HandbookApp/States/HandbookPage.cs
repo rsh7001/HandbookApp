@@ -14,14 +14,28 @@
 //    limitations under the License.
 //
 
-using System.Collections.Immutable;
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HandbookApp.States
 {
-    public class AppState
+    public class HandbookPage : IEquatable<HandbookPage>
     {
-        public ImmutableDictionary<string, Article>Articles { get; set; }
-        public ImmutableDictionary<string, HandbookPage>Pages { get; set; }
+        public string PageId { get; set; }
+        public string PageTitle { get; set; }
+        public string PageArticleId { get; set; }
+        public string PageLinksTitle { get; set; }
+        public List<string> Links { get; set; }
+
+        public bool Equals(HandbookPage a)
+        {
+            if(a == null)
+            {
+                return false;
+            }
+            return (PageId == a.PageId) && (PageTitle == a.PageTitle) && (PageArticleId == a.PageArticleId) && (Links.SequenceEqual(a.Links));
+
+        }
     }
 }

@@ -21,13 +21,13 @@ namespace HandbookApp.Actions
 {
     public class AddArticleAction : IAction
     {
-        public string ArticleID { get; set; }
+        public string ArticleId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
     }
 
     public class DeleteArticleAction : IAction
     {
-        public string ArticleID { get; set; }
+        public string ArticleId { get; set; }
     }
 }

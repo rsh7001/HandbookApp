@@ -15,34 +15,44 @@
 //
 
 using System.Collections.Immutable;
-
+using Redux;
 using HandbookApp.Actions;
 using HandbookApp.States;
-using Redux;
+
 
 namespace HandbookApp.Reducers
 {
 
     public static class ArticleReducers
     {
-
-
+        
         public static ImmutableDictionary<string, Article> AddArticleReducer(ImmutableDictionary<string, Article> previousState, AddArticleAction action)
         {
-            if(!previousState.ContainsKey(action.ArticleID))
+            var articleItem = new Article {
+                ArticleId = action.ArticleId,
+                Title = action.Title,
+                Content = action.Content
+            };
+
+            if (!previousState.ContainsKey(action.ArticleId))
             {
-                return previousState.Add(action.ArticleID, new Article { ArticleId = action.ArticleID, Title = action.Title, Content = action.Content });
+                return previousState.Add(action.ArticleId, articleItem);
             }
 
+            if(!previousState[action.ArticleId].Equals(articleItem))
+            {
+                return previousState.SetItem(action.ArticleId, articleItem);
+            }
+                
             return previousState;
         }
 
 
         public static ImmutableDictionary<string, Article> DeleteArticleReducer(ImmutableDictionary<string, Article> previousState, DeleteArticleAction action)
         {
-            if(previousState.ContainsKey(action.ArticleID))
+            if(previousState.ContainsKey(action.ArticleId))
             {
-                return previousState.Remove(action.ArticleID);
+                return previousState.Remove(action.ArticleId);
             }
             
             return previousState;
