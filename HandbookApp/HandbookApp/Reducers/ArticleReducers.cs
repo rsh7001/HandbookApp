@@ -29,7 +29,7 @@ namespace HandbookApp.Reducers
 
         public static ImmutableDictionary<string, Article> AddArticleReducer(ImmutableDictionary<string, Article> previousState, AddArticleAction action)
         {
-            if(previousState.ContainsKey(action.ArticleID))
+            if(!previousState.ContainsKey(action.ArticleID))
             {
                 return previousState.Add(action.ArticleID, new Article { ArticleId = action.ArticleID, Title = action.Title, Content = action.Content });
             }
