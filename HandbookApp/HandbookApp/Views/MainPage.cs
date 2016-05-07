@@ -33,7 +33,7 @@ namespace HandbookApp.Views
             Label titleLbl = new Label();
             Label contentLbl = new Label();
 
-            articleIdLbl.SetBinding(Label.TextProperty, "ArticleId");
+            articleIdLbl.SetBinding(Label.TextProperty, "Id");
             titleLbl.SetBinding(Label.TextProperty, "Title");
             contentLbl.SetBinding(Label.TextProperty, "Content");
 

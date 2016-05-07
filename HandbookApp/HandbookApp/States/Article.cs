@@ -21,7 +21,7 @@ namespace HandbookApp.States
 {
     public class Article : IEquatable<Article>
     {
-        public string ArticleId { get; set; }
+        public string Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
 
@@ -32,7 +32,7 @@ namespace HandbookApp.States
                 return false;
             }
 
-            return (ArticleId == a.ArticleId) && (Title == a.Title) && (Content == a.Content);
+            return (Id == a.Id) && (Title == a.Title) && (Content == a.Content);
         }
     }
 }

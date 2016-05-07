@@ -29,7 +29,7 @@ namespace HandbookApp.Reducers
         public static ImmutableDictionary<string, Article> AddArticleReducer(ImmutableDictionary<string, Article> previousState, AddArticleAction action)
         {
             var articleItem = new Article {
-                ArticleId = action.ArticleId,
+                Id = action.ArticleId,
                 Title = action.Title,
                 Content = action.Content
             };
