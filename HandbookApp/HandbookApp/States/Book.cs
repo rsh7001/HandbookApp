@@ -14,15 +14,25 @@
 //    limitations under the License.
 //
 
-using System.Collections.Immutable;
+using System;
 
 
 namespace HandbookApp.States
 {
-    public class AppState
+    public class Book : IEquatable<Book>
     {
-        public ImmutableList<Book> Books {get; set;}
-        public ImmutableDictionary<string, Bookpage>Bookpages { get; set; }
-        public ImmutableDictionary<string, Article> Articles { get; set; }
+        public string Id { get; set; }
+        public string Title { get; set; }
+        public string StartingBookpage { get; set; }
+        public int OrderIndex { get; set; }
+
+        public bool Equals(Book a)
+        {
+            if (a == null)
+            {
+                return false;
+            }
+            return (Id == a.Id) && (Title == a.Title) && (StartingBookpage == a.StartingBookpage) && (OrderIndex == a.OrderIndex);
+        }
     }
 }

@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actions\ArticleActions.cs" />
+    <Compile Include="Actions\BookActions.cs" />
     <Compile Include="Actions\BookpageActions.cs" />
     <Compile Include="App.cs" />
     <Compile Include="Controls\MarkdownTextView.cs" />
@@ -43,8 +44,10 @@
     <Compile Include="Reducers\AppReducers.cs" />
     <Compile Include="Reducers\ArticleReducers.cs" />
     <Compile Include="Reducers\BookpageReducers.cs" />
+    <Compile Include="Reducers\BookReducers.cs" />
     <Compile Include="States\AppState.cs" />
     <Compile Include="States\Article.cs" />
+    <Compile Include="States\Book.cs" />
     <Compile Include="States\Bookpage.cs" />
     <Compile Include="Views\MainPage.cs" />
   </ItemGroup>

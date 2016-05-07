@@ -14,15 +14,20 @@
 //    limitations under the License.
 //
 
-using System.Collections.Immutable;
+using Redux;
 
-
-namespace HandbookApp.States
+namespace HandbookApp.Actions
 {
-    public class AppState
+    public class AddBookAction : IAction
     {
-        public ImmutableList<Book> Books {get; set;}
-        public ImmutableDictionary<string, Bookpage>Bookpages { get; set; }
-        public ImmutableDictionary<string, Article> Articles { get; set; }
+        public string BookId { get; set; }
+        public string Title { get; set; }
+        public string StartingBookpage { get; set; }
+        public int OrderIndex { get; set; }
+    }
+
+    public class DeleteBookAction : IAction
+    {
+        public string BookId { get; set; }
     }
 }
