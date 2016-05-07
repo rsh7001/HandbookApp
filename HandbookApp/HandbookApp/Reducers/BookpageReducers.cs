@@ -24,16 +24,16 @@ using HandbookApp.States;
 
 namespace HandbookApp.Reducers
 {
-    public static class HandbookPageReducers
+    public static class BookpageReducers
     {
 
-        public static ImmutableDictionary<string, HandbookPage> AddHandbookPageReducer(ImmutableDictionary<string, HandbookPage> previousState, AddHandbookPageAction action)
+        public static ImmutableDictionary<string, Bookpage> AddBookpageReducer(ImmutableDictionary<string, Bookpage> previousState, AddBookpageAction action)
         {
-            var handbookPageItem = new HandbookPage {
-                PageId = action.PageId,
-                PageTitle = action.PageTitle,
-                PageArticleId = action.PageArticleId,
-                PageLinksTitle = action.PageLinksTitle,
+            var handbookPageItem = new Bookpage {
+                Id = action.PageId,
+                Title = action.PageTitle,
+                ArticleId = action.PageArticleId,
+                LinksTitle = action.PageLinksTitle,
                 Links = action.Links
             };
 
@@ -51,7 +51,7 @@ namespace HandbookApp.Reducers
         }
 
 
-        public static ImmutableDictionary<string, HandbookPage> DeleteHandbookPageReducer(ImmutableDictionary<string, HandbookPage> previousState, DeleteHandbookPageAction action)
+        public static ImmutableDictionary<string, Bookpage> DeleteBookpageReducer(ImmutableDictionary<string, Bookpage> previousState, DeleteBookpageAction action)
         {
             if(previousState.ContainsKey(action.PageId))
             {
@@ -62,16 +62,16 @@ namespace HandbookApp.Reducers
         }
 
 
-        public static ImmutableDictionary<string, HandbookPage> HandbookPageReducer(ImmutableDictionary<string, HandbookPage> previousState, IAction action)
+        public static ImmutableDictionary<string, Bookpage> HandbookPageReducer(ImmutableDictionary<string, Bookpage> previousState, IAction action)
         {
-            if (action is AddHandbookPageAction)
+            if (action is AddBookpageAction)
             {
-                return AddHandbookPageReducer(previousState, (AddHandbookPageAction)action);
+                return AddBookpageReducer(previousState, (AddBookpageAction)action);
             }
 
-            if (action is DeleteHandbookPageAction)
+            if (action is DeleteBookpageAction)
             {
-                return DeleteHandbookPageReducer(previousState, (DeleteHandbookPageAction)action);
+                return DeleteBookpageReducer(previousState, (DeleteBookpageAction)action);
             }
 
             return previousState;

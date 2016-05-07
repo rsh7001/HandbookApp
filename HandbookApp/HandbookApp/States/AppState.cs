@@ -22,6 +22,6 @@ namespace HandbookApp.States
     public class AppState
     {
         public ImmutableDictionary<string, Article>Articles { get; set; }
-        public ImmutableDictionary<string, HandbookPage>Pages { get; set; }
+        public ImmutableDictionary<string, Bookpage>Bookpages { get; set; }
     }
 }

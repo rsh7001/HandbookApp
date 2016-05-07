@@ -36,16 +36,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actions\ArticleActions.cs" />
-    <Compile Include="Actions\HandbookPageActions.cs" />
+    <Compile Include="Actions\BookpageActions.cs" />
     <Compile Include="App.cs" />
     <Compile Include="Controls\MarkdownTextView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reducers\AppReducers.cs" />
     <Compile Include="Reducers\ArticleReducers.cs" />
-    <Compile Include="Reducers\HandbookPageReducers.cs" />
+    <Compile Include="Reducers\BookpageReducers.cs" />
     <Compile Include="States\AppState.cs" />
     <Compile Include="States\Article.cs" />
-    <Compile Include="States\HandbookPage.cs" />
+    <Compile Include="States\Bookpage.cs" />
     <Compile Include="Views\MainPage.cs" />
   </ItemGroup>
   <ItemGroup>

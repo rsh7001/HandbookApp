@@ -14,28 +14,24 @@
 //    limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using Redux;
 
-namespace HandbookApp.States
+
+namespace HandbookApp.Actions
 {
-    public class HandbookPage : IEquatable<HandbookPage>
+    public class AddBookpageAction : IAction
     {
         public string PageId { get; set; }
         public string PageTitle { get; set; }
         public string PageArticleId { get; set; }
         public string PageLinksTitle { get; set; }
         public List<string> Links { get; set; }
+    }
 
-        public bool Equals(HandbookPage a)
-        {
-            if(a == null)
-            {
-                return false;
-            }
-            return (PageId == a.PageId) && (PageTitle == a.PageTitle) && (PageArticleId == a.PageArticleId) && (Links.SequenceEqual(a.Links));
 
-        }
+    public class DeleteBookpageAction : IAction
+    {
+        public string PageId { get; set; }
     }
 }
