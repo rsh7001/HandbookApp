@@ -15,10 +15,12 @@
 //
 
 using System.Collections.Immutable;
+using System.Linq;
 using Redux;
 using HandbookApp.Actions;
 using HandbookApp.States;
-
+using System;
+using System.Collections.Generic;
 
 namespace HandbookApp.Reducers
 {
@@ -33,6 +35,8 @@ namespace HandbookApp.Reducers
                 Title = action.Title,
                 Content = action.Content
             };
+
+            System.Diagnostics.Debug.WriteLine("AddArticleReducer: " + articleItem.Id);
 
             if (!previousState.ContainsKey(action.ArticleId))
             {
@@ -71,8 +75,24 @@ namespace HandbookApp.Reducers
                 return DeleteArticleReducer(previousState, (DeleteArticleAction)action);
             }
 
+            if (action is AddArticleRangeAction)
+            {
+                return AddArticleRangeReducer(previousState, (AddArticleRangeAction)action);
+            }
+
             return previousState;
         }
 
+        private static ImmutableDictionary<string, Article> AddArticleRangeReducer(ImmutableDictionary<string, Article> previousState, AddArticleRangeAction action)
+        {
+            if (action.Articles.Count != 0)
+            {
+                var itemlist = action.Articles
+                    .Select(x => new KeyValuePair<string, Article>(x.Id, x));
+                return previousState.SetItems(itemlist);
+            }
+
+            return previousState;
+        }
     }
 }

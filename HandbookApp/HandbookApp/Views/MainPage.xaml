@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HandbookApp.Views.MainPage"
+             xmlns:local="clr-namespace:HandbookApp.Views;assembly=HandbookApp" >
+  <ContentPage.Content>
+    <ScrollView>
+      <StackLayout>
+        <StackLayout>
+          <Label Text="HandbookApp" HorizontalOptions="Center" />
+          <Label x:Name="numLbl" HorizontalTextAlignment="Center"/>
+          <Button x:Name="nothingButton" Text="Nothing" />
+          <Button x:Name="updateButton" Text="Update from Server" />
+          <Button x:Name="incrementButton" Text="Increment Article" />
+          <Button x:Name="decrementButton" Text="Decrement Article" />
+          <Entry x:Name="entryId"/>
+          <Entry x:Name="entryTitle"/>
+          <Entry x:Name="entryContent"/>
+        </StackLayout>
+        <StackLayout Orientation="Vertical" VerticalOptions="FillAndExpand">
+          <local:MainSection/>
+        </StackLayout>
+      </StackLayout>
+    </ScrollView>
+  </ContentPage.Content>
+  
+</ContentPage>
