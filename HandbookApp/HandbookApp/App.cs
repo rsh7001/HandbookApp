@@ -39,7 +39,7 @@ namespace HandbookApp
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
 
             // The root page of your application
-            MainPage = new MainPage();
+            MainPage = new ReactiveMainPage();
         }
 
         protected override void OnStart()
