@@ -50,6 +50,7 @@
     <Compile Include="States\Article.cs" />
     <Compile Include="States\Book.cs" />
     <Compile Include="States\Bookpage.cs" />
+    <Compile Include="ViewModels\MainViewViewModel.cs" />
     <Compile Include="Views\ArticleItem.xaml.cs">
       <DependentUpon>ArticleItem.xaml</DependentUpon>
     </Compile>
