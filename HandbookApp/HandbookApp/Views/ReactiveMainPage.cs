@@ -41,7 +41,6 @@ namespace HandbookApp.Views
         public ReactiveMainPage()
         {
             ViewModel = new MainViewViewModel();
-
         }
 
         protected override void SetupViewElements()
@@ -75,22 +74,22 @@ namespace HandbookApp.Views
             this.Bind(ViewModel, vm => vm.ArticleTitle, c => c.articleTitleEntry.Text)
                 .DisposeWith(subscriptionDisposibles);
 
-            this.BindCommand(ViewModel, vm => vm.ExecuteIncrement, c => c.incrementButton)
+            this.BindCommand(ViewModel, vm => vm.Increment, c => c.incrementButton)
                 .DisposeWith(subscriptionDisposibles);
 
-            this.BindCommand(ViewModel, vm => vm.ExecuteUpdate, c => c.updateButton)
+            this.BindCommand(ViewModel, vm => vm.Update, c => c.updateButton)
                 .DisposeWith(subscriptionDisposibles);
 
-            this.BindCommand(ViewModel, vm => vm.ExecuteDecrement, c => c.decrementButton)
+            this.BindCommand(ViewModel, vm => vm.Decrement, c => c.decrementButton)
                 .DisposeWith(subscriptionDisposibles);
         }
 
         protected override void SetupSubscriptions()
         {
-            //this.WhenAnyObservable(x => x.ViewModel.ExecuteIncrement)
-            //    .ObserveOn(RxApp.MainThreadScheduler)
-            //    .Subscribe(async _ => await DisplayAlert("Increment", "Increment Article", "Done"))
-            //    .DisposeWith(subscriptionDisposibles);
+            this.WhenAnyObservable(x => x.ViewModel.Increment)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(async _ => await DisplayAlert("Increment", "Increment Article", "Done"))
+                .DisposeWith(subscriptionDisposibles);
 
             this.WhenAnyValue(x => x.ViewModel.NumArticles)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -99,12 +98,12 @@ namespace HandbookApp.Views
 
             App.Store
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(state => setStackLayoutChildren(state.Articles.Values.OrderBy(x => x.Id)));
+                .Subscribe(state => setStackLayoutChildren(state));
         }
 
-        private void setStackLayoutChildren(IOrderedEnumerable<Article> orderedEnumerable)
+        private void setStackLayoutChildren(AppState state)
         {
-            var elements = orderedEnumerable
+            var elements = state.Articles.Values.OrderBy(x => x.Id)
                 .Select(x => new StackLayout {
                     Orientation = StackOrientation.Vertical,
                     Children = {
@@ -121,7 +120,6 @@ namespace HandbookApp.Views
             {
                 articlesSL.Children.Add(e);
             }
-
         }
     }
 }

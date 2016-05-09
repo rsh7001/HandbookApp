@@ -16,9 +16,11 @@
 
 using System;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using HandbookApp.Actions;
 using HandbookApp.Services;
+using HandbookApp.States;
 using ReactiveUI;
 
 
@@ -51,11 +53,10 @@ namespace HandbookApp.ViewModels
         private ObservableAsPropertyHelper<bool> _canIncrement;
         public bool CanIncrement { get { return _canIncrement.Value; } }
 
-
-        public ReactiveCommand<Unit> ExecuteUpdate;
-        public ReactiveCommand<Unit> ExecuteIncrement;
-        public ReactiveCommand<Unit> ExecuteDecrement;
-
+        public ReactiveCommand<Unit> Update;
+        public ReactiveCommand<Unit> Increment;
+        public ReactiveCommand<Unit> Decrement;
+        
 
         public MainViewViewModel()
         {
@@ -65,36 +66,39 @@ namespace HandbookApp.ViewModels
             var canExecuteIncrement = 
                 this.WhenAnyValue (x => x.CanIncrement);
 
+            Update = ReactiveCommand.CreateAsyncTask(x => updateImpl());
+                
 
-            ExecuteUpdate = ReactiveCommand.CreateAsyncTask (
-                async _ => {
-                    await JsonServerService.JsonServerUpdate();
-                    return Unit.Default;
-                });
+            Increment = ReactiveCommand.CreateAsyncObservable<Unit> (canExecuteIncrement, _ => incrementImpl());
 
+            Decrement = ReactiveCommand.CreateAsyncObservable<Unit> (canExecuteIncrement, _ => decrementImpl());
 
-            ExecuteIncrement = ReactiveCommand.CreateAsyncTask<Unit> (
-                canExecuteIncrement,
-                async _ => {
-                    App.Store.Dispatch(new AddArticleAction { ArticleId = _articleId, Title = _articleTitle, Content = "" });
-                    await Task.Delay(1);
-                    return Unit.Default;
-                });
-
-            ExecuteDecrement = ReactiveCommand.CreateAsyncTask<Unit> (
-                canExecuteIncrement,
-                async _ => {
-                    App.Store.Dispatch(new DeleteArticleAction { ArticleId = _articleId });
-                    await Task.Delay(1);
-                    return Unit.Default;
-                });
-
-            App.Store
-                .Subscribe(state => {
-                    NumArticles = state.Articles.Count.ToString();
-                });
-
-
+            App.Store.Subscribe(state => setNumArticles(state));
         }
+
+        private void setNumArticles(AppState state)
+        {
+            NumArticles = state.Articles.Count.ToString();
+        }
+
+        private async Task<Unit> updateImpl()
+        {
+            // TODO: awaits forever if the server can't be reached
+            await JsonServerService.JsonServerUpdate();
+            return Unit.Default;
+        }
+
+        private IObservable<Unit> decrementImpl()
+        {
+            App.Store.Dispatch(new DeleteArticleAction { ArticleId = _articleId });
+            return Observable.Start(() => { return Unit.Default; });
+        }
+
+        private IObservable<Unit> incrementImpl()
+        {
+            App.Store.Dispatch(new AddArticleAction { ArticleId = _articleId, Title = _articleTitle, Content = "" });
+            return Observable.Start(() => { return Unit.Default; });
+        }
+
     }
 }
