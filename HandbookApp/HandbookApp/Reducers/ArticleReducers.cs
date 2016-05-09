@@ -36,8 +36,6 @@ namespace HandbookApp.Reducers
                 Content = action.Content
             };
 
-            System.Diagnostics.Debug.WriteLine("AddArticleReducer: " + articleItem.Id);
-
             if (!previousState.ContainsKey(action.ArticleId))
             {
                 return previousState.Add(action.ArticleId, articleItem);

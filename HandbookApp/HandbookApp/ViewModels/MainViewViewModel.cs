@@ -47,7 +47,14 @@ namespace HandbookApp.ViewModels
         public string NumArticles
         {
             get { return _numArticles; }
-            set {  this.RaiseAndSetIfChanged (ref _numArticles, value); }
+            set { this.RaiseAndSetIfChanged (ref _numArticles, value); }
+        }
+
+        private string _numBookpages;
+        public string NumBookpages
+        {
+            get { return _numBookpages; }
+            set { this.RaiseAndSetIfChanged (ref _numBookpages, value); }
         }
 
         private ObservableAsPropertyHelper<bool> _canIncrement;
@@ -74,6 +81,12 @@ namespace HandbookApp.ViewModels
             Decrement = ReactiveCommand.CreateAsyncObservable<Unit> (canExecuteIncrement, _ => decrementImpl());
 
             App.Store.Subscribe(state => setNumArticles(state));
+            App.Store.Subscribe(state => setNumBookpages(state));
+        }
+
+        private void setNumBookpages(AppState state)
+        {
+            NumBookpages = state.Bookpages.Count.ToString();
         }
 
         private void setNumArticles(AppState state)

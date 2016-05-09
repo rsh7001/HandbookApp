@@ -33,7 +33,9 @@ namespace HandbookApp
         public App()
         {
             var initialState = new AppState {
-                Articles = ImmutableDictionary<string, Article>.Empty
+                Articles = ImmutableDictionary<string, Article>.Empty,
+                Bookpages = ImmutableDictionary<string, Bookpage>.Empty,
+                Books = ImmutableList<Book>.Empty
             };
 
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);

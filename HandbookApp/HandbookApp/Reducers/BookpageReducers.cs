@@ -15,12 +15,14 @@
 //
 
 using System.Collections.Immutable;
+using System.Collections.Generic;
+using System.Linq;
 
 using Redux;
 
 using HandbookApp.Actions;
 using HandbookApp.States;
-
+using System;
 
 namespace HandbookApp.Reducers
 {
@@ -62,7 +64,7 @@ namespace HandbookApp.Reducers
         }
 
 
-        public static ImmutableDictionary<string, Bookpage> HandbookPageReducer(ImmutableDictionary<string, Bookpage> previousState, IAction action)
+        public static ImmutableDictionary<string, Bookpage> BookpageReducer(ImmutableDictionary<string, Bookpage> previousState, IAction action)
         {
             if (action is AddBookpageAction)
             {
@@ -74,6 +76,22 @@ namespace HandbookApp.Reducers
                 return DeleteBookpageReducer(previousState, (DeleteBookpageAction)action);
             }
 
+            if (action is AddBookpageRangeAction)
+            {
+                return AddBookpageRangeReducer(previousState, (AddBookpageRangeAction)action);
+            }
+
+            return previousState;
+        }
+
+        private static ImmutableDictionary<string, Bookpage> AddBookpageRangeReducer(ImmutableDictionary<string, Bookpage> previousState, AddBookpageRangeAction action)
+        {
+            if(action.Bookpages.Count != 0)
+            {
+                var itemlist = action.Bookpages
+                    .Select(x => new KeyValuePair<string, Bookpage>(x.Id, x));
+                return previousState.SetItems(itemlist);
+            }
             return previousState;
         }
     }

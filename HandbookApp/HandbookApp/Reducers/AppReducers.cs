@@ -25,7 +25,8 @@ namespace HandbookApp.Reducers
         public static AppState ReduceApplication(AppState previousState, IAction action)
         {
             return new AppState {
-                Articles = ArticleReducers.ArticleReducer(previousState.Articles, action)
+                Articles = ArticleReducers.ArticleReducer(previousState.Articles, action),
+                Bookpages = BookpageReducers.BookpageReducer(previousState.Bookpages, action)
             };
         }
     }

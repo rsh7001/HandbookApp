@@ -34,6 +34,7 @@ namespace HandbookApp.Views
         private Entry articleTitleEntry;
 
         private Label numArticles;
+        private Label numBookpages;
         private Label header;
 
         private StackLayout articlesSL;
@@ -55,6 +56,7 @@ namespace HandbookApp.Views
                     Children = {
                         (header = new Label { Text = Title, HorizontalOptions=LayoutOptions.Center }),
                         (numArticles = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
+                        (numBookpages = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
                         (updateButton = new Button { Text = "Update" }),
                         (incrementButton = new Button { Text = "Increment" }),
                         (decrementButton = new Button { Text = "Decrement" }),
@@ -94,6 +96,11 @@ namespace HandbookApp.Views
             this.WhenAnyValue(x => x.ViewModel.NumArticles)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => numArticles.Text = x)
+                .DisposeWith(subscriptionDisposibles);
+
+            this.WhenAnyValue(x => x.ViewModel.NumBookpages)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => numBookpages.Text = x)
                 .DisposeWith(subscriptionDisposibles);
 
             App.Store

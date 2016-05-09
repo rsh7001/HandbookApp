@@ -15,6 +15,7 @@
 //
 
 using System.Collections.Generic;
+using HandbookApp.States;
 using Redux;
 
 
@@ -33,5 +34,10 @@ namespace HandbookApp.Actions
     public class DeleteBookpageAction : IAction
     {
         public string PageId { get; set; }
+    }
+
+    public class AddBookpageRangeAction : IAction
+    {
+        public List<Bookpage> Bookpages { get; set; }
     }
 }
