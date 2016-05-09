@@ -74,14 +74,18 @@ namespace HandbookApp.ViewModels
                 this.WhenAnyValue (x => x.CanIncrement);
 
             Update = ReactiveCommand.CreateAsyncTask(x => updateImpl());
-                
-
+  
             Increment = ReactiveCommand.CreateAsyncObservable<Unit> (canExecuteIncrement, _ => incrementImpl());
 
             Decrement = ReactiveCommand.CreateAsyncObservable<Unit> (canExecuteIncrement, _ => decrementImpl());
 
-            App.Store.Subscribe(state => setNumArticles(state));
-            App.Store.Subscribe(state => setNumBookpages(state));
+            App.Store
+                .DistinctUntilChanged(state => new { state.Articles })
+                .Subscribe(state => setNumArticles(state));
+
+            App.Store
+                .DistinctUntilChanged(state => new { state.Bookpages })
+                .Subscribe(state => setNumBookpages(state));
         }
 
         private void setNumBookpages(AppState state)
