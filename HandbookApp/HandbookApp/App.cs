@@ -21,7 +21,8 @@ using Xamarin.Forms;
 
 using HandbookApp.States;
 using HandbookApp.Reducers;
-using HandbookApp.Views;
+using HandbookApp.ViewModels;
+using ReactiveUI;
 
 namespace HandbookApp
 {
@@ -33,13 +34,23 @@ namespace HandbookApp
         public App()
         {
             var initialState = new AppState {
-                Articles = ImmutableDictionary<string, Article>.Empty
+                Articles = ImmutableDictionary<string, Article>.Empty,
+                Bookpages = ImmutableDictionary<string, Bookpage>.Empty,
+                Books = ImmutableDictionary<string, Book>.Empty
             };
 
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
 
+            var bootstrapper = new AppBootstrapper();
+
+            //bootstrapper.CreateMainPage();
+
+            //var bootstrapper = (AppBootstrapper) RxApp.SuspensionHost.AppState;
+
+            var mainPage = bootstrapper.CreateMainPage();
+
             // The root page of your application
-            MainPage = new MainPage();
+            MainPage = mainPage;
         }
 
         protected override void OnStart()

@@ -14,30 +14,20 @@
 //    limitations under the License.
 //
 
-using System.Collections.Generic;
-using HandbookApp.States;
-using Redux;
+using System;
+using System.Reactive.Disposables;
 
-
-namespace HandbookApp.Actions
+namespace HandbookApp.Utilities
 {
-    public class AddBookpageAction : IAction
+    public static class IObservableExtensions
     {
-        public string PageId { get; set; }
-        public string PageTitle { get; set; }
-        public string PageArticleId { get; set; }
-        public string PageLinksTitle { get; set; }
-        public List<string> Links { get; set; }
-    }
+        public static TDisposable DisposeWith<TDisposable> (this TDisposable observable, CompositeDisposable disposables)
+            where TDisposable : class, IDisposable
+        {
+            if (observable != null)
+                disposables.Add(observable);
 
-
-    public class DeleteBookpageAction : IAction
-    {
-        public string PageId { get; set; }
-    }
-
-    public class AddBookpageRangeAction : IAction
-    {
-        public List<Bookpage> Bookpages { get; set; }
+            return observable;
+        }
     }
 }

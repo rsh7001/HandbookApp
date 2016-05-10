@@ -19,13 +19,15 @@ using Redux;
 using HandbookApp.States;
 using HandbookApp.Actions;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HandbookApp.Reducers
 {
     public static class BookReducers
     {
 
-        public static ImmutableList<Book> BookReducer(ImmutableList<Book> previousState, IAction action)
+        public static ImmutableDictionary<string, Book> BookReducer(ImmutableDictionary<string, Book> previousState, IAction action)
         {
             if (action is AddBookAction)
             {
@@ -37,10 +39,27 @@ namespace HandbookApp.Reducers
                 return DeleteBookReducer(previousState, (DeleteBookAction)action);
             }
 
+            if (action is AddBookRangeAction)
+            {
+                return AddBookRangeReducer(previousState, (AddBookRangeAction)action);
+            }
+
             return previousState;
         }
 
-        public static ImmutableList<Book> AddBookReducer(ImmutableList<Book> previousState, AddBookAction action)
+        private static ImmutableDictionary<string, Book> AddBookRangeReducer(ImmutableDictionary<string, Book> previousState, AddBookRangeAction action)
+        {
+            if (action.Books.Count != 0)
+            {
+                var itemlist = action.Books
+                    .Select(x => new KeyValuePair<string, Book>(x.Id, x));
+                return previousState.SetItems(itemlist);
+            }
+
+            return previousState;
+        }
+
+        public static ImmutableDictionary<string, Book> AddBookReducer(ImmutableDictionary<string, Book> previousState, AddBookAction action)
         {
             var bookItem = new Book {
                 Id = action.BookId,
@@ -49,24 +68,27 @@ namespace HandbookApp.Reducers
                 OrderIndex = action.OrderIndex
             };
 
-            var index = previousState.IndexOf<Book>(bookItem);
-
-            if(index == -1)
+            if(!previousState.ContainsKey(action.BookId))
             {
-                return previousState.Add(bookItem);
+                return previousState.Add(action.BookId, bookItem);
             }
 
-            if(!previousState[index].Equals(bookItem))
+            if(!previousState[action.BookId].Equals(bookItem))
             {
-                return previousState.Replace(previousState[index], bookItem);
+                return previousState.SetItem(action.BookId, bookItem);
             }
 
             return previousState;
         }
 
-        public static ImmutableList<Book> DeleteBookReducer(ImmutableList<Book> previousState, DeleteBookAction action)
+        public static ImmutableDictionary<string, Book> DeleteBookReducer(ImmutableDictionary<string, Book> previousState, DeleteBookAction action)
         {
-            return previousState.RemoveAll(x => x.Id == action.BookId);
+            if(previousState.ContainsKey(action.BookId))
+            {
+                return previousState.Remove(action.BookId);
+            }
+
+            return previousState;
         }
     }
 }
