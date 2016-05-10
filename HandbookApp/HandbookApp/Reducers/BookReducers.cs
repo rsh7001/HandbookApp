@@ -37,6 +37,21 @@ namespace HandbookApp.Reducers
                 return DeleteBookReducer(previousState, (DeleteBookAction)action);
             }
 
+            if (action is AddBookRangeAction)
+            {
+                return AddBookRangeReducer(previousState, (AddBookRangeAction)action);
+            }
+
+            return previousState;
+        }
+
+        private static ImmutableList<Book> AddBookRangeReducer(ImmutableList<Book> previousState, AddBookRangeAction action)
+        {
+            if (action.Books.Count != 0)
+            {
+                return previousState.AddRange(action.Books);
+            }
+
             return previousState;
         }
 

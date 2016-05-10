@@ -26,7 +26,8 @@ namespace HandbookApp.Reducers
         {
             return new AppState {
                 Articles = ArticleReducers.ArticleReducer(previousState.Articles, action),
-                Bookpages = BookpageReducers.BookpageReducer(previousState.Bookpages, action)
+                Bookpages = BookpageReducers.BookpageReducer(previousState.Bookpages, action),
+                Books = BookReducers.BookReducer(previousState.Books, action)
             };
         }
     }

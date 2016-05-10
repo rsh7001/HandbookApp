@@ -14,6 +14,8 @@
 //    limitations under the License.
 //
 
+using System.Collections.Generic;
+using HandbookApp.States;
 using Redux;
 
 namespace HandbookApp.Actions
@@ -29,5 +31,10 @@ namespace HandbookApp.Actions
     public class DeleteBookAction : IAction
     {
         public string BookId { get; set; }
+    }
+
+    public class AddBookRangeAction : IAction
+    {
+        public List<Book> Books { get; set; }
     }
 }

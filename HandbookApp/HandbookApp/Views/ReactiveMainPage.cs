@@ -35,6 +35,7 @@ namespace HandbookApp.Views
 
         private Label numArticles;
         private Label numBookpages;
+        private Label numBooks;
         private Label header;
 
         private StackLayout articlesSL;
@@ -57,6 +58,7 @@ namespace HandbookApp.Views
                         (header = new Label { Text = Title, HorizontalOptions=LayoutOptions.Center }),
                         (numArticles = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
                         (numBookpages = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
+                        (numBooks = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
                         (updateButton = new Button { Text = "Update" }),
                         (incrementButton = new Button { Text = "Increment" }),
                         (decrementButton = new Button { Text = "Decrement" }),
@@ -88,10 +90,10 @@ namespace HandbookApp.Views
 
         protected override void SetupSubscriptions()
         {
-            this.WhenAnyObservable(x => x.ViewModel.Increment)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(async _ => await DisplayAlert("Increment", "Increment Article", "Done"))
-                .DisposeWith(subscriptionDisposibles);
+            //this.WhenAnyObservable(x => x.ViewModel.Increment)
+            //    .ObserveOn(RxApp.MainThreadScheduler)
+            //    .Subscribe(async _ => await DisplayAlert("Increment", "Increment Article", "Done"))
+            //    .DisposeWith(subscriptionDisposibles);
 
             this.WhenAnyValue(x => x.ViewModel.NumArticles)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -103,6 +105,11 @@ namespace HandbookApp.Views
                 .Subscribe(x => numBookpages.Text = x)
                 .DisposeWith(subscriptionDisposibles);
 
+            this.WhenAnyValue(x => x.ViewModel.NumBooks)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => numBooks.Text = x)
+                .DisposeWith(subscriptionDisposibles);
+
             App.Store
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(state => setStackLayoutChildren(state));
@@ -111,6 +118,7 @@ namespace HandbookApp.Views
         private void setStackLayoutChildren(AppState state)
         {
             var elements = state.Articles.Values.OrderBy(x => x.Id)
+                .Take(10) /* Limit work on Main Thread */
                 .Select(x => new StackLayout {
                     Orientation = StackOrientation.Vertical,
                     Children = {

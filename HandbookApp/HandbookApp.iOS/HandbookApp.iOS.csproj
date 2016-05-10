@@ -122,6 +122,10 @@
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="ModernHttpClient, Version=2.4.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\modernhttpclient.2.4.2\lib\Xamarin.iOS10\ModernHttpClient.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="ReactiveUI, Version=6.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\reactiveui-core.6.5.0\lib\Xamarin.iOS10\ReactiveUI.dll</HintPath>
       <Private>True</Private>

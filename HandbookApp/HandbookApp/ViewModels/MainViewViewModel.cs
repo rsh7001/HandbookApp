@@ -57,6 +57,13 @@ namespace HandbookApp.ViewModels
             set { this.RaiseAndSetIfChanged (ref _numBookpages, value); }
         }
 
+        private string _numBooks;
+        public string NumBooks
+        {
+            get { return _numBooks; }
+            set { this.RaiseAndSetIfChanged(ref _numBooks, value); }
+        }
+
         private ObservableAsPropertyHelper<bool> _canIncrement;
         public bool CanIncrement { get { return _canIncrement.Value; } }
 
@@ -73,7 +80,7 @@ namespace HandbookApp.ViewModels
             var canExecuteIncrement = 
                 this.WhenAnyValue (x => x.CanIncrement);
 
-            Update = ReactiveCommand.CreateAsyncTask(x => updateImpl());
+            Update = ReactiveCommand.CreateAsyncObservable(x => updateImpl());
   
             Increment = ReactiveCommand.CreateAsyncObservable<Unit> (canExecuteIncrement, _ => incrementImpl());
 
@@ -86,6 +93,17 @@ namespace HandbookApp.ViewModels
             App.Store
                 .DistinctUntilChanged(state => new { state.Bookpages })
                 .Subscribe(state => setNumBookpages(state));
+
+            App.Store
+                .DistinctUntilChanged(state => new { state.Books })
+                .Subscribe(state => setNumBooks(state));
+                
+                
+        }
+
+        private void setNumBooks(AppState state)
+        {
+            NumBooks = state.Books.Count.ToString();
         }
 
         private void setNumBookpages(AppState state)
@@ -98,11 +116,10 @@ namespace HandbookApp.ViewModels
             NumArticles = state.Articles.Count.ToString();
         }
 
-        private async Task<Unit> updateImpl()
+        private IObservable<Unit> updateImpl()
         {
-            // TODO: awaits forever if the server can't be reached
-            await JsonServerService.JsonServerUpdate();
-            return Unit.Default;
+            JsonServerService.JsonServerUpdate();
+            return Observable.Start(() => { return Unit.Default; });
         }
 
         private IObservable<Unit> decrementImpl()
