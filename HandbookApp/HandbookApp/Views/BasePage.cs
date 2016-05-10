@@ -33,8 +33,6 @@ namespace HandbookApp.Views
         public BasePage()
         {
             SetupViewElements();
-
-
         }
 
         public static readonly BindableProperty ViewModelProperty = 

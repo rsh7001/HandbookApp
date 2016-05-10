@@ -17,16 +17,17 @@
 using System;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using HandbookApp.Actions;
 using HandbookApp.Services;
 using HandbookApp.States;
 using ReactiveUI;
+using Splat;
 
 
 namespace HandbookApp.ViewModels
 {
-    public class MainViewViewModel : ReactiveObject
+
+    public class MainViewViewModel : ReactiveObject, IRoutableViewModel
     {
 
         private string _articleId;
@@ -67,13 +68,26 @@ namespace HandbookApp.ViewModels
         private ObservableAsPropertyHelper<bool> _canIncrement;
         public bool CanIncrement { get { return _canIncrement.Value; } }
 
+        public string UrlPathSegment
+        {
+            get
+            {
+                return "ReactiveMainPage";
+            }
+        }
+
+        public IScreen HostScreen { get; protected set; }
+        
+
         public ReactiveCommand<Unit> Update;
         public ReactiveCommand<Unit> Increment;
         public ReactiveCommand<Unit> Decrement;
         
 
-        public MainViewViewModel()
+        public MainViewViewModel(IScreen hostScreen = null)
         {
+            HostScreen = hostScreen ?? Locator.Current.GetService<IScreen>();
+
             this.WhenAnyValue(i => i.ArticleId, i => !string.IsNullOrWhiteSpace(i))
                 .ToProperty(this, v => v.CanIncrement, out _canIncrement);
 

@@ -21,7 +21,8 @@ using Xamarin.Forms;
 
 using HandbookApp.States;
 using HandbookApp.Reducers;
-using HandbookApp.Views;
+using HandbookApp.ViewModels;
+using ReactiveUI;
 
 namespace HandbookApp
 {
@@ -40,8 +41,16 @@ namespace HandbookApp
 
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
 
+            var bootstrapper = new AppBootstrapper();
+
+            //bootstrapper.CreateMainPage();
+
+            //var bootstrapper = (AppBootstrapper) RxApp.SuspensionHost.AppState;
+
+            var mainPage = bootstrapper.CreateMainPage();
+
             // The root page of your application
-            MainPage = new ReactiveMainPage();
+            MainPage = mainPage;
         }
 
         protected override void OnStart()

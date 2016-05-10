@@ -42,7 +42,6 @@ namespace HandbookApp.Views
 
         public ReactiveMainPage()
         {
-            ViewModel = new MainViewViewModel();
         }
 
         protected override void SetupViewElements()
