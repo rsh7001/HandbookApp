@@ -31,15 +31,7 @@ namespace HandbookApp.ViewModels
         {
             get {  return _urlPathSegment; }
         }
-
-        private string _bookpageName;
-        public string BookpageName
-        {
-            get { return _bookpageName; }
-            set { this.RaiseAndSetIfChanged (ref _bookpageName, value); }
-        }
-
-
+        
         private string _bookpageTitle;
         public string BookpageTitle
         {
@@ -68,12 +60,9 @@ namespace HandbookApp.ViewModels
             set { this.RaiseAndSetIfChanged(ref _bookpageLinks, value); }
         }
 
-        private Bookpage _currentPage;
-        private Article _currentArticle;
-
         public ReactiveCommand<Unit> GoBack;
-
         public ReactiveCommand<Object> GoToPage;
+
 
         public BookpageViewModel(string bookpageId, IScreen hostScreen = null)
         {
@@ -83,7 +72,8 @@ namespace HandbookApp.ViewModels
 
             GoToPage = ReactiveCommand.CreateAsyncObservable(x => HostScreen.Router.Navigate.ExecuteAsync(new BookpageViewModel((string) x, HostScreen)));
 
-            _currentPage = getBookpage(bookpageId);
+            Bookpage _currentPage = getBookpage(bookpageId);
+            Article _currentArticle = null;
                 
             if(_currentPage != null)
             {
@@ -93,12 +83,12 @@ namespace HandbookApp.ViewModels
                 
                 _currentArticle = getArticle(_currentPage.ArticleId);
                 BookpageTitle = setTitle(_currentPage, _currentArticle);
-                BookpageName = bookpageId;
                 _urlPathSegment = setBookpageLinkTitle(_currentPage);
             }
             else
             {
-                _bookpageName = "No page";
+                // TODO: Log error and return
+                _urlPathSegment = "No page";
             }
 
 
