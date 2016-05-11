@@ -24,11 +24,12 @@ using Xamarin.Forms;
 
 namespace HandbookApp.Views
 {
-    public class ReactiveMainPage : BasePage<MainViewViewModel>
+    public class ReactiveMainPage : BasePage<ReactiveMainViewModel>
     {
         private Button incrementButton;
         private Button decrementButton;
         private Button updateButton;
+        private Button goMainPageButton;
 
         private Entry articleIdEntry;
         private Entry articleTitleEntry;
@@ -61,6 +62,7 @@ namespace HandbookApp.Views
                         (updateButton = new Button { Text = "Update" }),
                         (incrementButton = new Button { Text = "Increment" }),
                         (decrementButton = new Button { Text = "Decrement" }),
+                        (goMainPageButton = new Button { Text = "MainPage" }),
                         (articleIdEntry = new Entry()),
                         (articleTitleEntry = new Entry()),
                         (articlesSL = new StackLayout { Orientation=StackOrientation.Vertical, VerticalOptions=LayoutOptions.FillAndExpand }),
@@ -84,6 +86,9 @@ namespace HandbookApp.Views
                 .DisposeWith(subscriptionDisposibles);
 
             this.BindCommand(ViewModel, vm => vm.Decrement, c => c.decrementButton)
+                .DisposeWith(subscriptionDisposibles);
+
+            this.BindCommand(ViewModel, vm => vm.GoMainPage, c => c.goMainPageButton)
                 .DisposeWith(subscriptionDisposibles);
         }
 

@@ -35,14 +35,16 @@ namespace HandbookApp.ViewModels
 
             LogHost.Default.Level = LogLevel.Debug;
 
-            Router.Navigate.Execute(new MainViewViewModel(this));
+            Router.Navigate.Execute(new ReactiveMainViewModel(this));
         }
 
         private void RegisterParts(IMutableDependencyResolver dependencyResolver)
         {
             dependencyResolver.RegisterConstant(this, typeof(IScreen));
 
-            dependencyResolver.Register(() => new ReactiveMainPage(), typeof(IViewFor<MainViewViewModel>));
+            dependencyResolver.Register(() => new ReactiveMainPage(), typeof(IViewFor<ReactiveMainViewModel>));
+            dependencyResolver.Register(() => new MainPage(), typeof(IViewFor<MainViewModel>));
+            dependencyResolver.Register(() => new BookpagePage(), typeof(IViewFor<BookpageViewModel>));
         }
 
         public Page CreateMainPage()

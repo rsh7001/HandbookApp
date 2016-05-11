@@ -27,7 +27,7 @@ using Splat;
 namespace HandbookApp.ViewModels
 {
 
-    public class MainViewViewModel : ReactiveObject, IRoutableViewModel
+    public class ReactiveMainViewModel : ReactiveObject, IRoutableViewModel
     {
 
         private string _articleId;
@@ -72,19 +72,19 @@ namespace HandbookApp.ViewModels
         {
             get
             {
-                return "ReactiveMainPage";
+                return "Reactive Main Page";
             }
         }
 
         public IScreen HostScreen { get; protected set; }
         
-
         public ReactiveCommand<Unit> Update;
         public ReactiveCommand<Unit> Increment;
         public ReactiveCommand<Unit> Decrement;
+        public ReactiveCommand<Object> GoMainPage;
         
 
-        public MainViewViewModel(IScreen hostScreen = null)
+        public ReactiveMainViewModel(IScreen hostScreen = null)
         {
             HostScreen = hostScreen ?? Locator.Current.GetService<IScreen>();
 
@@ -100,6 +100,8 @@ namespace HandbookApp.ViewModels
 
             Decrement = ReactiveCommand.CreateAsyncObservable<Unit> (canExecuteIncrement, _ => decrementImpl());
 
+            GoMainPage = ReactiveCommand.CreateAsyncObservable(_ => HostScreen.Router.Navigate.ExecuteAsync(new MainViewModel(HostScreen)));
+
             App.Store
                 .DistinctUntilChanged(state => new { state.Articles })
                 .Subscribe(state => setNumArticles(state));
@@ -111,8 +113,6 @@ namespace HandbookApp.ViewModels
             App.Store
                 .DistinctUntilChanged(state => new { state.Books })
                 .Subscribe(state => setNumBooks(state));
-                
-                
         }
 
         private void setNumBooks(AppState state)

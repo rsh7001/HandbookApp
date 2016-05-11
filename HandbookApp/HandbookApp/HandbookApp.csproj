@@ -52,8 +52,12 @@
     <Compile Include="States\Bookpage.cs" />
     <Compile Include="Utilities\IObservableExtensions.cs" />
     <Compile Include="ViewModels\AppBootstrapper.cs" />
-    <Compile Include="ViewModels\MainViewViewModel.cs" />
+    <Compile Include="ViewModels\BookpageViewModel.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\ReactiveMainViewModel.cs" />
     <Compile Include="Views\BasePage.cs" />
+    <Compile Include="Views\BookpagePage.cs" />
+    <Compile Include="Views\MainPage.cs" />
     <Compile Include="Views\ReactiveMainPage.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,70 @@
+﻿//
+//  Copyright 2016  R. Stanley Hum <r.stanley.hum@gmail.com>
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using HandbookApp.Utilities;
+using HandbookApp.ViewModels;
+using ReactiveUI;
+using Xamarin.Forms;
+
+
+namespace HandbookApp.Views
+{
+    public class BookpagePage : BasePage<BookpageViewModel>
+    {
+        private Button goBackButton;
+
+        private Label header;
+
+        public BookpagePage()
+        {
+        }
+
+        protected override void SetupViewElements()
+        {
+            base.SetupViewElements();
+
+            Content = new ScrollView {
+                Content = new StackLayout {
+                    Padding = new Thickness(20d),
+                    Children = {
+                        (header = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
+                        (goBackButton = new Button { Text = "GoBack" })
+                    }
+                }
+            };
+        }
+
+        protected override void SetupObservables()
+        {
+            this.BindCommand(ViewModel, vm => vm.GoBack, c => c.goBackButton)
+                .DisposeWith(subscriptionDisposibles);
+        }
+
+        protected override void SetupSubscriptions()
+        {
+            this.WhenAnyValue(x => x.ViewModel.BookpageName)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => header.Text = x)
+                .DisposeWith(subscriptionDisposibles);
+        }
+    }
+}
