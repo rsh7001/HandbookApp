@@ -29,11 +29,9 @@ namespace HandbookApp.Views
     {
         private Button goBackButton;
 
-        private Label header;
         private Label title;
         private Label articleId;
         private Label linksTitle;
-        private Label linksCount;
         private StackLayout links;
 
         public BookpagePage()
@@ -48,13 +46,11 @@ namespace HandbookApp.Views
                 Content = new StackLayout {
                     Padding = new Thickness(20d),
                     Children = {
-                        (header = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
                         (title = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
                         (articleId = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
                         (linksTitle = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
-                        (linksCount = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
+                        (links = new StackLayout()),
                         (goBackButton = new Button { Text = "GoBack" }),
-                        (links = new StackLayout())
                     }
                 }
             };
@@ -68,11 +64,7 @@ namespace HandbookApp.Views
 
         protected override void SetupSubscriptions()
         {
-            this.WhenAnyValue(x => x.ViewModel.BookpageName)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => { header.Text = x; header.IsVisible = !string.IsNullOrWhiteSpace(x); })
-                .DisposeWith(subscriptionDisposibles);
-
+ 
             this.WhenAnyValue(x => x.ViewModel.BookpageTitle)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => { title.Text = x; title.IsVisible = !string.IsNullOrWhiteSpace(x); })
@@ -86,11 +78,6 @@ namespace HandbookApp.Views
             this.WhenAnyValue(x => x.ViewModel.BookpageLinksTitle)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => { linksTitle.Text = x; linksTitle.IsVisible = !string.IsNullOrWhiteSpace(x); })
-                .DisposeWith(subscriptionDisposibles);
-
-            this.WhenAnyValue(x => x.ViewModel.BookpageLinks)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => { linksCount.Text = x.Count.ToString(); linksCount.IsVisible = true; })
                 .DisposeWith(subscriptionDisposibles);
 
             this.WhenAnyValue(x => x.ViewModel.BookpageLinks)

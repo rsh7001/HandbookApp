@@ -26,9 +26,10 @@ namespace HandbookApp.ViewModels
     {
         public IScreen HostScreen { get; protected set; }
 
+        private string _urlPathSegment;
         public string UrlPathSegment
         {
-            get {  return "page name"; }
+            get {  return _urlPathSegment; }
         }
 
         private string _bookpageName;
@@ -93,6 +94,7 @@ namespace HandbookApp.ViewModels
                 _currentArticle = getArticle(_currentPage.ArticleId);
                 BookpageTitle = setTitle(_currentPage, _currentArticle);
                 BookpageName = bookpageId;
+                _urlPathSegment = setBookpageLinkTitle(_currentPage);
             }
             else
             {
