@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using HandbookApp.Controls;
 using HandbookApp.Utilities;
 using HandbookApp.ViewModels;
 using ReactiveUI;
@@ -33,6 +34,7 @@ namespace HandbookApp.Views
         private Label articleId;
         private Label linksTitle;
         private StackLayout links;
+        private Editor articleContent;
 
         public BookpagePage()
         {
@@ -47,6 +49,7 @@ namespace HandbookApp.Views
                     Padding = new Thickness(20d),
                     Children = {
                         (title = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
+                        (articleContent = new Editor { Text = "", IsVisible=false }),
                         (articleId = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
                         (linksTitle = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
                         (links = new StackLayout()),
@@ -83,6 +86,11 @@ namespace HandbookApp.Views
             this.WhenAnyValue(x => x.ViewModel.BookpageLinks)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => setLinksChildren(x))
+                .DisposeWith(subscriptionDisposibles);
+
+            this.WhenAnyValue(x => x.ViewModel.BookpageArticleContent)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => { articleContent.Text = x; articleContent.IsVisible = !string.IsNullOrWhiteSpace(x); })
                 .DisposeWith(subscriptionDisposibles);
            
         }

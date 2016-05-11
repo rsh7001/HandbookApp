@@ -46,6 +46,13 @@ namespace HandbookApp.ViewModels
             set { this.RaiseAndSetIfChanged(ref _bookpageArticleId, value); }
         }
 
+        private string _bookpageArticleContent;
+        public string BookpageArticleContent
+        {
+            get { return _bookpageArticleContent; }
+            set { this.RaiseAndSetIfChanged(ref _bookpageArticleContent, value); }
+        }
+
         private string _bookpageLinksTitle;
         public string BookpageLinksTitle
         {
@@ -83,6 +90,7 @@ namespace HandbookApp.ViewModels
                 
                 _currentArticle = getArticle(_currentPage.ArticleId);
                 BookpageTitle = setTitle(_currentPage, _currentArticle);
+                BookpageArticleContent = setArticleContent(_currentArticle);
                 _urlPathSegment = setBookpageLinkTitle(_currentPage);
             }
             else
@@ -92,6 +100,16 @@ namespace HandbookApp.ViewModels
             }
 
 
+        }
+
+        private string setArticleContent(Article article)
+        {
+            if(article == null)
+            {
+                return null;
+            }
+
+            return article.Content;
         }
 
         private List<Tuple<string, string>> setLinks(List<string> links)
