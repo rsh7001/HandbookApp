@@ -16,10 +16,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HandbookApp.Utilities;
 using HandbookApp.ViewModels;
 using ReactiveUI;
@@ -33,6 +30,11 @@ namespace HandbookApp.Views
         private Button goBackButton;
 
         private Label header;
+        private Label title;
+        private Label articleId;
+        private Label linksTitle;
+        private Label linksCount;
+        private StackLayout links;
 
         public BookpagePage()
         {
@@ -47,7 +49,12 @@ namespace HandbookApp.Views
                     Padding = new Thickness(20d),
                     Children = {
                         (header = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
-                        (goBackButton = new Button { Text = "GoBack" })
+                        (title = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
+                        (articleId = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
+                        (linksTitle = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
+                        (linksCount = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
+                        (goBackButton = new Button { Text = "GoBack" }),
+                        (links = new StackLayout())
                     }
                 }
             };
@@ -63,8 +70,52 @@ namespace HandbookApp.Views
         {
             this.WhenAnyValue(x => x.ViewModel.BookpageName)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => header.Text = x)
+                .Subscribe(x => { header.Text = x; header.IsVisible = !string.IsNullOrWhiteSpace(x); })
                 .DisposeWith(subscriptionDisposibles);
+
+            this.WhenAnyValue(x => x.ViewModel.BookpageTitle)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => { title.Text = x; title.IsVisible = !string.IsNullOrWhiteSpace(x); })
+                .DisposeWith(subscriptionDisposibles);
+
+            this.WhenAnyValue(x => x.ViewModel.BookpageArticleId)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => { articleId.Text = x; articleId.IsVisible = !string.IsNullOrWhiteSpace(x); })
+                .DisposeWith(subscriptionDisposibles);
+
+            this.WhenAnyValue(x => x.ViewModel.BookpageLinksTitle)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => { linksTitle.Text = x; linksTitle.IsVisible = !string.IsNullOrWhiteSpace(x); })
+                .DisposeWith(subscriptionDisposibles);
+
+            this.WhenAnyValue(x => x.ViewModel.BookpageLinks)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => { linksCount.Text = x.Count.ToString(); linksCount.IsVisible = true; })
+                .DisposeWith(subscriptionDisposibles);
+
+            this.WhenAnyValue(x => x.ViewModel.BookpageLinks)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => setLinksChildren(x))
+                .DisposeWith(subscriptionDisposibles);
+           
+        }
+
+        private void setLinksChildren(List<Tuple<string, string>> linkslst)
+        {
+            links.Children.Clear();
+            foreach (var link in linkslst)
+            {
+                Label lbl = new Label {
+                    Text = link.Item2,
+                };
+                lbl.GestureRecognizers.Add(new TapGestureRecognizer {
+                    Command = ViewModel.GoToPage,
+                    CommandParameter = link.Item1
+                });
+                links.Children.Add( lbl );
+            }
+            links.IsVisible = links.Children.Count != 0;
+
         }
     }
 }
