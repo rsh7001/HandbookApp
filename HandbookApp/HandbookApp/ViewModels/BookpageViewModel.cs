@@ -19,6 +19,7 @@ using System.Reactive;
 using HandbookApp.States;
 using ReactiveUI;
 using Splat;
+using Xamarin.Forms;
 
 namespace HandbookApp.ViewModels
 {
@@ -67,39 +68,58 @@ namespace HandbookApp.ViewModels
             set { this.RaiseAndSetIfChanged(ref _bookpageLinks, value); }
         }
 
+        private WebViewSource _pageSource;
+        public WebViewSource PageSource
+        {
+            get { return _pageSource; }
+            set { this.RaiseAndSetIfChanged(ref _pageSource, value); }
+        }
+
+        private HtmlWebViewSource _pageHtml;
+        public HtmlWebViewSource PageHtml
+        {
+            get { return _pageHtml; }
+            set { this.RaiseAndSetIfChanged(ref _pageHtml, value); }
+        }
+
         public ReactiveCommand<Unit> GoBack;
         public ReactiveCommand<Object> GoToPage;
 
+        private Article _currentArticle;
 
-        public BookpageViewModel(string bookpageId, IScreen hostScreen = null)
+        public BookpageViewModel(string url, IScreen hostScreen = null)
         {
             HostScreen = hostScreen ?? Locator.Current.GetService<IScreen>();
-
             GoBack = HostScreen.Router.NavigateBack;
-
             GoToPage = ReactiveCommand.CreateAsyncObservable(x => HostScreen.Router.Navigate.ExecuteAsync(new BookpageViewModel((string) x, HostScreen)));
 
-            Bookpage _currentPage = getBookpage(bookpageId);
-            Article _currentArticle = null;
-                
-            if(_currentPage != null)
+            if(url.StartsWith("http"))
+            {
+                var urlsource = new UrlWebViewSource();
+                urlsource.Url = url;
+                PageSource = urlsource;
+                return;
+            }
+            Bookpage _currentPage = getBookpage(url);
+            _currentArticle = null;
+            if (_currentPage != null)
             {
                 BookpageLinks = setLinks(_currentPage.Links);
                 BookpageArticleId = _currentPage.ArticleId;
                 BookpageLinksTitle = _currentPage.LinksTitle;
-                
+
                 _currentArticle = getArticle(_currentPage.ArticleId);
                 BookpageTitle = setTitle(_currentPage, _currentArticle);
                 BookpageArticleContent = setArticleContent(_currentArticle);
                 _urlPathSegment = setBookpageLinkTitle(_currentPage);
+                PageSource = createHtmlContent(_currentArticle, BookpageLinksTitle, BookpageLinks);
             }
             else
             {
                 // TODO: Log error and return
                 _urlPathSegment = "No page";
             }
-
-
+            
         }
 
         private string setArticleContent(Article article)
@@ -174,6 +194,31 @@ namespace HandbookApp.ViewModels
             }
 
             return null;
+        }
+
+
+        private HtmlWebViewSource createHtmlContent(Article article, string linkstitle, List<Tuple<string, string>> pagelinks)
+        {
+            const string initial = "<!DOCTYPE html><html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\"><head><meta charset=\"UTF-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"></head><body><div id=\"content\">";
+            string content = "";
+            if (article != null)
+            {
+                content = article.Content;
+            }
+            else
+            {
+                content = "<h2 class=\"linksTitle\">" + linkstitle + "</h2>";
+            }
+
+            string links = "";
+            foreach (var link in pagelinks)
+            {
+                links = links + "<div class=\"clickableLink\"><p class=\"clickableLink\"><a class=\"clickableLink\" href=\"hybrid://" + link.Item1 + "\">" + link.Item2 + "</a></p></div>";
+            }
+
+            var result = new HtmlWebViewSource();
+            result.Html = initial + content + links + "</div></body></html>";
+            return result;
         }
     }
 }

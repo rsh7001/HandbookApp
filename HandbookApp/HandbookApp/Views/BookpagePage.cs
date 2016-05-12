@@ -16,7 +16,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using HandbookApp.Controls;
 using HandbookApp.Utilities;
 using HandbookApp.ViewModels;
@@ -28,13 +30,12 @@ namespace HandbookApp.Views
 {
     public class BookpagePage : BasePage<BookpageViewModel>
     {
-        private Button goBackButton;
+        private bool isNavigating;
 
-        private Label title;
-        private Label articleId;
-        private Label linksTitle;
-        private StackLayout links;
-        private Editor articleContent;
+        private WebView pageWebView;
+
+        private IObservable<EventPattern<WebNavigatedEventArgs>> navigated;
+        private IObservable<EventPattern<WebNavigatingEventArgs>> navigating;
 
         public BookpagePage()
         {
@@ -44,73 +45,73 @@ namespace HandbookApp.Views
         {
             base.SetupViewElements();
 
-            Content = new ScrollView {
-                Content = new StackLayout {
-                    Padding = new Thickness(20d),
-                    Children = {
-                        (title = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
-                        (articleContent = new Editor { Text = "", IsVisible=false }),
-                        (articleId = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
-                        (linksTitle = new Label { Text = "", HorizontalOptions=LayoutOptions.Center, IsVisible=false }),
-                        (links = new StackLayout()),
-                        (goBackButton = new Button { Text = "GoBack" }),
-                    }
-                }
-            };
+            isNavigating = false;
+
+            pageWebView = new WebView();
+            Content = pageWebView;
         }
 
         protected override void SetupObservables()
         {
-            this.BindCommand(ViewModel, vm => vm.GoBack, c => c.goBackButton)
-                .DisposeWith(subscriptionDisposibles);
+            navigated = Observable.FromEventPattern<WebNavigatedEventArgs>(
+                ev => pageWebView.Navigated += ev,
+                ev => pageWebView.Navigated -= ev);
+
+            navigating = Observable.FromEventPattern<WebNavigatingEventArgs>(
+                ev => pageWebView.Navigating += ev,
+                ev => pageWebView.Navigating -= ev);
+
         }
 
         protected override void SetupSubscriptions()
         {
- 
-            this.WhenAnyValue(x => x.ViewModel.BookpageTitle)
+            navigated
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => { title.Text = x; title.IsVisible = !string.IsNullOrWhiteSpace(x); })
+                .Subscribe(x => DisplayNavigated((WebNavigatedEventArgs) x.EventArgs))
                 .DisposeWith(subscriptionDisposibles);
 
-            this.WhenAnyValue(x => x.ViewModel.BookpageArticleId)
+            navigating
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => { articleId.Text = x; articleId.IsVisible = !string.IsNullOrWhiteSpace(x); })
+                .Subscribe(async x => await DisplayNavigating((WebNavigatingEventArgs) x.EventArgs))
                 .DisposeWith(subscriptionDisposibles);
 
-            this.WhenAnyValue(x => x.ViewModel.BookpageLinksTitle)
+            this.WhenAnyValue(x => x.ViewModel.PageSource)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => { linksTitle.Text = x; linksTitle.IsVisible = !string.IsNullOrWhiteSpace(x); })
-                .DisposeWith(subscriptionDisposibles);
-
-            this.WhenAnyValue(x => x.ViewModel.BookpageLinks)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => setLinksChildren(x))
-                .DisposeWith(subscriptionDisposibles);
-
-            this.WhenAnyValue(x => x.ViewModel.BookpageArticleContent)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => { articleContent.Text = x; articleContent.IsVisible = !string.IsNullOrWhiteSpace(x); })
+                .Subscribe(x => pageWebView.Source = x)
                 .DisposeWith(subscriptionDisposibles);
            
         }
 
-        private void setLinksChildren(List<Tuple<string, string>> linkslst)
-        {
-            links.Children.Clear();
-            foreach (var link in linkslst)
-            {
-                Label lbl = new Label {
-                    Text = link.Item2,
-                };
-                lbl.GestureRecognizers.Add(new TapGestureRecognizer {
-                    Command = ViewModel.GoToPage,
-                    CommandParameter = link.Item1
-                });
-                links.Children.Add( lbl );
-            }
-            links.IsVisible = links.Children.Count != 0;
 
+        private async Task DisplayNavigating(WebNavigatingEventArgs eventArgs)
+        {
+            if(isNavigating)
+            {
+                return;
+            }
+
+            string url = null;
+            if(eventArgs.Url.StartsWith("http"))
+            {
+                url = eventArgs.Url;
+            }
+            else if(eventArgs.Url.StartsWith("hybrid://"))
+            {
+                url = eventArgs.Url.Remove(0, 9);
+            }
+            else
+            {
+                isNavigating = true;
+                return;
+            }
+
+            eventArgs.Cancel = true;
+            await this.ViewModel.HostScreen.Router.Navigate.ExecuteAsync(new BookpageViewModel(url, this.ViewModel.HostScreen));
+        }
+
+        private void DisplayNavigated(WebNavigatedEventArgs eventArgs)
+        {
+            isNavigating = false;
         }
     }
 }
