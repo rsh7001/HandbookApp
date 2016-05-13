@@ -112,7 +112,14 @@ namespace HandbookApp.ViewModels
                 BookpageTitle = setTitle(_currentPage, _currentArticle);
                 BookpageArticleContent = setArticleContent(_currentArticle);
                 _urlPathSegment = setBookpageLinkTitle(_currentPage);
-                PageSource = createHtmlContent(_currentArticle, BookpageLinksTitle, BookpageLinks);
+                if(App.HtmlService.Formattedpages.ContainsKey(url))
+                {
+                    PageSource = App.HtmlService.Formattedpages[url];
+                }
+                else
+                {
+                    PageSource = createHtmlContent(_currentArticle, BookpageLinksTitle, BookpageLinks);
+                }
             }
             else
             {

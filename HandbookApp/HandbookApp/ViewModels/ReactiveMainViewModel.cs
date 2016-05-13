@@ -82,7 +82,7 @@ namespace HandbookApp.ViewModels
         public ReactiveCommand<Unit> Increment;
         public ReactiveCommand<Unit> Decrement;
         public ReactiveCommand<Object> GoMainPage;
-        
+        public ReactiveCommand<Unit> PreSetHtml;
 
         public ReactiveMainViewModel(IScreen hostScreen = null)
         {
@@ -102,6 +102,8 @@ namespace HandbookApp.ViewModels
 
             GoMainPage = ReactiveCommand.CreateAsyncObservable(_ => HostScreen.Router.Navigate.ExecuteAsync(new MainViewModel(HostScreen)));
 
+            PreSetHtml = ReactiveCommand.CreateAsyncObservable(_ => preSetHtml());
+
             App.Store
                 .DistinctUntilChanged(state => new { state.Articles })
                 .Subscribe(state => setNumArticles(state));
@@ -113,6 +115,12 @@ namespace HandbookApp.ViewModels
             App.Store
                 .DistinctUntilChanged(state => new { state.Books })
                 .Subscribe(state => setNumBooks(state));
+        }
+
+        private IObservable<Unit> preSetHtml()
+        {
+            App.HtmlService.CreateHtmlPages();
+            return Observable.Start(() => { return Unit.Default; });
         }
 
         private void setNumBooks(AppState state)

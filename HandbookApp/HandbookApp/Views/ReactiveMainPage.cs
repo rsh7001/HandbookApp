@@ -29,6 +29,7 @@ namespace HandbookApp.Views
         private Button incrementButton;
         private Button decrementButton;
         private Button updateButton;
+        private Button createHtmlPagesButton;
         private Button goMainPageButton;
 
         private Entry articleIdEntry;
@@ -60,6 +61,7 @@ namespace HandbookApp.Views
                         (numBookpages = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
                         (numBooks = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
                         (updateButton = new Button { Text = "Update" }),
+                        (createHtmlPagesButton = new Button { Text = "CreatePages" }),
                         (incrementButton = new Button { Text = "Increment" }),
                         (decrementButton = new Button { Text = "Decrement" }),
                         (goMainPageButton = new Button { Text = "MainPage" }),
@@ -89,6 +91,9 @@ namespace HandbookApp.Views
                 .DisposeWith(subscriptionDisposibles);
 
             this.BindCommand(ViewModel, vm => vm.GoMainPage, c => c.goMainPageButton)
+                .DisposeWith(subscriptionDisposibles);
+
+            this.BindCommand(ViewModel, vm => vm.PreSetHtml, c => c.createHtmlPagesButton)
                 .DisposeWith(subscriptionDisposibles);
         }
 

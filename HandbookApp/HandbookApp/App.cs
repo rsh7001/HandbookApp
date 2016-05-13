@@ -23,13 +23,14 @@ using HandbookApp.States;
 using HandbookApp.Reducers;
 using HandbookApp.ViewModels;
 using ReactiveUI;
+using HandbookApp.Services;
 
 namespace HandbookApp
 {
     public class App : Application
     {
         public static IStore<AppState> Store { get; private set; }
-
+        public static PresetHtmlService HtmlService { get; private set; }
 
         public App()
         {
@@ -40,6 +41,10 @@ namespace HandbookApp
             };
 
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
+
+            HtmlService = new PresetHtmlService {
+                Formattedpages = ImmutableDictionary<string, HtmlWebViewSource>.Empty
+            };
 
             var bootstrapper = new AppBootstrapper();
 
