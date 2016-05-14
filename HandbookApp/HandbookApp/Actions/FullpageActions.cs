@@ -14,22 +14,14 @@
 //    limitations under the License.
 //
 
-
-using Redux;
+using System.Collections.Generic;
 using HandbookApp.States;
+using Redux;
 
-namespace HandbookApp.Reducers
+namespace HandbookApp.Actions
 {
-    public static class ApplicationReducers
+    public class AddFullpageRangeAction : IAction
     {
-        public static AppState ReduceApplication(AppState previousState, IAction action)
-        {
-            return new AppState {
-                Articles = ArticleReducers.ArticleReducer(previousState.Articles, action),
-                Bookpages = BookpageReducers.BookpageReducer(previousState.Bookpages, action),
-                Books = BookReducers.BookReducer(previousState.Books, action),
-                Fullpages = FullpageReducers.FullpageReducer(previousState.Fullpages, action)
-            };
-        }
+        public List<Fullpage> Fullpages { get; set; }
     }
 }

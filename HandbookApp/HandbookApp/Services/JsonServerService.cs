@@ -15,19 +15,16 @@
 //
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using HandbookApp.Actions;
-using HandbookApp.States;
-using Newtonsoft.Json;
-using System.Reactive.Linq;
-using System.Reactive;
-using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
-using ModernHttpClient;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
+using HandbookApp.Actions;
+using HandbookApp.States;
+using ModernHttpClient;
+using Newtonsoft.Json;
 
 namespace HandbookApp.Services
 {
@@ -75,6 +72,12 @@ namespace HandbookApp.Services
 
         [JsonProperty]
         public int BookOrder { get; set; }
+
+        [JsonProperty]
+        public string FullPageID { get; set; }
+
+        [JsonProperty]
+        public string FullPageContent { get; set; }
     }
 
     public class NewMessage
@@ -87,7 +90,7 @@ namespace HandbookApp.Services
     {
         public static string BaseAddress = "http://192.168.72.70:50051/";
         //public static string BaseAddress = "https://stanleyhum.azurewebsites.net/";
-        public static string UpdateMessagesApi = "messages/";
+        public static string UpdateMessagesApi = "fullpagemessages/";
         public const string ApplicationHeaderJson = "application/json";
         public const int TimeoutDurationInMilliseconds = 19000; // TODO: Needs 19 seconds timeout to go to external website and download need to retry on first load
 
@@ -136,11 +139,19 @@ namespace HandbookApp.Services
             var updateBookpageAction = new AddBookpageRangeAction { Bookpages = addPages.ToList() };
             App.Store.Dispatch(updateBookpageAction);
 
+            var addFullpages = messages
+                .Where(x => x.Action == "AddFullpageAction")
+                .Select(x => new Fullpage() {  Id = x.FullPageID, Content = new Xamarin.Forms.HtmlWebViewSource() { Html = x.FullPageContent } });
+            var updateFullpageAction = new AddFullpageRangeAction {  Fullpages = addFullpages.ToList() };
+            App.Store.Dispatch(updateFullpageAction);
+            
             var addBooks = messages
                 .Where(x => x.Action == "AddBookAction")
                 .Select(x => new Book() { Id = x.BookID, Title = x.BookTitle, StartingBookpage = x.BookStartingID, OrderIndex = x.BookOrder });
             var updateBookAction = new AddBookRangeAction { Books = addBooks.ToList() };
             App.Store.Dispatch(updateBookAction);
+
+            
         }
     }
 }

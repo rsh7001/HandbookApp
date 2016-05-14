@@ -13,23 +13,25 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
+using System.IO;
+using System.Reflection;
 
 
-using Redux;
-using HandbookApp.States;
-
-namespace HandbookApp.Reducers
+namespace HandbookApp.Services
 {
-    public static class ApplicationReducers
+    public static class EmbeddedFileService
     {
-        public static AppState ReduceApplication(AppState previousState, IAction action)
+        public static string readFile(string id)
         {
-            return new AppState {
-                Articles = ArticleReducers.ArticleReducer(previousState.Articles, action),
-                Bookpages = BookpageReducers.BookpageReducer(previousState.Bookpages, action),
-                Books = BookReducers.BookReducer(previousState.Books, action),
-                Fullpages = FullpageReducers.FullpageReducer(previousState.Fullpages, action)
-            };
+            var assembly = typeof(EmbeddedFileService).GetTypeInfo().Assembly;
+            Stream stream = assembly.GetManifestResourceStream(id);
+            string content = "";
+            using (var reader = new StreamReader(stream))
+            {
+                content = reader.ReadToEnd();
+            }
+            return content;
         }
+       
     }
 }

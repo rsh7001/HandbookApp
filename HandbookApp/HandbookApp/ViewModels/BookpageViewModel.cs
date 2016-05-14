@@ -100,6 +100,7 @@ namespace HandbookApp.ViewModels
                 PageSource = urlsource;
                 return;
             }
+
             Bookpage _currentPage = getBookpage(url);
             _currentArticle = null;
             if (_currentPage != null)
@@ -112,9 +113,9 @@ namespace HandbookApp.ViewModels
                 BookpageTitle = setTitle(_currentPage, _currentArticle);
                 BookpageArticleContent = setArticleContent(_currentArticle);
                 _urlPathSegment = setBookpageLinkTitle(_currentPage);
-                if(App.HtmlService.Formattedpages.ContainsKey(url))
+                if(App.Store.GetState().Fullpages.ContainsKey(url))
                 {
-                    PageSource = App.HtmlService.Formattedpages[url];
+                    PageSource = App.Store.GetState().Fullpages[url].Content;
                 }
                 else
                 {
@@ -123,8 +124,16 @@ namespace HandbookApp.ViewModels
             }
             else
             {
-                // TODO: Log error and return
-                _urlPathSegment = "No page";
+                if(App.Store.GetState().Fullpages.ContainsKey(url))
+                {
+                    var fullpage = App.Store.GetState().Fullpages[url];
+                    PageSource = fullpage.Content;
+                    _urlPathSegment = fullpage.Id;
+                }
+                else
+                {
+                    _urlPathSegment = "No Page";
+                }
             }
             
         }

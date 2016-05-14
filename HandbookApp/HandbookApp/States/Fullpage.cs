@@ -14,22 +14,23 @@
 //    limitations under the License.
 //
 
+using System;
+using Xamarin.Forms;
 
-using Redux;
-using HandbookApp.States;
-
-namespace HandbookApp.Reducers
+namespace HandbookApp.States
 {
-    public static class ApplicationReducers
+    public class Fullpage : IEquatable<Fullpage>
     {
-        public static AppState ReduceApplication(AppState previousState, IAction action)
+        public string Id { get; set; }
+        public HtmlWebViewSource Content { get; set; }
+
+        public bool Equals(Fullpage a)
         {
-            return new AppState {
-                Articles = ArticleReducers.ArticleReducer(previousState.Articles, action),
-                Bookpages = BookpageReducers.BookpageReducer(previousState.Bookpages, action),
-                Books = BookReducers.BookReducer(previousState.Books, action),
-                Fullpages = FullpageReducers.FullpageReducer(previousState.Fullpages, action)
-            };
+            if(a == null)
+            {
+                return false;
+            }
+            return (Id == a.Id) && (Content == a.Content);
         }
     }
 }
