@@ -60,7 +60,7 @@ namespace HandbookApp.ViewModels
             {
                 var fullpage = App.Store.GetState().Fullpages[url];
                 PageSource = fullpage.Content;
-                _urlPathSegment = fullpage.Id;
+                _urlPathSegment = fullpage.Title;
             }
             else
             {

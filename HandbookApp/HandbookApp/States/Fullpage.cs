@@ -22,6 +22,7 @@ namespace HandbookApp.States
     public class Fullpage : IEquatable<Fullpage>
     {
         public string Id { get; set; }
+        public string Title { get; set; }
         public HtmlWebViewSource Content { get; set; }
 
         public bool Equals(Fullpage a)

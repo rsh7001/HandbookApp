@@ -78,12 +78,9 @@ namespace HandbookApp.Services
 
         [JsonProperty]
         public string FullPageContent { get; set; }
-    }
 
-    public class NewMessage
-    {
-        public string ID { get; set; }
-        public string Action { get; set; }
+        [JsonProperty]
+        public string FullPageTitle { get; set; }
     }
 
     public static class JsonServerService
@@ -129,7 +126,7 @@ namespace HandbookApp.Services
 
             var addFullpages = messages
                 .Where(x => x.Action == "AddFullpageAction")
-                .Select(x => new Fullpage() {  Id = x.FullPageID, Content = new Xamarin.Forms.HtmlWebViewSource() { Html = x.FullPageContent } });
+                .Select(x => new Fullpage() {  Id = x.FullPageID, Title = x.FullPageTitle, Content = new Xamarin.Forms.HtmlWebViewSource() { Html = x.FullPageContent } });
             var updateFullpageAction = new AddFullpageRangeAction {  Fullpages = addFullpages.ToList() };
             App.Store.Dispatch(updateFullpageAction);
             
