@@ -127,18 +127,6 @@ namespace HandbookApp.Services
         {
             List<ServerMessage> messages = JsonConvert.DeserializeObject<List<ServerMessage>>(responseJson);
 
-            var addArticles = messages
-                .Where(x => x.Action == "AddArticleAction")
-                .Select(x => new Article() { Id = x.ArticleID, Title = x.ArticleTitle, Content = x.ArticleContent });
-            var updateArticleAction = new AddArticleRangeAction { Articles = addArticles.ToList() };
-            App.Store.Dispatch(updateArticleAction);
-
-            var addPages = messages
-                .Where(x => x.Action == "AddBookpageAction")
-                .Select(x => new Bookpage() { Id = x.BookpageID, ArticleId = x.BookpageArticleID, LinksTitle = x.BookpageLinkTitle, Links = x.BookpageLinkIDs });
-            var updateBookpageAction = new AddBookpageRangeAction { Bookpages = addPages.ToList() };
-            App.Store.Dispatch(updateBookpageAction);
-
             var addFullpages = messages
                 .Where(x => x.Action == "AddFullpageAction")
                 .Select(x => new Fullpage() {  Id = x.FullPageID, Content = new Xamarin.Forms.HtmlWebViewSource() { Html = x.FullPageContent } });

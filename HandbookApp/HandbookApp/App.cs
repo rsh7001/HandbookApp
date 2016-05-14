@@ -15,47 +15,31 @@
 //
 
 using System.Collections.Immutable;
-
+using HandbookApp.Reducers;
+using HandbookApp.States;
+using HandbookApp.ViewModels;
 using Redux;
 using Xamarin.Forms;
-
-using HandbookApp.States;
-using HandbookApp.Reducers;
-using HandbookApp.ViewModels;
-using ReactiveUI;
-using HandbookApp.Services;
 
 namespace HandbookApp
 {
     public class App : Application
     {
         public static IStore<AppState> Store { get; private set; }
-        public static PresetHtmlService HtmlService { get; private set; }
-
+        
         public App()
         {
             var initialState = new AppState {
-                Articles = ImmutableDictionary<string, Article>.Empty,
-                Bookpages = ImmutableDictionary<string, Bookpage>.Empty,
                 Books = ImmutableDictionary<string, Book>.Empty,
                 Fullpages = ImmutableDictionary<string, Fullpage>.Empty
             };
 
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
 
-            HtmlService = new PresetHtmlService {
-                Formattedpages = ImmutableDictionary<string, HtmlWebViewSource>.Empty
-            };
-
             var bootstrapper = new AppBootstrapper();
-
-            //bootstrapper.CreateMainPage();
-
-            //var bootstrapper = (AppBootstrapper) RxApp.SuspensionHost.AppState;
 
             var mainPage = bootstrapper.CreateMainPage();
 
-            // The root page of your application
             MainPage = mainPage;
         }
 

@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using HandbookApp.Controls;
 using HandbookApp.Utilities;
 using HandbookApp.ViewModels;
 using ReactiveUI;

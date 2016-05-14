@@ -14,9 +14,7 @@
 //    limitations under the License.
 //
 using System;
-using System.Linq;
 using System.Reactive.Linq;
-using HandbookApp.States;
 using HandbookApp.Utilities;
 using HandbookApp.ViewModels;
 using ReactiveUI;
@@ -26,22 +24,12 @@ namespace HandbookApp.Views
 {
     public class ReactiveMainPage : BasePage<ReactiveMainViewModel>
     {
-        private Button incrementButton;
-        private Button decrementButton;
         private Button updateButton;
-        private Button createHtmlPagesButton;
         private Button goMainPageButton;
 
-        private Entry articleIdEntry;
-        private Entry articleTitleEntry;
-
-        private Label numArticles;
-        private Label numBookpages;
         private Label numBooks;
         private Label header;
-
-        private StackLayout articlesSL;
-
+        
         public ReactiveMainPage()
         {
         }
@@ -57,17 +45,9 @@ namespace HandbookApp.Views
                     Padding = new Thickness(20d),
                     Children = {
                         (header = new Label { Text = Title, HorizontalOptions=LayoutOptions.Center }),
-                        (numArticles = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
-                        (numBookpages = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
                         (numBooks = new Label { Text = "", HorizontalOptions=LayoutOptions.Center }),
                         (updateButton = new Button { Text = "Update" }),
-                        (createHtmlPagesButton = new Button { Text = "CreatePages" }),
-                        (incrementButton = new Button { Text = "Increment" }),
-                        (decrementButton = new Button { Text = "Decrement" }),
                         (goMainPageButton = new Button { Text = "MainPage" }),
-                        (articleIdEntry = new Entry()),
-                        (articleTitleEntry = new Entry()),
-                        (articlesSL = new StackLayout { Orientation=StackOrientation.Vertical, VerticalOptions=LayoutOptions.FillAndExpand }),
                     }
                 }
             };
@@ -75,75 +55,19 @@ namespace HandbookApp.Views
 
         protected override void SetupObservables()
         {
-            this.Bind(ViewModel, vm => vm.ArticleId, c => c.articleIdEntry.Text)
-                .DisposeWith(subscriptionDisposibles);
-
-            this.Bind(ViewModel, vm => vm.ArticleTitle, c => c.articleTitleEntry.Text)
-                .DisposeWith(subscriptionDisposibles);
-
-            this.BindCommand(ViewModel, vm => vm.Increment, c => c.incrementButton)
-                .DisposeWith(subscriptionDisposibles);
-
             this.BindCommand(ViewModel, vm => vm.Update, c => c.updateButton)
                 .DisposeWith(subscriptionDisposibles);
 
-            this.BindCommand(ViewModel, vm => vm.Decrement, c => c.decrementButton)
-                .DisposeWith(subscriptionDisposibles);
-
             this.BindCommand(ViewModel, vm => vm.GoMainPage, c => c.goMainPageButton)
-                .DisposeWith(subscriptionDisposibles);
-
-            this.BindCommand(ViewModel, vm => vm.PreSetHtml, c => c.createHtmlPagesButton)
                 .DisposeWith(subscriptionDisposibles);
         }
 
         protected override void SetupSubscriptions()
         {
-            //this.WhenAnyObservable(x => x.ViewModel.Increment)
-            //    .ObserveOn(RxApp.MainThreadScheduler)
-            //    .Subscribe(async _ => await DisplayAlert("Increment", "Increment Article", "Done"))
-            //    .DisposeWith(subscriptionDisposibles);
-
-            this.WhenAnyValue(x => x.ViewModel.NumArticles)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => numArticles.Text = x)
-                .DisposeWith(subscriptionDisposibles);
-
-            this.WhenAnyValue(x => x.ViewModel.NumBookpages)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => numBookpages.Text = x)
-                .DisposeWith(subscriptionDisposibles);
-
             this.WhenAnyValue(x => x.ViewModel.NumBooks)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => numBooks.Text = x)
                 .DisposeWith(subscriptionDisposibles);
-
-            App.Store
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(state => setStackLayoutChildren(state));
-        }
-
-        private void setStackLayoutChildren(AppState state)
-        {
-            var elements = state.Articles.Values.OrderBy(x => x.Id)
-                .Take(10) /* Limit work on Main Thread */
-                .Select(x => new StackLayout {
-                    Orientation = StackOrientation.Vertical,
-                    Children = {
-                        new Label {
-                            Text = x.Id
-                        },
-                        new Label {
-                            Text = x.Title
-                        }
-                    }
-                });
-            articlesSL.Children.Clear();
-            foreach (var e in elements)
-            {
-                articlesSL.Children.Add(e);
-            }
         }
     }
 }

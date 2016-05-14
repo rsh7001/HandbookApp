@@ -35,25 +35,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Actions\ArticleActions.cs" />
     <Compile Include="Actions\BookActions.cs" />
-    <Compile Include="Actions\BookpageActions.cs" />
     <Compile Include="Actions\FullpageActions.cs" />
     <Compile Include="App.cs" />
-    <Compile Include="Controls\MarkdownTextView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reducers\AppReducers.cs" />
-    <Compile Include="Reducers\ArticleReducers.cs" />
-    <Compile Include="Reducers\BookpageReducers.cs" />
     <Compile Include="Reducers\BookReducers.cs" />
     <Compile Include="Reducers\FullpageReducers.cs" />
-    <Compile Include="Services\EmbeddedFileService.cs" />
     <Compile Include="Services\JsonServerService.cs" />
-    <Compile Include="Services\PresetHtmlService.cs" />
     <Compile Include="States\AppState.cs" />
-    <Compile Include="States\Article.cs" />
     <Compile Include="States\Book.cs" />
-    <Compile Include="States\Bookpage.cs" />
     <Compile Include="States\Fullpage.cs" />
     <Compile Include="Utilities\IObservableExtensions.cs" />
     <Compile Include="ViewModels\AppBootstrapper.cs" />
@@ -145,11 +136,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <EmbeddedResource Include="EmbeddedContent\Css\asciidoctor.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\..\packages\Xamarin.Forms.2.2.0.31\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\..\packages\Xamarin.Forms.2.2.0.31\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
