@@ -105,8 +105,8 @@ namespace HandbookApp.Services
                 .Finally(() => { client.Dispose(); })
                 .Subscribe(
                     res => { processResponseMessage(res); },
-                    ex => { System.Diagnostics.Debug.WriteLine("Exception: {0}", ex.Message); /* TODO: Log exception */ },
-                    () => { System.Diagnostics.Debug.WriteLine("Completed"); /* TODO: Log completed */ }
+                    ex => { /* TODO: Log exception */ },
+                    () => { /* TODO: Log completed */ }
                 );
         }
 
