@@ -85,8 +85,8 @@ namespace HandbookApp.Services
 
     public static class JsonServerService
     {
-        public static string BaseAddress = "http://192.168.72.70:50051/";
-        //public static string BaseAddress = "https://stanleyhum.azurewebsites.net/";
+        //public static string BaseAddress = "http://192.168.72.70:50051/";
+        public static string BaseAddress = "https://stanleyhum.azurewebsites.net/";
         public static string UpdateMessagesApi = "fullpagemessages/";
         public const string ApplicationHeaderJson = "application/json";
         public const int TimeoutDurationInMilliseconds = 19000; // TODO: Needs 19 seconds timeout to go to external website and download need to retry on first load
