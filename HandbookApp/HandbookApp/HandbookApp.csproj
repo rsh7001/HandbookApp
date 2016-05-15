@@ -49,12 +49,15 @@
     <Compile Include="Utilities\IObservableExtensions.cs" />
     <Compile Include="ViewModels\AppBootstrapper.cs" />
     <Compile Include="ViewModels\BookpageViewModel.cs" />
+    <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ReactiveMainViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\BasePage.cs" />
     <Compile Include="Views\BookpagePage.cs" />
     <Compile Include="Views\MainPage.cs" />
     <Compile Include="Views\ReactiveMainPage.cs" />
+    <Compile Include="Views\SettingsPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

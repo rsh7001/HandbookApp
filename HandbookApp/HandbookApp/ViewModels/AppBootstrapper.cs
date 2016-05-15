@@ -45,6 +45,7 @@ namespace HandbookApp.ViewModels
             dependencyResolver.Register(() => new ReactiveMainPage(), typeof(IViewFor<ReactiveMainViewModel>));
             dependencyResolver.Register(() => new MainPage(), typeof(IViewFor<MainViewModel>));
             dependencyResolver.Register(() => new BookpagePage(), typeof(IViewFor<BookpageViewModel>));
+            dependencyResolver.Register(() => new SettingsPage(), typeof(IViewFor<SettingsViewModel>));
         }
 
         public Page CreateMainPage()
