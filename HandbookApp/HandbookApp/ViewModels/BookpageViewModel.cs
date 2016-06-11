@@ -16,6 +16,7 @@
 using System;
 using System.Reactive;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using Splat;
 using Xamarin.Forms;
 
@@ -28,16 +29,10 @@ namespace HandbookApp.ViewModels
         private string _urlPathSegment;
         public string UrlPathSegment
         {
-            get {  return _urlPathSegment; }
+            get { return _urlPathSegment; }
         }
         
-        
-        private WebViewSource _pageSource;
-        public WebViewSource PageSource
-        {
-            get { return _pageSource; }
-            set { this.RaiseAndSetIfChanged(ref _pageSource, value); }
-        }
+        [Reactive] public WebViewSource PageSource { get; set; }
 
         public ReactiveCommand<Unit> GoBack;
         public ReactiveCommand<Object> GoToPage;

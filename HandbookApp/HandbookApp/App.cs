@@ -13,7 +13,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-
+using System.Threading.Tasks;
 using System.Collections.Immutable;
 using HandbookApp.Reducers;
 using HandbookApp.States;
@@ -23,10 +23,22 @@ using Xamarin.Forms;
 
 namespace HandbookApp
 {
+    public interface IAuthenticate
+    {
+        Task<bool> Authenticate();
+    }
+
+
     public class App : Application
     {
         public static IStore<AppState> Store { get; private set; }
+        public static IAuthenticate Authenticator { get; private set; }
         
+        public static void Init(IAuthenticate authenticator)
+        {
+            Authenticator = authenticator;
+        }
+
         public App()
         {
             var initialState = new AppState {

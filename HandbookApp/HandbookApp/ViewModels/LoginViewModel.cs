@@ -21,33 +21,28 @@ using System.Reactive;
 using System.Text;
 using System.Threading.Tasks;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using Splat;
+using Xamarin.Forms;
 
 namespace HandbookApp.ViewModels
 {
-    public class MainViewModel : ReactiveObject, IRoutableViewModel
+    public class LoginViewModel : ReactiveObject, IRoutableViewModel
     {
         public IScreen HostScreen { get; protected set; }
 
         public string UrlPathSegment
         {
-            get { return "Main Page"; }
+            get { return "Login"; }
         }
 
         public ReactiveCommand<Unit> GoBack;
-        public ReactiveCommand<Object> GoCHONYHandbook;
-        public ReactiveCommand<Object> GoSettings;
-
-        public MainViewModel(IScreen hostScreen = null)
+        
+        public LoginViewModel(IScreen hostScreen = null)
         {
             HostScreen = hostScreen ?? Locator.Current.GetService<IScreen>();
 
             GoBack = HostScreen.Router.NavigateBack;
-
-            GoCHONYHandbook = ReactiveCommand.CreateAsyncObservable(_ => HostScreen.Router.Navigate.ExecuteAsync(new BookpageViewModel("main_section", HostScreen)));
-            GoSettings = ReactiveCommand.CreateAsyncObservable(_ => HostScreen.Router.Navigate.ExecuteAsync(new SettingsViewModel(HostScreen)));
         }
-
-        
     }
 }

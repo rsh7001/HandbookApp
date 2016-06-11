@@ -18,9 +18,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HandbookApp.Services;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using Splat;
 
 namespace HandbookApp.ViewModels
@@ -34,11 +37,81 @@ namespace HandbookApp.ViewModels
             get { return "Settings"; }
         }
 
-        public ReactiveCommand<Unit> GoBack;
+        [Reactive] public bool IsLoggedIn { get; set; }
+        [Reactive] public bool IsLicensed { get; set; }
+        
+        public extern bool IsUpdating { [ObservableAsProperty]get; }
+
+        public ReactiveCommand<Unit>   GoBack;
+        public ReactiveCommand<Object> GoLoginPage;
+        public ReactiveCommand<Object> GoLicenseKeyPage;
+        public ReactiveCommand<Unit>   Logout;
+        public ReactiveCommand<Unit>   ClearLicenseKey;
+
+        public ReactiveCommand<Unit> TestLogin;
+        public ReactiveCommand<Unit> TestLicenseKey;
+        public ReactiveCommand<Unit> TestUpdating;
+
 
         public SettingsViewModel(IScreen hostScreen = null)
         {
             HostScreen = hostScreen ?? Locator.Current.GetService<IScreen>();
+
+            GoBack = HostScreen.Router.NavigateBack;
+
+            GoLoginPage = ReactiveCommand.CreateAsyncObservable(x => HostScreen.Router.Navigate.ExecuteAsync(new LoginViewModel(HostScreen)));
+
+            GoLicenseKeyPage = ReactiveCommand.CreateAsyncObservable(x => HostScreen.Router.Navigate.ExecuteAsync(new LicenseKeyViewModel(HostScreen)));
+
+            TestLogin = ReactiveCommand.CreateAsyncObservable(x => toggleLoginImpl());
+
+            TestLicenseKey = ReactiveCommand.CreateAsyncObservable(x => toggleLicenseKey());
+
+            TestUpdating = ReactiveCommand.CreateAsyncObservable(x => toggleUpdating());
+            TestUpdating.IsExecuting.ToPropertyEx(this, x => x.IsUpdating);
+
+            Logout = ReactiveCommand.CreateAsyncObservable(x => logoutImpl());
+
+            ClearLicenseKey = ReactiveCommand.CreateAsyncObservable(x => ClearLicenseKeyImpl());
+
+            IsLoggedIn = false;
+            IsLicensed = false;
+
+            //this.WhenAnyValue(x => x.IsLoggedIn, x => x.IsLicensed, x => x.IsUpdating, (isloggedin, islicenced, isupdating) => isloggedin && islicenced && !isupdating)
+            //    .Subscribe(x => TestUpdating.Execute(x));
+                
+        }
+
+        private IObservable<Unit> toggleUpdating()
+        {
+            System.Diagnostics.Debug.WriteLine("Before");
+            JsonServerService.JsonServerUpdate();
+            System.Diagnostics.Debug.WriteLine("After");
+            return Observable.Start(() => { return Unit.Default; });
+        }
+
+        private IObservable<Unit> ClearLicenseKeyImpl()
+        {
+            IsLicensed = false;
+            return Observable.Start(() => { return Unit.Default; });
+        }
+
+        private IObservable<Unit> toggleLicenseKey()
+        {
+            IsLicensed = !IsLicensed;
+            return Observable.Start(() => { return Unit.Default; });
+        }
+
+        private IObservable<Unit> logoutImpl()
+        {
+            IsLoggedIn = false;
+            return Observable.Start(() => { return Unit.Default; });
+        }
+
+        private IObservable<Unit> toggleLoginImpl()
+        {
+            IsLoggedIn = !IsLoggedIn;
+            return Observable.Start(() => { return Unit.Default; });
         }
 
 
