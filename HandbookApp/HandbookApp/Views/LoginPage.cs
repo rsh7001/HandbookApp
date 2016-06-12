@@ -29,24 +29,31 @@ namespace HandbookApp.Views
 {
     public class LoginPage : BasePage<LoginViewModel>
     {
-        private Button goBackButton;
+        private Button loginGoogleButton;
+        private Button loginFacebookButton;
+        private Button loginMicrosoftButton;
+        private Button loginTwitterButton;
+
+        private Label title;
+        private Label instructionsLabel;
 
         protected override void SetupViewElements()
         {
             base.SetupViewElements();
 
+            string Title = "CHONY Handbook App";
+
             Content = new StackLayout {
                 Padding = new Thickness(20d),
                 Children = {
-                    (goBackButton = new Button { Text = "Back to Settings" })
+                    (title = new Label { Text = Title, HorizontalOptions = LayoutOptions.Center }),
+                    (instructionsLabel = new Label { Text = "Login with one of the following providers.", Margin = new Thickness(5, 20, 5, 5) }),
+                    (loginGoogleButton = new Button { Text = "Google" }),
+                    (loginFacebookButton = new Button { Text = "Facebook" }),
+                    (loginMicrosoftButton = new Button { Text = "Microsoft" }),
+                    (loginTwitterButton = new Button { Text = "Twitter" }),
                 }
             };
-        }
-
-        protected override void SetupObservables()
-        {
-            this.BindCommand(ViewModel, vm => vm.GoBack, c => c.goBackButton)
-                .DisposeWith(subscriptionDisposibles);
         }
     }
 }

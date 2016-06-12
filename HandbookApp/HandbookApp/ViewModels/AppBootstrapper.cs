@@ -35,7 +35,7 @@ namespace HandbookApp.ViewModels
 
             LogHost.Default.Level = LogLevel.Debug;
 
-            Router.Navigate.Execute(new ReactiveMainViewModel(this));
+            Router.Navigate.Execute(new LicenseKeyViewModel(this));
         }
 
         private void RegisterParts(IMutableDependencyResolver dependencyResolver)

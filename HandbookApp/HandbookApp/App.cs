@@ -20,6 +20,7 @@ using HandbookApp.States;
 using HandbookApp.ViewModels;
 using Redux;
 using Xamarin.Forms;
+using Microsoft.WindowsAzure.MobileServices;
 
 namespace HandbookApp
 {
@@ -34,6 +35,8 @@ namespace HandbookApp
         public static IStore<AppState> Store { get; private set; }
         public static IAuthenticate Authenticator { get; private set; }
         
+        public static MobileServiceClient MobileService { get; private set; }
+
         public static void Init(IAuthenticate authenticator)
         {
             Authenticator = authenticator;
@@ -48,11 +51,14 @@ namespace HandbookApp
 
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
 
+            MobileService = new MobileServiceClient(HandbookApp.Constants.MobileURL);
+
             var bootstrapper = new AppBootstrapper();
 
             var mainPage = bootstrapper.CreateMainPage();
 
             MainPage = mainPage;
+            
         }
 
         protected override void OnStart()

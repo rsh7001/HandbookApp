@@ -38,6 +38,7 @@
     <Compile Include="Actions\BookActions.cs" />
     <Compile Include="Actions\FullpageActions.cs" />
     <Compile Include="App.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reducers\AppReducers.cs" />
     <Compile Include="Reducers\BookReducers.cs" />

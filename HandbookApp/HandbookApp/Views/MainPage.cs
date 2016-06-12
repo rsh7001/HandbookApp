@@ -28,11 +28,9 @@ namespace HandbookApp.Views
 {
     public class MainPage : BasePage<MainViewModel>
     {
-        private Button goBackButton;
-        private Button goCHONYHandbookButton;
-        private Button goSettingsButton;
-
-        private Label header;
+        private ListView booksList;
+        
+        private Label title;
 
         public MainPage()
         {
@@ -42,31 +40,17 @@ namespace HandbookApp.Views
         {
             base.SetupViewElements();
 
-            Title = "HandbookApp-MainPage";
+            string Title = "CHONY Handbook App";
 
             Content = new ScrollView {
                 Content = new StackLayout {
                     Padding = new Thickness(20d),
                     Children = {
-                        (header = new Label {Text = Title, HorizontalOptions=LayoutOptions.Center }),
-                        (goCHONYHandbookButton = new Button { Text = "CHONY Handbook" }),
-                        (goSettingsButton = new Button { Text = "Settings" }),
-                        (goBackButton = new Button { Text = "GoBack" })
+                        (title = new Label {Text = Title, HorizontalOptions=LayoutOptions.Center }),
+                        (booksList = new ListView { }),
                     }
                 }
             };
-        }
-
-        protected override void SetupObservables()
-        {
-            this.BindCommand(ViewModel, vm => vm.GoBack, c => c.goBackButton)
-                .DisposeWith(subscriptionDisposibles);
-
-            this.BindCommand(ViewModel, vm => vm.GoCHONYHandbook, c => c.goCHONYHandbookButton)
-                .DisposeWith(subscriptionDisposibles);
-
-            this.BindCommand(ViewModel, vm => vm.GoSettings, c => c.goSettingsButton)
-                .DisposeWith(subscriptionDisposibles);
         }
     }
 }

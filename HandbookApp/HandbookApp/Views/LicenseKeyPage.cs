@@ -29,24 +29,27 @@ namespace HandbookApp.Views
 {
     public class LicenseKeyPage : BasePage<LicenseKeyViewModel>
     {
-        private Button goBackButton;
+        private Label title;
+        private Label instructionsLabel;
 
+        private Entry licenseKeyEntry;
+        private Button setLicenseKeyButton;
+        
         protected override void SetupViewElements()
         {
             base.SetupViewElements();
 
+            string Title = "CHONY Handbook App";
+
             Content = new StackLayout {
                 Padding = new Thickness(20d),
                 Children = {
-                    (goBackButton = new Button { Text = "Back to Settings" })
+                    (title = new Label {Text = Title, HorizontalOptions=LayoutOptions.Center }),
+                    (instructionsLabel = new Label { Text = "Please enter your license key.", Margin = new Thickness(5, 20, 5, 5) }),
+                    (licenseKeyEntry = new Entry { Placeholder="License Key" }),
+                    (setLicenseKeyButton = new Button { Text = "Set License Key" })
                 }
             };
-        }
-
-        protected override void SetupObservables()
-        {
-            this.BindCommand(ViewModel, vm => vm.GoBack, c => c.goBackButton)
-                .DisposeWith(subscriptionDisposibles);
         }
     }
 }
