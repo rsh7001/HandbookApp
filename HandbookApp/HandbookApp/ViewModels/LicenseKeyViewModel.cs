@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ReactiveUI;
@@ -30,19 +31,42 @@ namespace HandbookApp.ViewModels
     public class LicenseKeyViewModel : ReactiveObject, IRoutableViewModel
     {
         public IScreen HostScreen { get; protected set; }
+        
+        [Reactive]public bool IsLoggedIn { get; set; }
+        [Reactive]public bool IsLicenceKeySet { get; set; }
+        [Reactive]public bool IsLicensed { get; set; }
+        [Reactive]public bool CheckingLicenseKey { get; set; }
 
         public string UrlPathSegment
         {
             get { return "LicenseKey"; }
         }
 
-        public ReactiveCommand<Unit> GoBack;
-
         public LicenseKeyViewModel(IScreen hostScreen = null)
         {
             HostScreen = hostScreen ?? Locator.Current.GetService<IScreen>();
 
-            GoBack = HostScreen.Router.NavigateBack;
+            SetupSubscriptions();
+
+            System.Diagnostics.Debug.WriteLine(App.Store.GetState().CurrentState.ToString());
+        }
+
+        private void SetupSubscriptions()
+        {
+            App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState })
+                .Select(q => q.CurrentState.IsLoggedIn)
+                .Subscribe(x => IsLoggedIn = x);
+            
+            App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState })
+                .Select(q => q.CurrentState.IsLicensed)
+                .Subscribe(x => IsLicensed = x);
+
+            App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState })
+                .Select(q => q.CurrentState.IsLicenceKeySet)
+                .Subscribe(x => IsLicenceKeySet = x);
         }
     }
 }

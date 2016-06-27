@@ -18,12 +18,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Splat;
 using Xamarin.Forms;
+using HandbookApp.Actions;
+using HandbookApp.Utilities;
+using Microsoft.WindowsAzure.MobileServices;
+
+
 
 namespace HandbookApp.ViewModels
 {
@@ -36,13 +42,98 @@ namespace HandbookApp.ViewModels
             get { return "Login"; }
         }
 
+        [Reactive] public bool IsLoggedIn { get; set; }
+        //public extern bool IsLoggedIn { [ObservableAsProperty]get; }
+        public extern bool CheckingLogin { [ObservableAsProperty]get; }
+
+        public ReactiveCommand<Unit> LoginGoogleProvider;
+        public ReactiveCommand<Unit> LoginMicrosoftProvider;
+        public ReactiveCommand<Unit> LoginFacebookProvider;
+        public ReactiveCommand<Unit> LoginTwitterProvider;
+
+        public ReactiveCommand<Object> GoSetLicenseKeyPage;
+
         public ReactiveCommand<Unit> GoBack;
+
+        //private IObservable<bool> canGoBack;
         
         public LoginViewModel(IScreen hostScreen = null)
         {
             HostScreen = hostScreen ?? Locator.Current.GetService<IScreen>();
 
+            //canGoBack = this.WhenAnyValue(x => x.IsLoggedIn);
+
+            //GoBack = ReactiveCommand.CreateAsyncObservable(canGoBack, x => gobackImpl());
             GoBack = HostScreen.Router.NavigateBack;
+            
+            LoginGoogleProvider = ReactiveCommand.CreateAsyncObservable(x => loginGoogleProviderImpl());
+            LoginMicrosoftProvider = ReactiveCommand.CreateAsyncObservable(x => loginMicrosoftProviderImpl());
+            LoginFacebookProvider = ReactiveCommand.CreateAsyncObservable(x => loginFacebookProviderImpl());
+            LoginTwitterProvider = ReactiveCommand.CreateAsyncObservable(x => loginTwitterProviderImpl());
+
+            GoSetLicenseKeyPage = ReactiveCommand.CreateAsyncObservable(x => gotoLicenseKeyImpl());
+
+            //App.Store
+            //    .DistinctUntilChanged(state => new { state.CurrentState })
+            //    .Select(d => d.CurrentState.IsLoggedIn)
+            //    .ToPropertyEx(
+            //        source: this,
+            //        property: x => x.IsLoggedIn,
+            //        scheduler: RxApp.MainThreadScheduler);
+
+            App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState })
+                .Select(d => d.CurrentState.CheckingLogin)
+                .ToPropertyEx(
+                    source: this,
+                    property: x => x.CheckingLogin,
+                    scheduler: RxApp.MainThreadScheduler);
+
+            setupSubscriptions();
         }
+
+        //private IObservable<Unit> gobackImpl()
+        //{
+        //    HostScreen.Router.NavigateBack.Execute(this);
+        //    return Observable.Start(() => { return Unit.Default; });
+        //}
+
+        private void setupSubscriptions()
+        {
+            App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState })
+                .Select(u => u.CurrentState.IsLoggedIn)
+                .Subscribe(x => IsLoggedIn = x);
+        }
+
+        private IObservable<Unit> loginTwitterProviderImpl()
+        {
+            App.Store.Dispatch(AzureActionCreators.LoginAction(MobileServiceAuthenticationProvider.Twitter));
+            return Observable.Start(() => { return Unit.Default; });
+        }
+
+        private IObservable<Unit> loginFacebookProviderImpl()
+        {
+            App.Store.Dispatch(AzureActionCreators.LoginAction(MobileServiceAuthenticationProvider.Facebook));
+            return Observable.Start(() => { return Unit.Default; });
+        }
+
+        private IObservable<Unit> loginMicrosoftProviderImpl()
+        {
+            App.Store.Dispatch(AzureActionCreators.LoginAction(MobileServiceAuthenticationProvider.MicrosoftAccount));
+            return Observable.Start(() => { return Unit.Default; });
+        }
+
+        private IObservable<Unit> loginGoogleProviderImpl()
+        {
+            App.Store.Dispatch(AzureActionCreators.LoginAction(MobileServiceAuthenticationProvider.Google));
+            return Observable.Start(() => { return Unit.Default; });
+        }
+
+        private IObservable<Object> gotoLicenseKeyImpl()
+        {
+            return HostScreen.Router.Navigate.ExecuteAsync(new LicenseKeyViewModel(HostScreen));
+        }
+        
     }
 }

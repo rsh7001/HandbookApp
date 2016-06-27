@@ -13,6 +13,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
+
 using System.Threading.Tasks;
 using System.Collections.Immutable;
 using HandbookApp.Reducers;
@@ -21,12 +22,14 @@ using HandbookApp.ViewModels;
 using Redux;
 using Xamarin.Forms;
 using Microsoft.WindowsAzure.MobileServices;
+using HandbookApp.Services;
+using HandbookApp.Views;
 
 namespace HandbookApp
 {
     public interface IAuthenticate
     {
-        Task<bool> Authenticate();
+        Task<bool> Authenticate(MobileServiceAuthenticationProvider provider);
     }
 
 
@@ -35,7 +38,7 @@ namespace HandbookApp
         public static IStore<AppState> Store { get; private set; }
         public static IAuthenticate Authenticator { get; private set; }
         
-        public static MobileServiceClient MobileService { get; private set; }
+        public static AzureMobileService ServerService { get; private set; }
 
         public static void Init(IAuthenticate authenticator)
         {
@@ -46,12 +49,30 @@ namespace HandbookApp
         {
             var initialState = new AppState {
                 Books = ImmutableDictionary<string, Book>.Empty,
-                Fullpages = ImmutableDictionary<string, Fullpage>.Empty
+                Fullpages = ImmutableDictionary<string, Fullpage>.Empty,
+                CurrentState = new HandbookState {
+                    IsLoggedIn = true,
+                    CheckingLogin = false,
+                    IsUserSet = false,
+                    UserId = null,
+                    AuthToken = null,
+                    
+                    IsLicensed = true,
+                    IsLicenceKeySet = false,
+                    CheckingLicenceKey = false,
+                    LicenceKey = null,
+
+                    IsUpdatingData = false,
+                    IsDataUpdated = false,
+                    IsDataLoaded = false,
+                    LastUpdateTime = new System.DateTimeOffset(1970, 1, 1, 0, 0, 0, new System.TimeSpan(-5, 0, 0))
+                    
+                }
             };
 
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
 
-            MobileService = new MobileServiceClient(HandbookApp.Constants.MobileURL);
+            ServerService = new AzureMobileService();
 
             var bootstrapper = new AppBootstrapper();
 

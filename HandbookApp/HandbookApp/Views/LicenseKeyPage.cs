@@ -29,12 +29,14 @@ namespace HandbookApp.Views
 {
     public class LicenseKeyPage : BasePage<LicenseKeyViewModel>
     {
+        private ActivityIndicator updatingSpinner;
+
         private Label title;
         private Label instructionsLabel;
 
         private Entry licenseKeyEntry;
         private Button setLicenseKeyButton;
-        
+
         protected override void SetupViewElements()
         {
             base.SetupViewElements();
@@ -45,11 +47,28 @@ namespace HandbookApp.Views
                 Padding = new Thickness(20d),
                 Children = {
                     (title = new Label {Text = Title, HorizontalOptions=LayoutOptions.Center }),
+                    (updatingSpinner = new ActivityIndicator { IsVisible = true, IsRunning = false }),
                     (instructionsLabel = new Label { Text = "Please enter your license key.", Margin = new Thickness(5, 20, 5, 5) }),
                     (licenseKeyEntry = new Entry { Placeholder="License Key" }),
-                    (setLicenseKeyButton = new Button { Text = "Set License Key" })
+                    (setLicenseKeyButton = new Button { Text = "Set License Key" }),
                 }
             };
+        }
+
+        protected override void SetupObservables()
+        {
+            this.OneWayBind(ViewModel, vm => vm.CheckingLicenseKey, c => c.updatingSpinner.IsRunning);
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            
+            if (!ViewModel.IsLoggedIn)
+            {
+                ViewModel.HostScreen.Router.Navigate.Execute(new LoginViewModel());
+                return;
+            }
         }
     }
 }

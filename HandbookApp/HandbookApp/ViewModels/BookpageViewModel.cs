@@ -35,13 +35,11 @@ namespace HandbookApp.ViewModels
         [Reactive] public WebViewSource PageSource { get; set; }
 
         public ReactiveCommand<Unit> GoBack;
-        public ReactiveCommand<Object> GoToPage;
         
         public BookpageViewModel(string url, IScreen hostScreen = null)
         {
             HostScreen = hostScreen ?? Locator.Current.GetService<IScreen>();
             GoBack = HostScreen.Router.NavigateBack;
-            GoToPage = ReactiveCommand.CreateAsyncObservable(x => HostScreen.Router.Navigate.ExecuteAsync(new BookpageViewModel((string) x, HostScreen)));
 
             if(url.StartsWith("http"))
             {

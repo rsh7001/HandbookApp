@@ -23,17 +23,19 @@ using HandbookApp.Utilities;
 using HandbookApp.ViewModels;
 using ReactiveUI;
 using Xamarin.Forms;
+using System.Reactive.Linq;
 
 
 namespace HandbookApp.Views
 {
     public class LoginPage : BasePage<LoginViewModel>
     {
+        private ActivityIndicator updatingSpinner;
         private Button loginGoogleButton;
         private Button loginFacebookButton;
         private Button loginMicrosoftButton;
         private Button loginTwitterButton;
-
+        
         private Label title;
         private Label instructionsLabel;
 
@@ -47,6 +49,7 @@ namespace HandbookApp.Views
                 Padding = new Thickness(20d),
                 Children = {
                     (title = new Label { Text = Title, HorizontalOptions = LayoutOptions.Center }),
+                    (updatingSpinner = new ActivityIndicator { IsVisible = true, IsRunning = false }),
                     (instructionsLabel = new Label { Text = "Login with one of the following providers.", Margin = new Thickness(5, 20, 5, 5) }),
                     (loginGoogleButton = new Button { Text = "Google" }),
                     (loginFacebookButton = new Button { Text = "Facebook" }),
@@ -54,6 +57,50 @@ namespace HandbookApp.Views
                     (loginTwitterButton = new Button { Text = "Twitter" }),
                 }
             };
+        }
+
+        protected override void SetupObservables()
+        {
+            this.BindCommand(ViewModel, vm => vm.LoginGoogleProvider, c => c.loginGoogleButton)
+                .DisposeWith(subscriptionDisposibles);
+
+            this.BindCommand(ViewModel, vm => vm.LoginMicrosoftProvider, c => c.loginMicrosoftButton)
+                .DisposeWith(subscriptionDisposibles);
+
+            this.BindCommand(ViewModel, vm => vm.LoginFacebookProvider, c => c.loginFacebookButton)
+                .DisposeWith(subscriptionDisposibles);
+
+            this.BindCommand(ViewModel, vm => vm.LoginTwitterProvider, c => c.loginTwitterButton)
+                .DisposeWith(subscriptionDisposibles);
+
+            this.OneWayBind(ViewModel, vm => vm.CheckingLogin, c => c.updatingSpinner.IsRunning);
+        }
+
+        protected override void SetupSubscriptions()
+        {
+            App.Store
+                .DistinctUntilChanged(s => s.CurrentState.IsLoggedIn)
+                .Select(d => d.CurrentState.IsLoggedIn)
+                .Subscribe(x => checkLoggedIn(x)); 
+        }
+
+        private void checkLoggedIn(bool x)
+        {
+            System.Diagnostics.Debug.WriteLine("CheckLoggedIn");
+            load();
+        }
+
+        static int countLoad = 0;
+
+        private void load()
+        {
+            System.Diagnostics.Debug.WriteLine("InLoginPage:Load");
+            if (ViewModel.IsLoggedIn)
+            {
+                countLoad++;
+                System.Diagnostics.Debug.WriteLine("GoBack:LoginPage:Load: " + countLoad.ToString());
+                ViewModel.GoBack.Execute(this);
+            }
         }
     }
 }

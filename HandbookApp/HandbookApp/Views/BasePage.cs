@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Disposables;
-using System.Reflection.Emit;
-using System.Text;
-//
+﻿//
 //  Copyright 2016  R. Stanley Hum <r.stanley.hum@gmail.com>
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +14,15 @@ using System.Text;
 //    limitations under the License.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Disposables;
+using System.Reflection.Emit;
+using System.Text;
 using ReactiveUI;
 using Xamarin.Forms;
+
 
 namespace HandbookApp.Views
 {

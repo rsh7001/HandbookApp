@@ -36,10 +36,6 @@ namespace HandbookApp.Views
         private IObservable<EventPattern<WebNavigatedEventArgs>> navigated;
         private IObservable<EventPattern<WebNavigatingEventArgs>> navigating;
 
-        public BookpagePage()
-        {
-        }
-
         protected override void SetupViewElements()
         {
             base.SetupViewElements();
@@ -84,17 +80,17 @@ namespace HandbookApp.Views
 
         private async Task DisplayNavigating(WebNavigatingEventArgs eventArgs)
         {
-            if(isNavigating)
+            if (isNavigating)
             {
                 return;
             }
 
             string url = null;
-            if(eventArgs.Url.StartsWith("http"))
+            if (eventArgs.Url.StartsWith("http"))
             {
                 url = eventArgs.Url;
             }
-            else if(eventArgs.Url.StartsWith("hybrid://"))
+            else if (eventArgs.Url.StartsWith("hybrid://"))
             {
                 url = eventArgs.Url.Remove(0, 9);
             }

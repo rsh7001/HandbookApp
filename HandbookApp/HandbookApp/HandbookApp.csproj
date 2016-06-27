@@ -35,33 +35,35 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Actions\AzureActionCreators.cs" />
     <Compile Include="Actions\BookActions.cs" />
     <Compile Include="Actions\FullpageActions.cs" />
+    <Compile Include="Actions\HandbookStateActions.cs" />
     <Compile Include="App.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reducers\AppReducers.cs" />
     <Compile Include="Reducers\BookReducers.cs" />
     <Compile Include="Reducers\FullpageReducers.cs" />
-    <Compile Include="Services\JsonServerService.cs" />
+    <Compile Include="Reducers\HandbookStateReducers.cs" />
+    <Compile Include="Services\AzureMobileService.cs" />
     <Compile Include="States\AppState.cs" />
     <Compile Include="States\Book.cs" />
     <Compile Include="States\Fullpage.cs" />
+    <Compile Include="States\HandbookState.cs" />
     <Compile Include="Utilities\IObservableExtensions.cs" />
+    <Compile Include="Utilities\RoutingStateExtension.cs" />
+    <Compile Include="Utilities\StoreExtensions.cs" />
     <Compile Include="ViewModels\AppBootstrapper.cs" />
     <Compile Include="ViewModels\BookpageViewModel.cs" />
     <Compile Include="ViewModels\LicenseKeyViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\ReactiveMainViewModel.cs" />
-    <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\BasePage.cs" />
     <Compile Include="Views\BookpagePage.cs" />
     <Compile Include="Views\LicenseKeyPage.cs" />
     <Compile Include="Views\LoginPage.cs" />
     <Compile Include="Views\MainPage.cs" />
-    <Compile Include="Views\ReactiveMainPage.cs" />
-    <Compile Include="Views\SettingsPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -80,6 +82,10 @@
     </Reference>
     <Reference Include="ModernHttpClient, Version=2.4.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\modernhttpclient.2.4.2\lib\Portable-Net45+WinRT45+WP8+WPA81\ModernHttpClient.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MvvmHelpers, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Refractored.MvvmHelpers.1.0.1\lib\portable-net45+wp8+wpa81+win8+MonoAndroid10+MonoTouch10+Xamarin.iOS10+UAP10\MvvmHelpers.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
