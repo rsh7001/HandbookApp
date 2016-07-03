@@ -56,6 +56,7 @@ namespace HandbookApp.Views
                 ev => pageWebView.Navigating += ev,
                 ev => pageWebView.Navigating -= ev);
 
+            this.OneWayBind(ViewModel, vm => vm.PageTitle, c => c.Title);
         }
 
         protected override void SetupSubscriptions()
@@ -101,7 +102,7 @@ namespace HandbookApp.Views
             }
 
             eventArgs.Cancel = true;
-            await this.ViewModel.HostScreen.Router.Navigate.ExecuteAsync(new BookpageViewModel(url, this.ViewModel.HostScreen));
+            await this.ViewModel.GoBookpage.ExecuteAsync(url);
         }
 
         private void DisplayNavigated(WebNavigatedEventArgs eventArgs)

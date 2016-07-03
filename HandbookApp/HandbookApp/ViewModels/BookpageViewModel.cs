@@ -13,8 +13,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
+
 using System;
+using System.Linq;
 using System.Reactive;
+using System.Threading.Tasks;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Splat;
@@ -24,22 +27,29 @@ namespace HandbookApp.ViewModels
 {
     public class BookpageViewModel : ReactiveObject, IRoutableViewModel
     {
-        public IScreen HostScreen { get; protected set; }
+        [Reactive] public string PageTitle { get; set; }
+        [Reactive] public WebViewSource PageSource { get; set; }
 
         private string _urlPathSegment;
         public string UrlPathSegment
         {
             get { return _urlPathSegment; }
         }
-        
-        [Reactive] public WebViewSource PageSource { get; set; }
+
+        public IScreen HostScreen
+        {
+            get; protected set;
+        }
 
         public ReactiveCommand<Unit> GoBack;
-        
-        public BookpageViewModel(string url, IScreen hostScreen = null)
+        public ReactiveCommand<Unit> GoBookpage;
+
+        public BookpageViewModel(string url, IScreen hostscreen = null)
         {
-            HostScreen = hostScreen ?? Locator.Current.GetService<IScreen>();
-            GoBack = HostScreen.Router.NavigateBack;
+            HostScreen = hostscreen ?? Locator.Current.GetService<IScreen>();
+            
+            GoBack = ReactiveCommand.CreateAsyncTask(x => goBackImpl());
+            GoBookpage = ReactiveCommand.CreateAsyncTask(x => goBookpage((string) x));
 
             if(url.StartsWith("http"))
             {
@@ -60,6 +70,30 @@ namespace HandbookApp.ViewModels
                 _urlPathSegment = "No Page";
             }
             
+        }
+
+        private async Task goBackImpl()
+        {
+            int lastVmIndex = HostScreen.Router.NavigationStack.Count - 1;
+            int backVmIndex = lastVmIndex - 1;
+            IRoutableViewModel vm;
+            if (backVmIndex < 0)
+            {
+                vm = HostScreen.Router.NavigationStack.First();
+            }
+            else
+            {
+                HostScreen.Router.NavigationStack.RemoveAt(lastVmIndex);
+                vm = HostScreen.Router.NavigationStack[backVmIndex];
+                HostScreen.Router.NavigationStack.RemoveAt(backVmIndex);
+            }
+            await HostScreen.Router.NavigateBack.ExecuteAsyncTask(vm);
+        }
+
+        private async Task goBookpage(string url)
+        {
+            var vm = new BookpageViewModel(url, HostScreen);
+            await HostScreen.Router.Navigate.ExecuteAsyncTask(vm);
         }
     }
 }

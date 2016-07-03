@@ -23,6 +23,7 @@ using HandbookApp.States;
 using HandbookApp.Actions;
 using Redux;
 using Xamarin.Forms;
+using Splat;
 
 namespace HandbookApp.Reducers
 {
@@ -30,6 +31,16 @@ namespace HandbookApp.Reducers
     {
         public static HandbookState HandbookStateReducer(HandbookState previousState, IAction action)
         {
+            if (action is SetOnLoginPageAction)
+            {
+                return setOnLoginPageReducer(previousState, (SetOnLoginPageAction) action);
+            }
+
+            if (action is ClearOnLoginPageAction)
+            {
+                return clearOnLoginPageReducer(previousState, (ClearOnLoginPageAction) action);
+            }
+
             if (action is LoginAction)
             {
                 return loginReducer(previousState, (LoginAction) action);
@@ -45,6 +56,15 @@ namespace HandbookApp.Reducers
                 return setCheckingLoginReducer(previousState, (SetCheckingLoginAction) action);
             }
 
+            if (action is SetOnLicenceKeyAction)
+            {
+                return setOnLicenceKeyReducer(previousState, (SetOnLicenceKeyAction) action);
+            }
+
+            if (action is ClearOnLicenceKeyAction)
+            {
+                return clearOnLicenceKeyReducer(previousState, (ClearOnLicenceKeyAction) action);
+            }
 
             if (action is SetLicenceKeyAction)
             {
@@ -96,9 +116,43 @@ namespace HandbookApp.Reducers
             return previousState;
         }
 
-        
+        private static HandbookState setOnLicenceKeyReducer(HandbookState previousState, SetOnLicenceKeyAction action)
+        {
+            LogHost.Default.Info("setOnLicenceKeyReducer");
+            HandbookState newState = previousState.Clone();
+            LogHost.Default.Info("setOnLicenceKeyReducer2");
+            newState.OnLicenceKeyPage = true;
+            LogHost.Default.Info("setOnLicenceKeyReducer3");
+            return newState;
+        }
+
+        private static HandbookState clearOnLicenceKeyReducer(HandbookState previousState, ClearOnLicenceKeyAction action)
+        {
+            LogHost.Default.Info("clearOnLicenceKeyReducer");
+            HandbookState newState = previousState.Clone();
+            newState.OnLicenceKeyPage = false;
+            return newState;
+        }
+
+        private static HandbookState clearOnLoginPageReducer(HandbookState previousState, ClearOnLoginPageAction action)
+        {
+            LogHost.Default.Info("clearOnLoginPageReducer");
+            HandbookState newState = previousState.Clone();
+            newState.OnLoginPage = false;
+            return newState;
+        }
+
+        private static HandbookState setOnLoginPageReducer(HandbookState previousState, SetOnLoginPageAction action)
+        {
+            LogHost.Default.Info("setOnLoginPageReducer");
+            HandbookState newState = previousState.Clone();
+            newState.OnLoginPage = true;
+            return newState;
+        }
+
         private static HandbookState setLastUpdateTimeReducer(HandbookState previousState, SetLastUpdateTimeAction action)
         {
+            LogHost.Default.Info("setLastUpdateTimeReducer");
             HandbookState newState = previousState.Clone();
             newState.IsUpdatingData = false;
             newState.IsDataUpdated = true;
@@ -109,6 +163,7 @@ namespace HandbookApp.Reducers
 
         private static HandbookState clearUpdatingDataReducer(HandbookState previousState, ClearUpdatingDataAction action)
         {
+            LogHost.Default.Info("clearUpdatingDataReducer");
             HandbookState newState = previousState.Clone();
             newState.IsUpdatingData = false;
             return newState;
@@ -116,6 +171,7 @@ namespace HandbookApp.Reducers
 
         private static HandbookState setUpdatingDataReducer(HandbookState previousState, SetUpdatingDataAction action)
         {
+            LogHost.Default.Info("setUpdatingDataReducer");
             HandbookState newState = previousState.Clone();
             newState.IsUpdatingData = true;
             return newState;
@@ -124,6 +180,7 @@ namespace HandbookApp.Reducers
 
         private static HandbookState clearLicensedReducer(HandbookState previousState, ClearLicensedAction action)
         {
+            LogHost.Default.Info("clearLicnsedReducer");
             HandbookState newState = previousState.Clone();
             newState.IsLicensed = false;
             return newState;
@@ -131,7 +188,9 @@ namespace HandbookApp.Reducers
 
         private static HandbookState setLicensedReducer(HandbookState previousState, SetLicensedAction action)
         {
+            LogHost.Default.Info("setLicensedReducer");
             HandbookState newState = previousState.Clone();
+            newState.CheckingLicenceKey = false;
             newState.IsLicensed = true;
             return newState;
         }
@@ -139,6 +198,7 @@ namespace HandbookApp.Reducers
 
         private static HandbookState cancelCheckingLicenceKeyReducer(HandbookState previousState, CancelCheckingLicenceKeyAction action)
         {
+            LogHost.Default.Info("cancelCheckingLicenceKeyReducer");
             HandbookState newState = previousState.Clone();
             newState.CheckingLicenceKey = false;
             return newState;
@@ -146,6 +206,7 @@ namespace HandbookApp.Reducers
 
         private static HandbookState checkingLicenceKeyReducer(HandbookState previousState, CheckingLicenceKeyAction action)
         {
+            LogHost.Default.Info("checkingLicenceKeyReducer");
             HandbookState newState = previousState.Clone();
             newState.CheckingLicenceKey = true;
             return newState;
@@ -153,17 +214,26 @@ namespace HandbookApp.Reducers
 
         private static HandbookState clearLicenceKeyReducer(HandbookState previousState, ClearLicenceKeyAction action)
         {
+            LogHost.Default.Info("clearLicenceKeyReducer");
             HandbookState newState = previousState.Clone();
             newState.LicenceKey = null;
             newState.IsLicenceKeySet = false;
             newState.IsLicensed = false;
+            newState.CheckingLicenceKey = false;
             return newState;
         }
 
         private static HandbookState setLicenceKeyReducer(HandbookState previousState, SetLicenceKeyAction action)
         {
+            LogHost.Default.Info("setLicenceKeyReducer: {0}", action.LicenceKey);
             HandbookState newState = previousState.Clone();
-            newState.LicenceKey = action.LicenceKey;
+            newState.LicenceKey = null;
+            if (action.LicenceKey != null)
+            {
+                char[] buffer = new char[action.LicenceKey.Length];
+                action.LicenceKey.CopyTo(0, buffer, 0, action.LicenceKey.Length);
+                newState.LicenceKey = new string(buffer);
+            }
             newState.IsLicenceKeySet = true;
             return newState;
         }
@@ -178,6 +248,7 @@ namespace HandbookApp.Reducers
 
         private static HandbookState logoutReducer(HandbookState previousState, LogoutAction action)
         {
+            LogHost.Default.Info("logoutReducer");
             HandbookState newState = previousState.Clone();
             newState.UserId = null;
             newState.AuthToken = null;
@@ -196,9 +267,22 @@ namespace HandbookApp.Reducers
 
         private static HandbookState loginReducer(HandbookState previousState, LoginAction action)
         {
+            LogHost.Default.Info("loginReducer");
             HandbookState newState = previousState.Clone();
-            newState.UserId = action.UserId;
-            newState.AuthToken = action.AuthToken;
+            newState.UserId = null;
+            if (action.UserId != null)
+            {
+                char[] buffer = new char[action.UserId.Length];
+                action.UserId.CopyTo(0, buffer, 0, action.UserId.Length);
+                newState.UserId = new string(buffer);
+            }
+            newState.AuthToken = null;
+            if (action.AuthToken != null)
+            {
+                char[] buffer = new char[action.AuthToken.Length];
+                action.AuthToken.CopyTo(0, buffer, 0, action.AuthToken.Length);
+                newState.AuthToken = new string(buffer);
+            }
 
             newState.CheckingLogin = false;
             newState.IsUserSet = true;

@@ -24,12 +24,14 @@ namespace HandbookApp.States
 {
     public class HandbookState
     {
+        public bool OnLoginPage { get; set; }
         public bool IsLoggedIn { get; set; }
         public bool CheckingLogin { get; set; }
         public bool IsUserSet { get; set; }
         public string UserId { get; set; }
         public string AuthToken { get; set; }
         
+        public bool OnLicenceKeyPage { get; set; }
         public bool IsLicensed { get; set; }
         public bool IsLicenceKeySet { get; set; }
         public bool CheckingLicenceKey { get; set; }
@@ -48,16 +50,36 @@ namespace HandbookApp.States
 
         protected HandbookState(HandbookState old)
         {
+            this.OnLoginPage = old.OnLoginPage;
             this.IsLoggedIn = old.IsLoggedIn;
             this.CheckingLogin = old.CheckingLogin;
             this.IsUserSet = old.IsUserSet;
-            this.UserId = old.UserId;
-            this.AuthToken = old.AuthToken;
+            this.UserId = null;
+            if (old.UserId != null)
+            {
+                char[] buffer = new char[old.UserId.Length];
+                old.UserId.CopyTo(0, buffer, 0, old.UserId.Length);
+                this.UserId = new string(buffer);
+            }
+            this.AuthToken = null;
+            if (old.AuthToken != null)
+            {
+                char[] buffer = new char[old.AuthToken.Length];
+                old.AuthToken.CopyTo(0, buffer, 0, old.AuthToken.Length);
+                this.AuthToken = new string(buffer);
+            }
 
+            this.OnLicenceKeyPage = old.OnLicenceKeyPage;
             this.IsLicensed = old.IsLicensed;
             this.IsLicenceKeySet = old.IsLicenceKeySet;
             this.CheckingLicenceKey = old.CheckingLicenceKey;
-            this.LicenceKey = old.LicenceKey;
+            this.LicenceKey = null;
+            if (old.LicenceKey != null)
+            {
+                char[] buffer = new char[old.LicenceKey.Length];
+                old.LicenceKey.CopyTo(0, buffer, 0, old.LicenceKey.Length);
+                this.LicenceKey = new string(buffer);
+            }
 
             this.IsUpdatingData = old.IsUpdatingData;
             this.IsDataUpdated = old.IsDataUpdated;

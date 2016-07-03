@@ -46,26 +46,14 @@ namespace HandbookApp.Views
 
         public TViewModel ViewModel
         {
-            get
-            {
-                return (TViewModel)GetValue(ViewModelProperty);
-            }
-            set
-            {
-                SetValue(ViewModelProperty, value);
-            }
+            get { return (TViewModel)GetValue(ViewModelProperty); }
+            set { SetValue(ViewModelProperty, value); }
         }
          
         object IViewFor.ViewModel
         {
-            get
-            {
-                return ViewModel;
-            }
-            set
-            {
-                ViewModel = (TViewModel)value;
-            }
+            get { return ViewModel; }
+            set { ViewModel = (TViewModel)value; }
         }
 
         protected virtual void SetupViewElements() { }

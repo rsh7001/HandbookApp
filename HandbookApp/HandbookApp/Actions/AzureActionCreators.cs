@@ -31,6 +31,7 @@ using HandbookApp.Utilities;
 using HandbookApp.Services;
 using Microsoft.WindowsAzure.MobileServices;
 using Xamarin.Forms;
+using Splat;
 
 namespace HandbookApp.Actions
 {
@@ -123,6 +124,30 @@ namespace HandbookApp.Actions
                 
                 App.ServerService.JsonServerUpdate();
                 await Task.Delay(1);
+            };
+        }
+
+        public static AsyncActionsCreator<AppState> CheckLicenceKeyAction()
+        {
+            return async (dispatch, getState) => {
+                if (!getState().CurrentState.IsLoggedIn || getState().CurrentState.CheckingLicenceKey)
+                {
+                    return;
+                }
+
+                dispatch(new CheckingLicenceKeyAction());
+
+                var success = await App.ServerService.CheckLicenceKey();
+                
+                if (success)
+                {
+                    dispatch(new SetLicensedAction());
+                }
+                else
+                {
+                    dispatch(new ClearLicensedAction());
+                }
+
             };
         }
     }

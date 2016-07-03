@@ -24,6 +24,7 @@ using Xamarin.Forms;
 using Microsoft.WindowsAzure.MobileServices;
 using HandbookApp.Services;
 using HandbookApp.Views;
+using Splat;
 
 namespace HandbookApp
 {
@@ -51,13 +52,15 @@ namespace HandbookApp
                 Books = ImmutableDictionary<string, Book>.Empty,
                 Fullpages = ImmutableDictionary<string, Fullpage>.Empty,
                 CurrentState = new HandbookState {
-                    IsLoggedIn = true,
+                    OnLoginPage = false,
+                    IsLoggedIn = false,
                     CheckingLogin = false,
                     IsUserSet = false,
                     UserId = null,
                     AuthToken = null,
                     
-                    IsLicensed = true,
+                    OnLicenceKeyPage = false,
+                    IsLicensed = false,
                     IsLicenceKeySet = false,
                     CheckingLicenceKey = false,
                     LicenceKey = null,
@@ -72,13 +75,19 @@ namespace HandbookApp
 
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
 
-            ServerService = new AzureMobileService();
-
             var bootstrapper = new AppBootstrapper();
 
-            var mainPage = bootstrapper.CreateMainPage();
+            var logger = new AppDebugger { Level = LogLevel.Debug };
+            Locator.CurrentMutable.RegisterConstant(logger, typeof(ILogger));
 
-            MainPage = mainPage;
+            ServerService = new AzureMobileService();
+
+            //var vm = new MainViewModel();
+            //var view = new MainView();
+            //view.ViewModel = vm;
+
+            //MainPage = new NavigationPage(view);
+            MainPage = bootstrapper.CreateMainPage();
             
         }
 

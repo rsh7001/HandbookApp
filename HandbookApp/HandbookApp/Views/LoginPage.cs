@@ -15,10 +15,7 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HandbookApp.Utilities;
 using HandbookApp.ViewModels;
 using ReactiveUI;
@@ -43,12 +40,10 @@ namespace HandbookApp.Views
         {
             base.SetupViewElements();
 
-            string Title = "CHONY Handbook App";
-
             Content = new StackLayout {
                 Padding = new Thickness(20d),
                 Children = {
-                    (title = new Label { Text = Title, HorizontalOptions = LayoutOptions.Center }),
+                    (title = new Label { Text = "CHONY Handbook App", HorizontalOptions = LayoutOptions.Center }),
                     (updatingSpinner = new ActivityIndicator { IsVisible = true, IsRunning = false }),
                     (instructionsLabel = new Label { Text = "Login with one of the following providers.", Margin = new Thickness(5, 20, 5, 5) }),
                     (loginGoogleButton = new Button { Text = "Google" }),
@@ -73,34 +68,8 @@ namespace HandbookApp.Views
             this.BindCommand(ViewModel, vm => vm.LoginTwitterProvider, c => c.loginTwitterButton)
                 .DisposeWith(subscriptionDisposibles);
 
-            this.OneWayBind(ViewModel, vm => vm.CheckingLogin, c => c.updatingSpinner.IsRunning);
-        }
-
-        protected override void SetupSubscriptions()
-        {
-            App.Store
-                .DistinctUntilChanged(s => s.CurrentState.IsLoggedIn)
-                .Select(d => d.CurrentState.IsLoggedIn)
-                .Subscribe(x => checkLoggedIn(x)); 
-        }
-
-        private void checkLoggedIn(bool x)
-        {
-            System.Diagnostics.Debug.WriteLine("CheckLoggedIn");
-            load();
-        }
-
-        static int countLoad = 0;
-
-        private void load()
-        {
-            System.Diagnostics.Debug.WriteLine("InLoginPage:Load");
-            if (ViewModel.IsLoggedIn)
-            {
-                countLoad++;
-                System.Diagnostics.Debug.WriteLine("GoBack:LoginPage:Load: " + countLoad.ToString());
-                ViewModel.GoBack.Execute(this);
-            }
+            this.OneWayBind(ViewModel, vm => vm.PageTitle, c => c.Title)
+                .DisposeWith(subscriptionDisposibles);
         }
     }
 }

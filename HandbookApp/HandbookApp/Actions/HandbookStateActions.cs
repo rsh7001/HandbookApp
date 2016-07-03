@@ -23,6 +23,10 @@ using Redux;
 
 namespace HandbookApp.Actions
 {
+    public class SetOnLoginPageAction : IAction { }
+
+    public class ClearOnLoginPageAction : IAction { }
+
     public class LoginAction : IAction
     {
         public string UserId { get; set; }
@@ -33,6 +37,9 @@ namespace HandbookApp.Actions
 
     public class SetCheckingLoginAction : IAction { }
 
+    public class SetOnLicenceKeyAction : IAction { }
+
+    public class ClearOnLicenceKeyAction : IAction { }
 
     public class SetLicenceKeyAction : IAction
     {

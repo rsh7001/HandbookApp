@@ -31,6 +31,7 @@ using ModernHttpClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReactiveUI;
+using Splat;
 
 namespace HandbookApp.Services
 {
@@ -106,7 +107,6 @@ namespace HandbookApp.Services
             get { return _azureClient; }
         }
 
-
         public AzureMobileService()
         {
             //_azureClient = new MobileServiceClient(Constants.MobileURL);
@@ -137,6 +137,8 @@ namespace HandbookApp.Services
         //        ));
         //}
 
+        static bool serverupdating = false;
+
         public void JsonServerUpdate()
         {
             serverUpdateCommand()
@@ -146,18 +148,40 @@ namespace HandbookApp.Services
                 })
                 .Subscribe(
                     res => {
+                        serverupdating = true;
                         processHttpMessage(res);
                     },
-                    ex => { System.Diagnostics.Debug.WriteLine(ex.Message); },
+                    ex => {
+                        serverupdating = false;
+                        LogHost.Default.Info("Exception: {0}", ex.Message);
+                    },
                     () => {
+                        serverupdating = false;
                         finishedServerUpdate();
                     }
                 );
         }
 
+        public async Task<bool> CheckLicenceKey()
+        {
+            LogHost.Default.Info("Azure Starting Checking will have 9 sec delay");
+            await Task.Delay(9000);
+            LogHost.Default.Info("Azure Finished Checking after 9 sec delay");
+            return true;
+        }
+
         private void clearServerUpdate()
         {
-            App.Store.Dispatch(new ClearUpdatingDataAction());
+            if(serverupdating)
+            {
+                // timed out
+                App.Store.Dispatch(new ClearLicensedAction());
+                serverupdating = false;
+            }
+            else
+            {
+                App.Store.Dispatch(new ClearUpdatingDataAction());
+            }
         }
 
         private static void finishedServerUpdate()
@@ -169,20 +193,21 @@ namespace HandbookApp.Services
         {
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
+                LogHost.Default.Info("Unauthorized Request");
                 App.Store.Dispatch(new LogoutAction());
                 return;
             }
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                System.Diagnostics.Debug.WriteLine("Bad request");
+                LogHost.Default.Info("Bad Request");
                 return;
             }
 
             response.Content.ReadAsStringAsync().ToObservable()
                 .Subscribe(
                     res => { processJsonString(res); },
-                    ex => { System.Diagnostics.Debug.WriteLine(ex.Message); },
+                    ex => { LogHost.Default.Info("RequestReturned: {0}", ex.Message); },
                     () => { /** TODO: **/ }
                 );
         }

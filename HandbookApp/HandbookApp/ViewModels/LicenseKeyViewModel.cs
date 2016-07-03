@@ -15,58 +15,74 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using HandbookApp.Actions;
+using HandbookApp.Utilities;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Splat;
-using Xamarin.Forms;
 
 namespace HandbookApp.ViewModels
 {
     public class LicenseKeyViewModel : ReactiveObject, IRoutableViewModel
     {
+        [Reactive]public string PageTitle { get; set; }
+
+        private IObservable<bool> cansetlicencekey;
+        private IObservable<bool> islicencekeyset;
+
+        public string UrlPathSegment { get { return "Licence Key"; } }
         public IScreen HostScreen { get; protected set; }
-        
-        [Reactive]public bool IsLoggedIn { get; set; }
-        [Reactive]public bool IsLicenceKeySet { get; set; }
-        [Reactive]public bool IsLicensed { get; set; }
-        [Reactive]public bool CheckingLicenseKey { get; set; }
 
-        public string UrlPathSegment
+        [Reactive] public string LicenceKey { get; set; }
+
+        public ReactiveCommand<Unit> SetLicensed;
+        public ReactiveCommand<Unit> GoBack;
+
+
+        public LicenseKeyViewModel(IScreen hostscreen = null)
         {
-            get { return "LicenseKey"; }
+            HostScreen = hostscreen ?? Locator.Current.GetService<IScreen>();
+
+            PageTitle = "License Key";
+
+            setupObservables();
+
+            SetLicensed = ReactiveCommand.CreateAsyncObservable(cansetlicencekey, x => setLicensedImpl());
+            GoBack = ReactiveCommand.CreateAsyncTask(x => goBackImpl());
+
+            islicencekeyset
+                .Where(y => y == true)
+                .DistinctUntilChanged()
+                .InvokeCommand(this, x => x.GoBack);
         }
 
-        public LicenseKeyViewModel(IScreen hostScreen = null)
+        private void setupObservables()
         {
-            HostScreen = hostScreen ?? Locator.Current.GetService<IScreen>();
+            islicencekeyset = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.IsLicenceKeySet })
+                .Select(d => d.CurrentState.IsLicenceKeySet);
 
-            SetupSubscriptions();
-
-            System.Diagnostics.Debug.WriteLine(App.Store.GetState().CurrentState.ToString());
+            cansetlicencekey = this.WhenAnyValue(x => x.LicenceKey, (lk) =>
+                !String.IsNullOrWhiteSpace(lk) && lk.Length >= 6)
+                .DistinctUntilChanged();
         }
 
-        private void SetupSubscriptions()
+        private async Task goBackImpl()
         {
-            App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState })
-                .Select(q => q.CurrentState.IsLoggedIn)
-                .Subscribe(x => IsLoggedIn = x);
-            
-            App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState })
-                .Select(q => q.CurrentState.IsLicensed)
-                .Subscribe(x => IsLicensed = x);
-
-            App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState })
-                .Select(q => q.CurrentState.IsLicenceKeySet)
-                .Subscribe(x => IsLicenceKeySet = x);
+            var vm = HostScreen.Router.NavigationStack.First();
+            HostScreen.Router.NavigationStack.Clear();
+            await HostScreen.Router.NavigateAndReset.ExecuteAsyncTask(vm);
+            App.Store.Dispatch(new ClearOnLicenceKeyAction());
+        }
+       
+        private IObservable<Unit> setLicensedImpl()
+        {
+            App.Store.Dispatch(new SetLicenceKeyAction { LicenceKey = LicenceKey });
+            return Observable.Start(() => { return Unit.Default; });
         }
     }
 }

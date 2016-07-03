@@ -46,24 +46,27 @@
     <Compile Include="Reducers\BookReducers.cs" />
     <Compile Include="Reducers\FullpageReducers.cs" />
     <Compile Include="Reducers\HandbookStateReducers.cs" />
+    <Compile Include="Services\AppDebugger.cs" />
     <Compile Include="Services\AzureMobileService.cs" />
     <Compile Include="States\AppState.cs" />
     <Compile Include="States\Book.cs" />
     <Compile Include="States\Fullpage.cs" />
     <Compile Include="States\HandbookState.cs" />
     <Compile Include="Utilities\IObservableExtensions.cs" />
-    <Compile Include="Utilities\RoutingStateExtension.cs" />
     <Compile Include="Utilities\StoreExtensions.cs" />
     <Compile Include="ViewModels\AppBootstrapper.cs" />
     <Compile Include="ViewModels\BookpageViewModel.cs" />
     <Compile Include="ViewModels\LicenseKeyViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
+    <Compile Include="ViewModels\MainViewBookTileViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="Views\BasePage.cs" />
     <Compile Include="Views\BookpagePage.cs" />
     <Compile Include="Views\LicenseKeyPage.cs" />
     <Compile Include="Views\LoginPage.cs" />
-    <Compile Include="Views\MainPage.cs" />
+    <Compile Include="Views\MainView.xaml.cs">
+      <DependentUpon>MainView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -159,6 +162,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\MainView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\..\packages\Xamarin.Forms.2.2.0.31\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\..\packages\Xamarin.Forms.2.2.0.31\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />

@@ -13,6 +13,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
+using HandbookApp.Services;
 using HandbookApp.Views;
 using ReactiveUI;
 using ReactiveUI.XamForms;
@@ -42,7 +43,7 @@ namespace HandbookApp.ViewModels
         {
             dependencyResolver.RegisterConstant(this, typeof(IScreen));
 
-            dependencyResolver.Register(() => new MainPage(), typeof(IViewFor<MainViewModel>));
+            dependencyResolver.Register(() => new MainView(), typeof(IViewFor<MainViewModel>));
             dependencyResolver.Register(() => new BookpagePage(), typeof(IViewFor<BookpageViewModel>));
             dependencyResolver.Register(() => new LoginPage(), typeof(IViewFor<LoginViewModel>));
             dependencyResolver.Register(() => new LicenseKeyPage(), typeof(IViewFor<LicenseKeyViewModel>));

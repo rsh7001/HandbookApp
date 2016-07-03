@@ -24,7 +24,8 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
-
+using HandbookApp.Views;
+using Splat;
 
 namespace HandbookApp.Droid
 {

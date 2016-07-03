@@ -15,12 +15,10 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HandbookApp.Utilities;
+using System.Reactive.Linq;
 using HandbookApp.ViewModels;
+using HandbookApp.Utilities;
 using ReactiveUI;
 using Xamarin.Forms;
 
@@ -41,12 +39,10 @@ namespace HandbookApp.Views
         {
             base.SetupViewElements();
 
-            string Title = "CHONY Handbook App";
-
             Content = new StackLayout {
                 Padding = new Thickness(20d),
                 Children = {
-                    (title = new Label {Text = Title, HorizontalOptions=LayoutOptions.Center }),
+                    (title = new Label {Text = "CHONY Handbook App", HorizontalOptions=LayoutOptions.Center }),
                     (updatingSpinner = new ActivityIndicator { IsVisible = true, IsRunning = false }),
                     (instructionsLabel = new Label { Text = "Please enter your license key.", Margin = new Thickness(5, 20, 5, 5) }),
                     (licenseKeyEntry = new Entry { Placeholder="License Key" }),
@@ -57,18 +53,9 @@ namespace HandbookApp.Views
 
         protected override void SetupObservables()
         {
-            this.OneWayBind(ViewModel, vm => vm.CheckingLicenseKey, c => c.updatingSpinner.IsRunning);
-        }
-
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            
-            if (!ViewModel.IsLoggedIn)
-            {
-                ViewModel.HostScreen.Router.Navigate.Execute(new LoginViewModel());
-                return;
-            }
+            this.Bind(ViewModel, vm => vm.LicenceKey, c => c.licenseKeyEntry.Text);
+            this.BindCommand(ViewModel, vm => vm.SetLicensed, c => c.setLicenseKeyButton);
+            this.OneWayBind(ViewModel, vm => vm.PageTitle, c => c.Title);
         }
     }
 }
