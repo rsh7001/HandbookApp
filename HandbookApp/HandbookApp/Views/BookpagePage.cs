@@ -55,8 +55,6 @@ namespace HandbookApp.Views
             navigating = Observable.FromEventPattern<WebNavigatingEventArgs>(
                 ev => pageWebView.Navigating += ev,
                 ev => pageWebView.Navigating -= ev);
-
-            this.OneWayBind(ViewModel, vm => vm.PageTitle, c => c.Title);
         }
 
         protected override void SetupSubscriptions()

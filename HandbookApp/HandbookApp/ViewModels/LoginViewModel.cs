@@ -79,6 +79,7 @@ namespace HandbookApp.ViewModels
         private async Task goBackImpl()
         {
             var vm = HostScreen.Router.NavigationStack.First();
+            HostScreen.Router.NavigationStack.Clear();
             await HostScreen.Router.NavigateAndReset.ExecuteAsyncTask(vm);
             App.Store.Dispatch(new ClearOnLoginPageAction());
         }

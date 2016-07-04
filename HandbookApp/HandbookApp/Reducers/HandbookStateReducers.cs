@@ -216,7 +216,7 @@ namespace HandbookApp.Reducers
         {
             LogHost.Default.Info("clearLicenceKeyReducer");
             HandbookState newState = previousState.Clone();
-            newState.LicenceKey = null;
+            newState.LicenceKey = "";
             newState.IsLicenceKeySet = false;
             newState.IsLicensed = false;
             newState.CheckingLicenceKey = false;
@@ -227,8 +227,8 @@ namespace HandbookApp.Reducers
         {
             LogHost.Default.Info("setLicenceKeyReducer: {0}", action.LicenceKey);
             HandbookState newState = previousState.Clone();
-            newState.LicenceKey = null;
-            if (action.LicenceKey != null)
+            newState.LicenceKey = "";
+            if (!String.IsNullOrEmpty(action.LicenceKey))
             {
                 char[] buffer = new char[action.LicenceKey.Length];
                 action.LicenceKey.CopyTo(0, buffer, 0, action.LicenceKey.Length);
@@ -250,8 +250,8 @@ namespace HandbookApp.Reducers
         {
             LogHost.Default.Info("logoutReducer");
             HandbookState newState = previousState.Clone();
-            newState.UserId = null;
-            newState.AuthToken = null;
+            newState.UserId = "";
+            newState.AuthToken = "";
 
             newState.IsUserSet = false;
             newState.IsLoggedIn = false;
@@ -269,15 +269,15 @@ namespace HandbookApp.Reducers
         {
             LogHost.Default.Info("loginReducer");
             HandbookState newState = previousState.Clone();
-            newState.UserId = null;
-            if (action.UserId != null)
+            newState.UserId = "";
+            if (!String.IsNullOrEmpty(action.UserId))
             {
                 char[] buffer = new char[action.UserId.Length];
                 action.UserId.CopyTo(0, buffer, 0, action.UserId.Length);
                 newState.UserId = new string(buffer);
             }
-            newState.AuthToken = null;
-            if (action.AuthToken != null)
+            newState.AuthToken = "";
+            if (!String.IsNullOrEmpty(action.AuthToken))
             {
                 char[] buffer = new char[action.AuthToken.Length];
                 action.AuthToken.CopyTo(0, buffer, 0, action.AuthToken.Length);

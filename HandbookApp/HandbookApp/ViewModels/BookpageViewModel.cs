@@ -27,7 +27,6 @@ namespace HandbookApp.ViewModels
 {
     public class BookpageViewModel : ReactiveObject, IRoutableViewModel
     {
-        [Reactive] public string PageTitle { get; set; }
         [Reactive] public WebViewSource PageSource { get; set; }
 
         private string _urlPathSegment;
@@ -77,14 +76,14 @@ namespace HandbookApp.ViewModels
             int lastVmIndex = HostScreen.Router.NavigationStack.Count - 1;
             int backVmIndex = lastVmIndex - 1;
             IRoutableViewModel vm;
-            if (backVmIndex < 0)
+            if (backVmIndex <= 0)
             {
                 vm = HostScreen.Router.NavigationStack.First();
             }
             else
             {
-                HostScreen.Router.NavigationStack.RemoveAt(lastVmIndex);
                 vm = HostScreen.Router.NavigationStack[backVmIndex];
+                HostScreen.Router.NavigationStack.RemoveAt(lastVmIndex);
                 HostScreen.Router.NavigationStack.RemoveAt(backVmIndex);
             }
             await HostScreen.Router.NavigateBack.ExecuteAsyncTask(vm);

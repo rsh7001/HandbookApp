@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Akavache;
 using HandbookApp.Actions;
 using HandbookApp.States;
 using HandbookApp.Utilities;
@@ -68,7 +69,7 @@ namespace HandbookApp.ViewModels
         private IObservable<bool> navigating;
         private IObservable<bool> onmainpage;
 
-        private IObservable<bool> needsupdate;
+        //private IObservable<bool> needsupdate;
 
         private ReactiveCommand<Unit> DoUpdate;
         private ReactiveCommand<Unit> OpenLicenceKeyView;
@@ -79,8 +80,7 @@ namespace HandbookApp.ViewModels
             HostScreen = hostscreen ?? Locator.Current.GetService<IScreen>();
 
             Handbooks = new List<MainViewBookTileViewModel>();
-                    
-                 
+                        
             App.Store
                 .DistinctUntilChanged(state => new { state.CurrentState })
                 .Select(u => "Last Updated: " + u.CurrentState.LastUpdateTime.ToString("u"))
@@ -162,10 +162,10 @@ namespace HandbookApp.ViewModels
                 .CombineLatest(onlicencekeypage, (c,d) => c && !d)
                 .DistinctUntilChanged();
 
-            Observable
-                .Interval(TimeSpan.FromSeconds(15.0), RxApp.TaskpoolScheduler)
-                .Subscribe(
-                    x => { checkIfNeedsUpdate(); });
+            //Observable
+            //    .Interval(TimeSpan.FromSeconds(15.0), RxApp.TaskpoolScheduler)
+            //    .Subscribe(
+            //        x => { checkIfNeedsUpdate(); });
     
             canDoUpdate = islicensed;
 
@@ -189,15 +189,15 @@ namespace HandbookApp.ViewModels
                 .DistinctUntilChanged();
         }
 
-        private void checkIfNeedsUpdate()
-        {
-            var lastupdatetime = App.Store.GetState().CurrentState.LastUpdateTime;
-            var duration = DateTimeOffset.UtcNow - lastupdatetime;
-            if (duration > TimeSpan.FromHours(6.0))
-            {
-                //App.Store.Dispatch(new )
-            }
-        }
+        //private void checkIfNeedsUpdate()
+        //{
+        //    var lastupdatetime = App.Store.GetState().CurrentState.LastUpdateTime;
+        //    var duration = DateTimeOffset.UtcNow - lastupdatetime;
+        //    if (duration > TimeSpan.FromHours(6.0))
+        //    {
+        //        //App.Store.Dispatch(new )
+        //    }
+        //}
 
         private void setupSubscriptions()
         {
@@ -227,6 +227,14 @@ namespace HandbookApp.ViewModels
                 .Where(y => y == true)
                 .DistinctUntilChanged()
                 .Subscribe(z => { App.Store.Dispatch(AzureActionCreators.CheckLicenceKeyAction()); });
+
+            //App.Store
+            //    .Select(d => d.CurrentState)
+            //    .Log(this, "Current State Blob")
+            //    .Subscribe(
+            //        async x => { await BlobCache.UserAccount.InsertObject<HandbookState>("currentstate", x); },
+            //        ex => { LogHost.Default.Info("blobcache exception: {0}", ex.Message); },
+            //        () => { LogHost.Default.Info("current state saved"); });
 
         }
 

@@ -54,15 +54,15 @@ namespace HandbookApp.States
             this.IsLoggedIn = old.IsLoggedIn;
             this.CheckingLogin = old.CheckingLogin;
             this.IsUserSet = old.IsUserSet;
-            this.UserId = null;
-            if (old.UserId != null)
+            this.UserId = "";
+            if (!String.IsNullOrEmpty(old.UserId))
             {
                 char[] buffer = new char[old.UserId.Length];
                 old.UserId.CopyTo(0, buffer, 0, old.UserId.Length);
                 this.UserId = new string(buffer);
             }
-            this.AuthToken = null;
-            if (old.AuthToken != null)
+            this.AuthToken = "";
+            if (!String.IsNullOrEmpty(old.AuthToken))
             {
                 char[] buffer = new char[old.AuthToken.Length];
                 old.AuthToken.CopyTo(0, buffer, 0, old.AuthToken.Length);
@@ -73,8 +73,8 @@ namespace HandbookApp.States
             this.IsLicensed = old.IsLicensed;
             this.IsLicenceKeySet = old.IsLicenceKeySet;
             this.CheckingLicenceKey = old.CheckingLicenceKey;
-            this.LicenceKey = null;
-            if (old.LicenceKey != null)
+            this.LicenceKey = "";
+            if (!String.IsNullOrEmpty(old.LicenceKey))
             {
                 char[] buffer = new char[old.LicenceKey.Length];
                 old.LicenceKey.CopyTo(0, buffer, 0, old.LicenceKey.Length);
