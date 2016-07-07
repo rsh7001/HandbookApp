@@ -17,6 +17,7 @@
 using System;
 using System.Linq;
 using System.Reactive;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -25,22 +26,28 @@ using Xamarin.Forms;
 
 namespace HandbookApp.ViewModels
 {
+    [DataContract]
     public class BookpageViewModel : ReactiveObject, IRoutableViewModel
     {
-        [Reactive] public WebViewSource PageSource { get; set; }
+        [Reactive][DataMember] public WebViewSource PageSource { get; set; }
 
+        [DataMember]
         private string _urlPathSegment;
+        [DataMember]
         public string UrlPathSegment
         {
             get { return _urlPathSegment; }
         }
 
+        [IgnoreDataMember]
         public IScreen HostScreen
         {
             get; protected set;
         }
 
+        [IgnoreDataMember]
         public ReactiveCommand<Unit> GoBack;
+        [IgnoreDataMember]
         public ReactiveCommand<Unit> GoBookpage;
 
         public BookpageViewModel(string url, IScreen hostscreen = null)

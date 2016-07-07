@@ -51,12 +51,12 @@ namespace HandbookApp
 
         public App()
         {
-            BlobCache.ApplicationName = "AppStateExperiment2";
-
-            var logger = new AppDebugger { Level = LogLevel.Debug };
-            Locator.CurrentMutable.RegisterConstant(logger, typeof(ILogger));
-
+         
             ServerService = new AzureMobileService();
+
+            BlobCache.ApplicationName = "HandbookApp";
+
+            Locator.CurrentMutable.RegisterConstant(new AppDebugger { Level = LogLevel.Debug }, typeof(ILogger));
 
             var initialCurrentState = BlobCache.UserAccount.GetObject<HandbookState>("currentstate").Catch(Observable.Return(getInitialCurrentState())).Wait();
             var initialBooks = BlobCache.UserAccount.GetObject<ImmutableDictionary<string, Book>>("books").Catch(Observable.Return(getInitialBooks())).Wait();
@@ -68,16 +68,11 @@ namespace HandbookApp
                 CurrentState = initialCurrentState
             };
             
-            LogHost.Default.Info("Before Initialization of Store");
-
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
-
-            LogHost.Default.Info("After Initialization of Store");
 
             var bootstrapper = new AppBootstrapper();
 
             MainPage = bootstrapper.CreateMainPage();
-            
         }
 
         private ImmutableDictionary<string, Fullpage> getInitialFullpages()
@@ -127,7 +122,6 @@ namespace HandbookApp
         protected override void OnStart()
         {
             LogHost.Default.Info("OnStart()");
-
             // Handle when your app starts
         }
 

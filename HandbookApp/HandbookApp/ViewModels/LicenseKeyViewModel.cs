@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using HandbookApp.Actions;
 using HandbookApp.Utilities;
@@ -25,29 +26,33 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Splat;
 
+
 namespace HandbookApp.ViewModels
 {
+    [DataContract]
     public class LicenseKeyViewModel : ReactiveObject, IRoutableViewModel
     {
-        [Reactive]public string PageTitle { get; set; }
-
+        [IgnoreDataMember]
         private IObservable<bool> cansetlicencekey;
+        [IgnoreDataMember]
         private IObservable<bool> islicencekeyset;
 
+        [IgnoreDataMember]
         public string UrlPathSegment { get { return "Licence Key"; } }
+        [IgnoreDataMember]
         public IScreen HostScreen { get; protected set; }
 
-        [Reactive] public string LicenceKey { get; set; }
+        [Reactive][DataMember] public string LicenceKey { get; set; }
 
+        [IgnoreDataMember]
         public ReactiveCommand<Unit> SetLicensed;
+        [IgnoreDataMember]
         public ReactiveCommand<Unit> GoBack;
 
 
         public LicenseKeyViewModel(IScreen hostscreen = null)
         {
             HostScreen = hostscreen ?? Locator.Current.GetService<IScreen>();
-
-            PageTitle = "License Key";
 
             setupObservables();
 

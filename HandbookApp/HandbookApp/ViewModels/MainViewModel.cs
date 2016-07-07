@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Akavache;
 using HandbookApp.Actions;
@@ -30,17 +31,22 @@ using Splat;
 
 namespace HandbookApp.ViewModels
 {
+    [DataContract]
     public class MainViewModel : ReactiveObject, IRoutableViewModel
     {
+        [IgnoreDataMember]
         public extern string LastUpdateTime { [ObservableAsProperty]get; }
         
-        [Reactive] public List<MainViewBookTileViewModel> Handbooks { get; set; }
-        [Reactive] public bool BackgroundTaskRunning { get; set; }
+        [Reactive][DataMember] public List<MainViewBookTileViewModel> Handbooks { get; set; }
+        
+        [Reactive][DataMember] public bool BackgroundTaskRunning { get; set; }
 
+        [IgnoreDataMember]
         private extern List<Book> MyHandbooks { [ObservableAsProperty]get; }
 
-        [Reactive] private bool Navigating { get; set; }
+        [Reactive][DataMember] private bool Navigating { get; set; }
 
+        [IgnoreDataMember]
         public string UrlPathSegment
         {
             get
@@ -49,30 +55,48 @@ namespace HandbookApp.ViewModels
             }
         }
 
+        [IgnoreDataMember]
         public IScreen HostScreen { get; protected set; }
 
+        [IgnoreDataMember]
         private IObservable<bool> canGoToLicenseKeyView;
+        [IgnoreDataMember]
         private IObservable<bool> canGoToLoginView;
+        [IgnoreDataMember]
         private IObservable<bool> canDoUpdate;
+        [IgnoreDataMember]
         private IObservable<bool> canCheckLicenceKey;
 
+        [IgnoreDataMember]
         private IObservable<bool> islicensed;
+        [IgnoreDataMember]
         private IObservable<bool> isloggedin;
+        [IgnoreDataMember]
         private IObservable<bool> islicencekeyset;
-        
+
+        [IgnoreDataMember]
         private IObservable<bool> checkinglk;
+        [IgnoreDataMember]
         private IObservable<bool> checklgin;
+        [IgnoreDataMember]
         private IObservable<bool> updatingdata;
+        [IgnoreDataMember]
         private IObservable<bool> onloginpage;
+        [IgnoreDataMember]
         private IObservable<bool> onlicencekeypage;
 
+        [IgnoreDataMember]
         private IObservable<bool> navigating;
+        [IgnoreDataMember]
         private IObservable<bool> onmainpage;
 
         //private IObservable<bool> needsupdate;
 
+        [IgnoreDataMember]
         private ReactiveCommand<Unit> DoUpdate;
+        [IgnoreDataMember]
         private ReactiveCommand<Unit> OpenLicenceKeyView;
+        [IgnoreDataMember]
         private ReactiveCommand<Unit> OpenLoginView;
         
         public MainViewModel(IScreen hostscreen = null)

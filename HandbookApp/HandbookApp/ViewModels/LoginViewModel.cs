@@ -25,39 +25,39 @@ using Splat;
 using HandbookApp.Actions;
 using HandbookApp.Utilities;
 using Microsoft.WindowsAzure.MobileServices;
+using System.Runtime.Serialization;
 
 namespace HandbookApp.ViewModels
 {
+    [DataContract]
     public class LoginViewModel : ReactiveObject, IRoutableViewModel
     {
-        [Reactive] public string PageTitle { get; set; }
-
+        [IgnoreDataMember]
         public string UrlPathSegment
         {
-            get
-            {
-                return "Login";
-            }
+            get { return "Login"; }
         }
 
-        public IScreen HostScreen
-        {
-            get; protected set;
-        }
+        [IgnoreDataMember]
+        public IScreen HostScreen { get; protected set; }
 
+        [IgnoreDataMember]
         public ReactiveCommand<Unit> LoginGoogleProvider;
+        [IgnoreDataMember]
         public ReactiveCommand<Unit> LoginMicrosoftProvider;
+        [IgnoreDataMember]
         public ReactiveCommand<Unit> LoginFacebookProvider;
+        [IgnoreDataMember]
         public ReactiveCommand<Unit> LoginTwitterProvider;
+        [IgnoreDataMember]
         public ReactiveCommand<Unit> GoBack;
 
+        [IgnoreDataMember]
         private IObservable<bool> isloggedin;
 
         public LoginViewModel(IScreen hostscreen = null)
         {
             HostScreen = hostscreen ?? Locator.Current.GetService<IScreen>();
-
-            PageTitle = "LoginPage";
 
             LoginGoogleProvider = ReactiveCommand.CreateAsyncTask(x => loginGoogleProviderImpl());
             LoginMicrosoftProvider = ReactiveCommand.CreateAsyncTask(x => loginMicrosoftProviderImpl());

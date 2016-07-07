@@ -67,9 +67,6 @@ namespace HandbookApp.Views
 
             this.BindCommand(ViewModel, vm => vm.LoginTwitterProvider, c => c.loginTwitterButton)
                 .DisposeWith(subscriptionDisposibles);
-
-            this.OneWayBind(ViewModel, vm => vm.PageTitle, c => c.Title)
-                .DisposeWith(subscriptionDisposibles);
         }
     }
 }

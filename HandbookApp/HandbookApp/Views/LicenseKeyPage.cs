@@ -55,7 +55,6 @@ namespace HandbookApp.Views
         {
             this.Bind(ViewModel, vm => vm.LicenceKey, c => c.licenseKeyEntry.Text);
             this.BindCommand(ViewModel, vm => vm.SetLicensed, c => c.setLicenseKeyButton);
-            this.OneWayBind(ViewModel, vm => vm.PageTitle, c => c.Title);
         }
     }
 }

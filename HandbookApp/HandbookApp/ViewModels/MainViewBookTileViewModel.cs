@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using HandbookApp.States;
@@ -11,21 +12,19 @@ using Splat;
 
 namespace HandbookApp.ViewModels
 {
+    [DataContract]
     public class MainViewBookTileViewModel : ReactiveObject, IRoutableViewModel
     {
-        [Reactive] public Book Model { get; set; }
+        [Reactive][DataMember] public Book Model { get; set; }
 
+        [IgnoreDataMember]
         public ReactiveCommand<Unit> OpenThisBook { get; protected set; }
 
-        public string UrlPathSegment
-        {
-            get; protected set;
-        }
+        [IgnoreDataMember]
+        public string UrlPathSegment { get; protected set; }
 
-        public IScreen HostScreen
-        {
-            get; protected set;
-        }
+        [IgnoreDataMember]
+        public IScreen HostScreen { get; protected set; }
 
         public MainViewBookTileViewModel(Book model, IScreen hostscreen = null)
         {
