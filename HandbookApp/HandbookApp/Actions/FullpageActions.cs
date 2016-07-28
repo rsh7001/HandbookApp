@@ -24,4 +24,9 @@ namespace HandbookApp.Actions
     {
         public List<Fullpage> Fullpages { get; set; }
     }
+
+    public class DeleteFullpageRangeAction : IAction
+    {
+        public List<string> FullpageIds { get; set; }
+    }
 }

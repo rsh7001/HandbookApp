@@ -21,15 +21,14 @@ using Xamarin.Forms;
 
 namespace HandbookApp.Views
 {
-    public class LicenseKeyPage : BasePage<LicenseKeyViewModel>
+    class LicensingErrorPage : BasePage<LicensingErrorViewModel>
     {
-        private ActivityIndicator updatingSpinner;
+        private Button logoutButton;
+        private Button resetLicenceKeyButton;
 
-        private Label title;
+        private Label titleLabel;
         private Label instructionsLabel;
 
-        private Entry licenseKeyEntry;
-        private Button setLicenseKeyButton;
 
         protected override void SetupViewElements()
         {
@@ -41,19 +40,18 @@ namespace HandbookApp.Views
             Content = new StackLayout {
                 Padding = new Thickness(20d),
                 Children = {
-                    (title = new Label {Text = "CHONY Handbook App", HorizontalOptions=LayoutOptions.Center }),
-                    (updatingSpinner = new ActivityIndicator { IsVisible = true, IsRunning = false }),
-                    (instructionsLabel = new Label { Text = "Please enter your license key.", Margin = new Thickness(5, 20, 5, 5) }),
-                    (licenseKeyEntry = new Entry { Placeholder="License Key" }),
-                    (setLicenseKeyButton = new Button { Text = "Set License Key" }),
+                    (titleLabel = new Label { Text = "Licensing Verification Failure", HorizontalOptions = LayoutOptions.Center }),
+                    (instructionsLabel = new Label { Text = "You are reaching this page because the Content Server does not recognize your licence key. Each licence key is associated with the first login account that you used. Either the licence key is incorrect or you should try a different login account provider. If you haven't changed your licence key or your account login recently then please contact your app administrator.", Margin = new Thickness(5, 20, 5, 5) }),
+                    (logoutButton = new Button { Text = "Logout and Try a different account" }),
+                    (resetLicenceKeyButton = new Button { Text = "Reset Licence Key" })
                 }
             };
         }
 
         protected override void SetupObservables()
         {
-            this.Bind(ViewModel, vm => vm.LicenceKey, c => c.licenseKeyEntry.Text);
-            this.BindCommand(ViewModel, vm => vm.SetLicensed, c => c.setLicenseKeyButton);
+            this.BindCommand(ViewModel, vm => vm.Logout, c => c.logoutButton);
+            this.BindCommand(ViewModel, vm => vm.ResetLicenceKey, c => c.resetLicenceKeyButton);
         }
     }
 }

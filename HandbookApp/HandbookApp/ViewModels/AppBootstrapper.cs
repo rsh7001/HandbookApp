@@ -13,11 +13,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-using Akavache;
-using HandbookApp.Services;
+
 using HandbookApp.Views;
 using ReactiveUI;
-using ReactiveUI.XamForms;
 using Splat;
 using Xamarin.Forms;
 
@@ -48,11 +46,13 @@ namespace HandbookApp.ViewModels
             dependencyResolver.Register(() => new BookpagePage(), typeof(IViewFor<BookpageViewModel>));
             dependencyResolver.Register(() => new LoginPage(), typeof(IViewFor<LoginViewModel>));
             dependencyResolver.Register(() => new LicenseKeyPage(), typeof(IViewFor<LicenseKeyViewModel>));
+            dependencyResolver.Register(() => new UnauthorizedErrorPage(), typeof(IViewFor<UnauthorizedErrorViewModel>));
+            dependencyResolver.Register(() => new LicensingErrorPage(), typeof(IViewFor<LicensingErrorViewModel>));
         }
 
         public Page CreateMainPage()
         {
-            return new RoutedViewHost();
+            return new MyRoutedViewHost();
         }
     }
 }

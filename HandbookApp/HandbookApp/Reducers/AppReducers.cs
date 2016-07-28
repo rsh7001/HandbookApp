@@ -27,6 +27,7 @@ namespace HandbookApp.Reducers
             return new AppState {
                 Books = BookReducers.BookReducer(previousState.Books, action),
                 Fullpages = FullpageReducers.FullpageReducer(previousState.Fullpages, action),
+                CurrentPostUpdateState = PostUpdateStateReducers.PostUpdateStateReducer(previousState.CurrentPostUpdateState, action),
                 CurrentState = HandbookStateReducers.HandbookStateReducer(previousState.CurrentState, action)
             };
         }

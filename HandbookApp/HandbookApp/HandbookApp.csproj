@@ -35,39 +35,59 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Actions\AzureActionCreators.cs" />
+    <Compile Include="Actions\PostUpdateActions.cs" />
+    <Compile Include="Actions\ServerActionCreators.cs" />
     <Compile Include="Actions\BookActions.cs" />
     <Compile Include="Actions\FullpageActions.cs" />
     <Compile Include="Actions\HandbookStateActions.cs" />
     <Compile Include="AkavacheSqliteLinkerOverride.cs" />
     <Compile Include="App.cs" />
-    <Compile Include="Constants.cs" />
+    <Compile Include="Models\ServerExceptions.cs" />
+    <Compile Include="Models\ServerRequests\AppLogItemMessage.cs" />
+    <Compile Include="Models\ServerRequests\VerifyLicenceKeyMessage.cs" />
+    <Compile Include="Models\ServerResponses\AppLogBulkResponseMessage.cs" />
+    <Compile Include="Models\ServerResponses\LicenceKeyResponseMessage.cs" />
+    <Compile Include="Models\ServerResponses\TokenResponseMessage.cs" />
+    <Compile Include="Models\ServerResponses\UpdateResponseMessage.cs" />
+    <Compile Include="Models\ServerUtility\ServerUpdateMessage.cs" />
+    <Compile Include="Models\ServerUtility\UpdateJsonMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reducers\AppReducers.cs" />
     <Compile Include="Reducers\BookReducers.cs" />
     <Compile Include="Reducers\FullpageReducers.cs" />
     <Compile Include="Reducers\HandbookStateReducers.cs" />
-    <Compile Include="Services\AppDebugger.cs" />
+    <Compile Include="Reducers\PostUpdateStateReducers.cs" />
     <Compile Include="Services\AzureMobileService.cs" />
+    <Compile Include="Services\LoggerService.cs" />
+    <Compile Include="Services\LogStoreService.cs" />
+    <Compile Include="Services\OfflineService.cs" />
     <Compile Include="States\AppState.cs" />
     <Compile Include="States\Book.cs" />
     <Compile Include="States\Fullpage.cs" />
     <Compile Include="States\HandbookState.cs" />
+    <Compile Include="States\PostUpdateState.cs" />
     <Compile Include="Utilities\IObservableExtensions.cs" />
     <Compile Include="Utilities\StoreExtensions.cs" />
     <Compile Include="ViewModels\AppBootstrapper.cs" />
+    <Compile Include="ViewModels\CustomBaseViewModel.cs" />
     <Compile Include="ViewModels\BookpageViewModel.cs" />
+    <Compile Include="ViewModels\ICustomViewModel.cs" />
     <Compile Include="ViewModels\LicenseKeyViewModel.cs" />
+    <Compile Include="ViewModels\LicensingErrorViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewBookTileViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\MyRoutedViewHost.cs" />
+    <Compile Include="ViewModels\UnauthorizedErrorViewModel.cs" />
     <Compile Include="Views\BasePage.cs" />
     <Compile Include="Views\BookpagePage.cs" />
     <Compile Include="Views\LicenseKeyPage.cs" />
+    <Compile Include="Views\LicensingErrorPage.cs" />
     <Compile Include="Views\LoginPage.cs" />
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UnauthorizedErrorPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -86,6 +106,14 @@
     </Reference>
     <Reference Include="CommonMark, Version=0.1.0.0, Culture=neutral, PublicKeyToken=001ef8810438905d, processorArchitecture=MSIL">
       <HintPath>..\..\packages\CommonMark.NET.0.12.0\lib\portable-net45+wp80+win+wpa81+MonoAndroid10+xamarinios10+MonoTouch10\CommonMark.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="crypto, Version=1.8.0.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Portable.BouncyCastle.1.8.0\lib\portable-net45+win8+wpa81+MonoTouch10+MonoAndroid10+xamarinmac20+xamarinios10\crypto.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="JWT, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Portable.JWT.1.0.5\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\JWT.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Mobile, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">

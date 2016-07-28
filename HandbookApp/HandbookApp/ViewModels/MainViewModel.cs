@@ -17,150 +17,74 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using Akavache;
 using HandbookApp.Actions;
 using HandbookApp.States;
 using HandbookApp.Utilities;
+using JWT;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Splat;
 
+
 namespace HandbookApp.ViewModels
 {
     [DataContract]
-    public class MainViewModel : ReactiveObject, IRoutableViewModel
+    public class MainViewModel : CustomBaseViewModel
     {
-        [IgnoreDataMember]
-        public extern string LastUpdateTime { [ObservableAsProperty]get; }
-        
-        [Reactive][DataMember] public List<MainViewBookTileViewModel> Handbooks { get; set; }
-        
-        [Reactive][DataMember] public bool BackgroundTaskRunning { get; set; }
+        private static TimeSpan throttleTime = TimeSpan.FromMilliseconds(100);
+        private static TimeSpan updateInterval = TimeSpan.FromMinutes(2);
+        private static TimeSpan refreshTokenCheckInterval = TimeSpan.FromDays(1);
+        private const  string JWTExpiryTimeKey = "exp";
+        private const  int MinimumRefreshTokenPeriodInDays = 15;
 
-        [IgnoreDataMember]
-        private extern List<Book> MyHandbooks { [ObservableAsProperty]get; }
+        [IgnoreDataMember] public extern string LastUpdateTime { [ObservableAsProperty]get; }
 
-        [Reactive][DataMember] private bool Navigating { get; set; }
+        [DataMember][Reactive] public List<MainViewBookTileViewModel> Handbooks { get; set; }
+        [DataMember][Reactive] public bool BackgroundTaskRunning { get; set; }
 
-        [IgnoreDataMember]
-        public string UrlPathSegment
+        [IgnoreDataMember] private IObservable<bool> canGoToLicenseKeyView;
+        [IgnoreDataMember] private IObservable<bool> canGoToLoginView;
+        [IgnoreDataMember] private IObservable<bool> canGoToLicensingErrorView;
+        [IgnoreDataMember] private IObservable<bool> canGoToUnauthorizedErrorView;
+        [IgnoreDataMember] private IObservable<bool> canDoUpdate;
+        [IgnoreDataMember] private IObservable<bool> canCheckLicenceKey;
+        [IgnoreDataMember] private IObservable<bool> islicensed;
+        [IgnoreDataMember] private IObservable<bool> isloggedin;
+        [IgnoreDataMember] private IObservable<bool> islicencekeyset;
+        [IgnoreDataMember] private IObservable<bool> haslicensederror;
+        [IgnoreDataMember] private IObservable<bool> hasunauthorizederror;
+        [IgnoreDataMember] private IObservable<bool> checkinglk;
+        [IgnoreDataMember] private IObservable<bool> checklgin;
+        [IgnoreDataMember] private IObservable<bool> updatingdata;
+        [IgnoreDataMember] private IObservable<bool> dataupdated;
+        [IgnoreDataMember] private IObservable<List<Book>> books;
+
+
+        public MainViewModel(IScreen hostscreen) : base(hostscreen)
         {
-            get
-            {
-                return "Main";
-            }
-        }
-
-        [IgnoreDataMember]
-        public IScreen HostScreen { get; protected set; }
-
-        [IgnoreDataMember]
-        private IObservable<bool> canGoToLicenseKeyView;
-        [IgnoreDataMember]
-        private IObservable<bool> canGoToLoginView;
-        [IgnoreDataMember]
-        private IObservable<bool> canDoUpdate;
-        [IgnoreDataMember]
-        private IObservable<bool> canCheckLicenceKey;
-
-        [IgnoreDataMember]
-        private IObservable<bool> islicensed;
-        [IgnoreDataMember]
-        private IObservable<bool> isloggedin;
-        [IgnoreDataMember]
-        private IObservable<bool> islicencekeyset;
-
-        [IgnoreDataMember]
-        private IObservable<bool> checkinglk;
-        [IgnoreDataMember]
-        private IObservable<bool> checklgin;
-        [IgnoreDataMember]
-        private IObservable<bool> updatingdata;
-        [IgnoreDataMember]
-        private IObservable<bool> onloginpage;
-        [IgnoreDataMember]
-        private IObservable<bool> onlicencekeypage;
-
-        [IgnoreDataMember]
-        private IObservable<bool> navigating;
-        [IgnoreDataMember]
-        private IObservable<bool> onmainpage;
-
-        //private IObservable<bool> needsupdate;
-
-        [IgnoreDataMember]
-        private ReactiveCommand<Unit> DoUpdate;
-        [IgnoreDataMember]
-        private ReactiveCommand<Unit> OpenLicenceKeyView;
-        [IgnoreDataMember]
-        private ReactiveCommand<Unit> OpenLoginView;
-        
-        public MainViewModel(IScreen hostscreen = null)
-        {
-            HostScreen = hostscreen ?? Locator.Current.GetService<IScreen>();
+            _viewModelName = this.GetType().ToString();
+            _urlPathSegment = "Main";
+            
 
             Handbooks = new List<MainViewBookTileViewModel>();
-                        
+
             App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState })
-                .Select(u => "Last Updated: " + u.CurrentState.LastUpdateTime.ToString("u"))
+                .DistinctUntilChanged(state => new { state.CurrentState.LastUpdateTime })
+                .Select(u => "Last Updated: " + u.CurrentState.LastUpdateTime.ToLocalTime().ToString("G"))
                 .ToPropertyEx(
                     source: this,
                     property: x => x.LastUpdateTime,
                     scheduler: RxApp.MainThreadScheduler
                 );
-            
-
-            App.Store
-                .DistinctUntilChanged(state => new { state.Books })
-                .Select(d => d.Books.Values.OrderBy(y => y.OrderIndex).ToList())
-                .ToPropertyEx(
-                    source: this,
-                    property: x => x.MyHandbooks,
-                    scheduler: RxApp.MainThreadScheduler
-                );
-
-
-            setupObservables();
-
-            DoUpdate = ReactiveCommand.CreateAsyncObservable(
-                canDoUpdate, 
-                x => updateImpl());
-
-            OpenLicenceKeyView = ReactiveCommand.CreateAsyncTask(
-                canGoToLicenseKeyView,
-                x => openLicenceKeyView());
-
-            OpenLoginView = ReactiveCommand.CreateAsyncTask(
-                canGoToLoginView, 
-                x => openLoginView());
-
-            setupSubscriptions();
         }
 
-        private void setupObservables()
+
+        protected override void setupObservables()
         {
-            checkinglk = App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState.CheckingLicenceKey })
-                .Select(d => d.CurrentState.CheckingLicenceKey);
-
-            checklgin = App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState.CheckingLogin })
-                .Select(d => d.CurrentState.CheckingLogin);
-
-            updatingdata = App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState.IsUpdatingData })
-                .Select(d => d.CurrentState.IsUpdatingData);
-
-
-            islicensed = App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState.IsLicensed })
-                .Select(d => d.CurrentState.IsLicensed);
-
+            base.setupObservables();
+            
             isloggedin = App.Store
                 .DistinctUntilChanged(state => new { state.CurrentState.IsLoggedIn })
                 .Select(d => d.CurrentState.IsLoggedIn);
@@ -169,144 +93,232 @@ namespace HandbookApp.ViewModels
                 .DistinctUntilChanged(state => new { state.CurrentState.IsLicenceKeySet })
                 .Select(d => d.CurrentState.IsLicenceKeySet);
 
+            haslicensederror = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.HasLicensedError })
+                .Select(d => d.CurrentState.HasLicensedError);
 
-            onlicencekeypage = App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState.OnLicenceKeyPage })
-                .Select(d => d.CurrentState.OnLicenceKeyPage);
+            hasunauthorizederror = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.HasUnauthorizedError })
+                .Select(d => d.CurrentState.HasUnauthorizedError);
 
-            onloginpage = App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState.OnLoginPage })
-                .Select(d => d.CurrentState.OnLoginPage);
+            checkinglk = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.VerifyingLicenceKey })
+                .Select(d => d.CurrentState.VerifyingLicenceKey);
 
-            navigating = this.WhenAnyValue(x => x.Navigating)
-                .DistinctUntilChanged();
+            checklgin = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.CheckingLogin })
+                .Select(d => d.CurrentState.CheckingLogin);
 
-            onmainpage = navigating
-                .CombineLatest(onloginpage, (a,b) => !a && !b)
-                .CombineLatest(onlicencekeypage, (c,d) => c && !d)
-                .DistinctUntilChanged();
+            updatingdata = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.UpdatingData })
+                .Select(d => d.CurrentState.UpdatingData);
 
-            //Observable
-            //    .Interval(TimeSpan.FromSeconds(15.0), RxApp.TaskpoolScheduler)
-            //    .Subscribe(
-            //        x => { checkIfNeedsUpdate(); });
-    
-            canDoUpdate = islicensed;
 
-            canCheckLicenceKey = navigating
-                .CombineLatest(isloggedin, (x,y) => !x && y)
-                .CombineLatest(islicensed, (a,b) => a && !b)
-                .CombineLatest(islicencekeyset, (c,d) => c && d)
-                .DistinctUntilChanged();
-                
-            canGoToLicenseKeyView = navigating
-                .CombineLatest(isloggedin, (x, y) => !x && y)
+            islicensed = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.IsLicensed })
+                .Select(d => d.CurrentState.IsLicensed);
+
+            dataupdated = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.IsDataUpdated })
+                .Select(d => d.CurrentState.IsDataUpdated);
+
+            books = App.Store
+                .DistinctUntilChanged(state => new { state.Books })
+                .Select(d => d.Books.Values.OrderBy(y => y.OrderIndex).ToList());
+
+            canDoUpdate = navigatedaway
+                .CombineLatest(navigating, (x, y) => !x && !y)
+                .CombineLatest(islicensed, (a, b) => a && b)
+                .CombineLatest(updatingdata, (c, d) => c && !d)
+                .CombineLatest(dataupdated, (e, f) => e && !f);
+
+            canCheckLicenceKey = navigatedaway
+                .CombineLatest(navigating, (x, y) => !x && !y)
+                .CombineLatest(isloggedin, (e, f) => e && f)
+                .CombineLatest(checkinglk, (v, w) => v && !w)
                 .CombineLatest(islicensed, (a, b) => a && !b)
-                .CombineLatest(islicencekeyset, (c, d) => c && !d)
-                .CombineLatest(onmainpage, (e, f) => e && f)
-                .DistinctUntilChanged();
-                
-            canGoToLoginView = navigating
-                .CombineLatest(isloggedin, (x,y) => !x && !y)
-                .CombineLatest(islicensed, (a,b) => a && !b)
-                .CombineLatest(onmainpage, (c,d) => c && d)
-                .DistinctUntilChanged();
+                .CombineLatest(islicencekeyset, (c, d) => c && d)
+                .CombineLatest(haslicensederror, (g, h) => g && !h)
+                .CombineLatest(hasunauthorizederror, (i, j) => i && !j);
+
+            canGoToLoginView = navigatedaway
+                .CombineLatest(navigating, (x, y) => !x && !y)
+                .CombineLatest(isloggedin, (a, b) => a && !b)
+                .CombineLatest(islicensed, (c, d) => c && !d)
+                .CombineLatest(haslicensederror, (g, h) => g && !h)
+                .CombineLatest(hasunauthorizederror, (i, j) => i && !j);
+
+            canGoToLicenseKeyView = navigatedaway
+                .CombineLatest(navigating, (x, y) => !x && !y)
+                .CombineLatest(isloggedin, (a, b) => a && b)
+                .CombineLatest(islicencekeyset, (e, f) => e && !f)
+                .CombineLatest(islicensed, (c, d) => c && !d)
+                .CombineLatest(haslicensederror, (g, h) => g && !h)
+                .CombineLatest(hasunauthorizederror, (i, j) => i && !j);
+
+            canGoToLicensingErrorView = navigatedaway
+                .CombineLatest(navigating, (x, y) => !x && !y)
+                .CombineLatest(haslicensederror, (g, h) => g && h)
+                .CombineLatest(hasunauthorizederror, (i, j) => i && !j);
+
+            canGoToUnauthorizedErrorView = navigatedaway
+                .CombineLatest(navigating, (x, y) => !x && !y)
+                .CombineLatest(haslicensederror, (g, h) => g && !h)
+                .CombineLatest(hasunauthorizederror, (i, j) => i && j);
+
+
+            // Update Interval Timer
+            Observable
+                .Interval(updateInterval)
+                .Subscribe(
+                    x => {
+                        checkUpdates();
+                    });
+
+
+            // RefreshToken Interval Timer
+            Observable
+                .Interval(refreshTokenCheckInterval)
+                .Subscribe(
+                    x => {
+                        checkRefreshToken();
+                    });
         }
 
-        //private void checkIfNeedsUpdate()
-        //{
-        //    var lastupdatetime = App.Store.GetState().CurrentState.LastUpdateTime;
-        //    var duration = DateTimeOffset.UtcNow - lastupdatetime;
-        //    if (duration > TimeSpan.FromHours(6.0))
-        //    {
-        //        //App.Store.Dispatch(new )
-        //    }
-        //}
-
-        private void setupSubscriptions()
+        private void checkUpdates()
         {
-            checkinglk
-                .CombineLatest(checklgin, (x,y) => x || y)
-                .CombineLatest(updatingdata, (a, b) => a || b)
+            if (App.Store.GetState().CurrentState.IsLicensed)
+            {
+                App.Store.Dispatch(ServerActionCreators.ServerFullUpdateAction());
+            }
+        }
+
+        private void checkRefreshToken()
+        {
+            if(!App.Store.GetState().CurrentState.IsLicensed)
+            {
+                return;
+            }
+
+            if(shouldGetRefreshToken(App.Store.GetState().CurrentState.AuthToken))
+            {
+                App.Store.Dispatch(ServerActionCreators.ServerRefreshTokenAction());
+            }
+        }
+
+        private bool shouldGetRefreshToken(string authToken)
+        {
+            Dictionary<string, object> payload = JsonWebToken.DecodeToObject(authToken, string.Empty, false) as Dictionary<string, object>;
+            object expiryTimeObject;
+            payload.TryGetValue(JWTExpiryTimeKey, out expiryTimeObject);
+            var expiryTime = (long) expiryTimeObject;
+            DateTimeOffset dtDateTime = new DateTimeOffset(1970,1,1,0,0,0,0,TimeSpan.FromHours(0));
+            dtDateTime = dtDateTime.AddSeconds(expiryTime).ToLocalTime();
+            var duration = dtDateTime.Subtract(DateTimeOffset.UtcNow);
+            return (duration.TotalDays < MinimumRefreshTokenPeriodInDays);
+        }
+
+        protected override void setupSubscriptions()
+        {
+            base.setupSubscriptions();
+
+            books
                 .DistinctUntilChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(z => BackgroundTaskRunning = z);
-
-            this.WhenAnyValue(x => x.MyHandbooks)
-                .DistinctUntilChanged()
                 .Subscribe(
                     xs => {
                         var newlist = new List<MainViewBookTileViewModel>();
                         newlist.AddRange(xs.Select(x => new MainViewBookTileViewModel(x)));
                         Handbooks.Clear();
                         Handbooks = newlist;
-                    });
+                    }
+                )
+                .DisposeWith(subscriptionDisposibles);
 
-            islicensed
-                .Where(y => y == true)
+
+            canDoUpdate
+                .Throttle(throttleTime)
                 .DistinctUntilChanged()
-                .InvokeCommand(this, x => x.DoUpdate);
+                .Subscribe(
+                    x => {
+                        if (x)
+                        {
+                            App.Store.Dispatch(ServerActionCreators.ServerFullUpdateAction());
+                        }
+                    }
+                )
+                .DisposeWith(subscriptionDisposibles);
+
 
             canCheckLicenceKey
-                .Where(y => y == true)
+                .Throttle(throttleTime)
                 .DistinctUntilChanged()
-                .Subscribe(z => { App.Store.Dispatch(AzureActionCreators.CheckLicenceKeyAction()); });
+                .Subscribe(
+                    x => {
+                        if (x)
+                        {
+                            App.Store.Dispatch(ServerActionCreators.ServerVerifyLicenceKeyAction());
+                        }
+                    }
+                )
+                .DisposeWith(subscriptionDisposibles);
 
-            //App.Store
-            //    .Select(d => d.CurrentState)
-            //    .Log(this, "Current State Blob")
-            //    .Subscribe(
-            //        async x => { await BlobCache.UserAccount.InsertObject<HandbookState>("currentstate", x); },
-            //        ex => { LogHost.Default.Info("blobcache exception: {0}", ex.Message); },
-            //        () => { LogHost.Default.Info("current state saved"); });
-
-        }
-
-        // TODO: Subscriptions which need navigation need to be setup in the OnAppearing portion of
-        // the View because the _nav needs to be set up. This will change when I go back to 
-        // using HostScreen in ReactiveUI
-        //
-        public void OnAppearingSetup()
-        {
-            canGoToLicenseKeyView
-                .Where(y => y == true)
-                .DistinctUntilChanged()
-                .InvokeCommand(this, x => x.OpenLicenceKeyView);
 
             canGoToLoginView
-                .Where(y => y == true)
+                .Throttle(throttleTime)
                 .DistinctUntilChanged()
-                .InvokeCommand(this, x => x.OpenLoginView);
-        }
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(
+                    x => {
+                        if (x)
+                        {
+                            NavigateTo<LoginViewModel>();
+                        }
+                    }
+                )
+                .DisposeWith(subscriptionDisposibles);
 
-        private IObservable<Unit> updateImpl()
-        {
-            App.Store.Dispatch(AzureActionCreators.ServerUpdateAction());
-            return Observable.Start(() => { return Unit.Default; });
-        }
+            canGoToLicenseKeyView
+                .Throttle(throttleTime)
+                .DistinctUntilChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(
+                    x => {
+                        if (x)
+                        {
+                            NavigateTo<LicenseKeyViewModel>();
+                        }
+                    }
+                )
+                .DisposeWith(subscriptionDisposibles);
 
-        private async Task openLicenceKeyView()
-        {
-            if(Navigating)
-                return;
+            canGoToLicensingErrorView
+                .Throttle(throttleTime)
+                .DistinctUntilChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(
+                    x => {
+                        if (x)
+                        {
+                            NavigateTo<LicensingErrorViewModel>();
+                        }
+                    }
+                )
+                .DisposeWith(subscriptionDisposibles);
 
-            Navigating = true;
-            App.Store.Dispatch(new SetOnLicenceKeyAction());
-            var vm = new LicenseKeyViewModel(HostScreen);
-            await HostScreen.Router.Navigate.ExecuteAsyncTask(vm);
-            Navigating = false;
-        }
-
-        private async Task openLoginView()
-        {
-            if(Navigating)
-                return;
-
-            Navigating = true;
-            App.Store.Dispatch(new SetOnLoginPageAction());
-            var vm = new LoginViewModel(HostScreen);
-            await HostScreen.Router.Navigate.ExecuteAsyncTask(vm);
-            Navigating = false;
+            canGoToUnauthorizedErrorView
+                .Throttle(throttleTime)
+                .DistinctUntilChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(
+                    x => {
+                        if (x)
+                        {
+                            NavigateTo<UnauthorizedErrorViewModel>();
+                        }
+                    }
+                )
+                .DisposeWith(subscriptionDisposibles);       
         }
     }
 }

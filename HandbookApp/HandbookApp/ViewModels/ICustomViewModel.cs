@@ -14,10 +14,12 @@
 //    limitations under the License.
 //
 
-namespace HandbookApp
+
+namespace HandbookApp.ViewModels
 {
-    public static class Constants
+    public interface ICustomBaseViewModel
     {
-        public static string MobileURL = "https://stanleyhummobile.azurewebsites.net";
+        void OnAppearing();
+        void OnDisappearing();
     }
 }

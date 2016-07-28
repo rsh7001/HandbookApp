@@ -15,22 +15,28 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Redux;
+using HandbookApp.Models.ServerRequests;
 
-
-namespace HandbookApp.Utilities
+namespace HandbookApp.Services
 {
-    public delegate Task AsyncActionsCreator<TState>(Dispatcher dispatcher, Func<TState> getState);
-
-    public static class StoreExtensions
+    public static class LogStoreService
     {
-        /// <summary>
-        /// Extension on IStore to dispatch multiple actions via a thunk (from GuillaumeSalles/redux.NET/examples/async/Redux.Async example)
-        /// </summary>
-        public static Task Dispatch<TState>(this IStore<TState> store, AsyncActionsCreator<TState> actionsCreator)
+        public static ImmutableList<AppLogItemMessage> LogStore = ImmutableList<AppLogItemMessage>.Empty;
+
+        public static void InitializeLogStore()
         {
-            return actionsCreator(store.Dispatch, store.GetState);
+            LogStore = OfflineService.LoadOfflineLogStore();
         }
+
+        public static void Clear()
+        {
+            LogStore = ImmutableList<AppLogItemMessage>.Empty;
+        }
+
     }
 }

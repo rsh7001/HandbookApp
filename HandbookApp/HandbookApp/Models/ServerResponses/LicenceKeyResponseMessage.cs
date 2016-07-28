@@ -14,23 +14,30 @@
 //    limitations under the License.
 //
 
-using System;
-using System.Threading.Tasks;
-using Redux;
 
+using Newtonsoft.Json;
 
-namespace HandbookApp.Utilities
+namespace HandbookApp.Models.ServerResponses
 {
-    public delegate Task AsyncActionsCreator<TState>(Dispatcher dispatcher, Func<TState> getState);
-
-    public static class StoreExtensions
+    public enum LicenceKeyResponseMessageCode
     {
-        /// <summary>
-        /// Extension on IStore to dispatch multiple actions via a thunk (from GuillaumeSalles/redux.NET/examples/async/Redux.Async example)
-        /// </summary>
-        public static Task Dispatch<TState>(this IStore<TState> store, AsyncActionsCreator<TState> actionsCreator)
-        {
-            return actionsCreator(store.Dispatch, store.GetState);
-        }
+        Licensed,
+        NewUserCreated,
+        NoUserIdGiven,
+        NoLicenceKeyFound,
+        InitialUpdateJsonUnavailable,
+        LicenceKeyInUse,
+        UpdateStatusUserIdInUse,
+        VerifyLicenceKeyException
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public class LicenceKeyResponseMessage
+    {
+        [JsonProperty]
+        public LicenceKeyResponseMessageCode Code { get; set; }
+
+        [JsonProperty]
+        public string Message { get; set; }
     }
 }

@@ -15,33 +15,38 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace HandbookApp.States
 {
     public class HandbookState
     {
-        public bool OnLoginPage { get; set; }
+        public bool IsDataUpdated { get; set; }
+        public DateTimeOffset LastUpdateTime { get; set; }
+
+        public bool IsLicensed { get; set; }
+
         public bool IsLoggedIn { get; set; }
-        public bool CheckingLogin { get; set; }
+
+        public bool IsLicenceKeySet { get; set; }
+        public string LicenceKey { get; set; }
+
         public bool IsUserSet { get; set; }
         public string UserId { get; set; }
         public string AuthToken { get; set; }
+
+        public bool HasLicensedError { get; set; }
+        public bool HasUnauthorizedError { get; set; }
+
+        public bool CheckingLogin { get; set; }
+        public bool VerifyingLicenceKey { get; set; }
+        public bool UpdatingData { get; set; }
+        public bool PostingUpdateData { get; set; }
+        public bool RefreshingToken { get; set; }
+        public bool LoadingAppLog { get; set; }
+
+        public bool Reloaded { get; set; }
         
-        public bool OnLicenceKeyPage { get; set; }
-        public bool IsLicensed { get; set; }
-        public bool IsLicenceKeySet { get; set; }
-        public bool CheckingLicenceKey { get; set; }
-        public string LicenceKey { get; set; }
-
-        public bool IsUpdatingData { get; set; }
-        public bool IsDataUpdated { get; set; }
-        public bool IsDataLoaded { get; set; }
-        public DateTimeOffset LastUpdateTime { get; set; }
-
         
         public HandbookState()
         {
@@ -50,9 +55,22 @@ namespace HandbookApp.States
 
         protected HandbookState(HandbookState old)
         {
-            this.OnLoginPage = old.OnLoginPage;
+            this.IsDataUpdated = old.IsDataUpdated;
+            this.LastUpdateTime = old.LastUpdateTime;
+
+            this.IsLicensed = old.IsLicensed;
+
             this.IsLoggedIn = old.IsLoggedIn;
-            this.CheckingLogin = old.CheckingLogin;
+
+            this.IsLicenceKeySet = old.IsLicenceKeySet;
+            this.LicenceKey = "";
+            if (!String.IsNullOrEmpty(old.LicenceKey))
+            {
+                char[] buffer = new char[old.LicenceKey.Length];
+                old.LicenceKey.CopyTo(0, buffer, 0, old.LicenceKey.Length);
+                this.LicenceKey = new string(buffer);
+            }
+
             this.IsUserSet = old.IsUserSet;
             this.UserId = "";
             if (!String.IsNullOrEmpty(old.UserId))
@@ -69,32 +87,55 @@ namespace HandbookApp.States
                 this.AuthToken = new string(buffer);
             }
 
-            this.OnLicenceKeyPage = old.OnLicenceKeyPage;
-            this.IsLicensed = old.IsLicensed;
-            this.IsLicenceKeySet = old.IsLicenceKeySet;
-            this.CheckingLicenceKey = old.CheckingLicenceKey;
-            this.LicenceKey = "";
-            if (!String.IsNullOrEmpty(old.LicenceKey))
-            {
-                char[] buffer = new char[old.LicenceKey.Length];
-                old.LicenceKey.CopyTo(0, buffer, 0, old.LicenceKey.Length);
-                this.LicenceKey = new string(buffer);
-            }
+            this.HasLicensedError = old.HasLicensedError;
+            this.HasUnauthorizedError = old.HasUnauthorizedError;
 
-            this.IsUpdatingData = old.IsUpdatingData;
-            this.IsDataUpdated = old.IsDataUpdated;
-            this.IsDataLoaded = old.IsDataLoaded;
-            this.LastUpdateTime = old.LastUpdateTime;
+            this.CheckingLogin = old.CheckingLogin;
+            this.VerifyingLicenceKey = old.VerifyingLicenceKey;
+            this.UpdatingData = old.UpdatingData;
+            this.PostingUpdateData = old.PostingUpdateData;
+            this.RefreshingToken = old.RefreshingToken;
+            this.LoadingAppLog = old.LoadingAppLog;
+
+            this.Reloaded = old.Reloaded;
         }
+
 
         public HandbookState Clone()
         {
             return new HandbookState(this);
         }
 
-        public override string ToString()
+
+        public static HandbookState CreateEmpty()
         {
-            return "LoggedIn: " + IsLoggedIn.ToString() + "\nLicensed: " + IsLicensed.ToString();
+            return new HandbookState {
+                IsDataUpdated = false,
+                LastUpdateTime = new System.DateTimeOffset(1970, 1, 1, 0, 0, 0, new System.TimeSpan(-5, 0, 0)),
+
+                IsLicensed = false,
+
+                IsLoggedIn = false,
+
+                IsLicenceKeySet = false,
+                LicenceKey = "",
+
+                IsUserSet = false,
+                UserId = "",
+                AuthToken = "",
+
+                HasLicensedError = false,
+                HasUnauthorizedError = false,
+
+                CheckingLogin = false,
+                VerifyingLicenceKey = false,
+                UpdatingData = false,
+                PostingUpdateData = false,
+                RefreshingToken = false,
+                LoadingAppLog = false,
+
+                Reloaded = false
+            };
         }
     }
 }

@@ -14,13 +14,9 @@
 //    limitations under the License.
 //
 
-using System;
-using System.Linq;
-using HandbookApp.Utilities;
 using HandbookApp.ViewModels;
 using ReactiveUI;
 using Xamarin.Forms;
-using System.Reactive.Linq;
 
 
 namespace HandbookApp.Views
@@ -36,9 +32,13 @@ namespace HandbookApp.Views
         private Label title;
         private Label instructionsLabel;
 
+
         protected override void SetupViewElements()
         {
             base.SetupViewElements();
+
+            NavigationPage.SetHasBackButton(this, false);
+            NavigationPage.SetHasNavigationBar(this, false);
 
             Content = new StackLayout {
                 Padding = new Thickness(20d),
@@ -56,17 +56,10 @@ namespace HandbookApp.Views
 
         protected override void SetupObservables()
         {
-            this.BindCommand(ViewModel, vm => vm.LoginGoogleProvider, c => c.loginGoogleButton)
-                .DisposeWith(subscriptionDisposibles);
-
-            this.BindCommand(ViewModel, vm => vm.LoginMicrosoftProvider, c => c.loginMicrosoftButton)
-                .DisposeWith(subscriptionDisposibles);
-
-            this.BindCommand(ViewModel, vm => vm.LoginFacebookProvider, c => c.loginFacebookButton)
-                .DisposeWith(subscriptionDisposibles);
-
-            this.BindCommand(ViewModel, vm => vm.LoginTwitterProvider, c => c.loginTwitterButton)
-                .DisposeWith(subscriptionDisposibles);
+            this.BindCommand(ViewModel, vm => vm.LoginGoogleProvider, c => c.loginGoogleButton);
+            this.BindCommand(ViewModel, vm => vm.LoginMicrosoftProvider, c => c.loginMicrosoftButton);
+            this.BindCommand(ViewModel, vm => vm.LoginFacebookProvider, c => c.loginFacebookButton);
+            this.BindCommand(ViewModel, vm => vm.LoginTwitterProvider, c => c.loginTwitterButton);
         }
     }
 }

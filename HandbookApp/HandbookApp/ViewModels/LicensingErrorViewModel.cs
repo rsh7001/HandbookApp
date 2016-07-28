@@ -23,54 +23,46 @@ using System.Threading.Tasks;
 using HandbookApp.Actions;
 using HandbookApp.Utilities;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 using Splat;
-
 
 namespace HandbookApp.ViewModels
 {
     [DataContract]
-    public class LicenseKeyViewModel : CustomBaseViewModel
+    public class LicensingErrorViewModel : CustomBaseViewModel
     {
-        [Reactive][DataMember] public string LicenceKey { get; set; }
-
         [IgnoreDataMember]
-        public ReactiveCommand<Unit> SetLicensed;
-
-
+        public ReactiveCommand<Unit> Logout;
         [IgnoreDataMember]
-        private IObservable<bool> cansetlicencekey;
-        [IgnoreDataMember]
-        private IObservable<bool> islicencekeyset;
+        public ReactiveCommand<Unit> ResetLicenceKey;
+        
         [IgnoreDataMember]
         private IObservable<bool> cannavigatetomain;
+        [IgnoreDataMember]
+        private IObservable<bool> haslicensederror;
 
 
-        public LicenseKeyViewModel(IScreen hostscreen = null, params object[] args) : base(hostscreen)
+        public LicensingErrorViewModel(IScreen hostscreen = null, params object[] args) : base(hostscreen)
         {
             _viewModelName = this.GetType().ToString();
-            _urlPathSegment = "Licence Key";
+            _urlPathSegment = "Licensing Failure";
 
-            SetLicensed = ReactiveCommand.CreateAsyncTask(cansetlicencekey, x => setLicensedImpl());
+            Logout = ReactiveCommand.CreateAsyncTask(x => logoutImpl());
+            ResetLicenceKey = ReactiveCommand.CreateAsyncTask(x => resetLicenceKeyImpl());
         }
+
 
         protected override void setupObservables()
         {
             base.setupObservables();
 
-            islicencekeyset = App.Store
-                .DistinctUntilChanged(state => new { state.CurrentState.IsLicenceKeySet })
-                .Select(d => d.CurrentState.IsLicenceKeySet);
-
-            cansetlicencekey = this.WhenAnyValue(x => x.LicenceKey, (lk) =>
-                !String.IsNullOrWhiteSpace(lk) && lk.Length >= 6)
-                .DistinctUntilChanged();
+            haslicensederror = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.HasLicensedError })
+                .Select(d => d.CurrentState.HasLicensedError);
 
             cannavigatetomain = navigatedaway
                 .CombineLatest(navigating, (x, y) => !x && !y)
-                .CombineLatest(islicencekeyset, (a, b) => a && b);
+                .CombineLatest(haslicensederror, (a, b) => a && !b);
         }
-
 
         protected override void setupSubscriptions()
         {
@@ -90,10 +82,16 @@ namespace HandbookApp.ViewModels
 
         }
 
-        
-        private async Task setLicensedImpl()
+        private async Task resetLicenceKeyImpl()
         {
-            await Task.Run(() => { App.Store.Dispatch(new SetLicenceKeyAction { LicenceKey = LicenceKey }); });
+            await Task.Run(() => { App.Store.Dispatch(new ClearLicenceKeyAction()); } );
+            await Task.Run(() => { App.Store.Dispatch(new ClearHasLicensedErrorAction()); });
+        }
+
+        private async Task logoutImpl()
+        {
+            await Task.Run(() => { App.Store.Dispatch(new LogoutAction()); });
+            await Task.Run(() => { App.Store.Dispatch(new ClearHasLicensedErrorAction()); });
         }
     }
 }

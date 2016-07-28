@@ -14,6 +14,7 @@
 //    limitations under the License.
 //
 
+using HandbookApp.Utilities;
 using HandbookApp.ViewModels;
 using ReactiveUI;
 using Xamarin.Forms;
@@ -21,15 +22,13 @@ using Xamarin.Forms;
 
 namespace HandbookApp.Views
 {
-    public class LicenseKeyPage : BasePage<LicenseKeyViewModel>
+    public class UnauthorizedErrorPage : BasePage<UnauthorizedErrorViewModel>
     {
-        private ActivityIndicator updatingSpinner;
+        private Button goBackMainPageButton;
 
-        private Label title;
+        private Label titleLabel;
         private Label instructionsLabel;
 
-        private Entry licenseKeyEntry;
-        private Button setLicenseKeyButton;
 
         protected override void SetupViewElements()
         {
@@ -41,19 +40,17 @@ namespace HandbookApp.Views
             Content = new StackLayout {
                 Padding = new Thickness(20d),
                 Children = {
-                    (title = new Label {Text = "CHONY Handbook App", HorizontalOptions=LayoutOptions.Center }),
-                    (updatingSpinner = new ActivityIndicator { IsVisible = true, IsRunning = false }),
-                    (instructionsLabel = new Label { Text = "Please enter your license key.", Margin = new Thickness(5, 20, 5, 5) }),
-                    (licenseKeyEntry = new Entry { Placeholder="License Key" }),
-                    (setLicenseKeyButton = new Button { Text = "Set License Key" }),
+                    (titleLabel = new Label { Text = "Unauthorized Access Error", HorizontalOptions = LayoutOptions.Center }),
+                    (instructionsLabel = new Label { Text = "You are reaching this page because the Content Server does not recognize who you are. You will need to login again with the account that you first logged in with. Normally this does not happen if you check the app once a day. If you check your app once a day, please contact your app administrator.", Margin = new Thickness(5, 20, 5, 5) }),
+                    (goBackMainPageButton = new Button { Text = "Continue" })
                 }
             };
         }
 
+
         protected override void SetupObservables()
         {
-            this.Bind(ViewModel, vm => vm.LicenceKey, c => c.licenseKeyEntry.Text);
-            this.BindCommand(ViewModel, vm => vm.SetLicensed, c => c.setLicenseKeyButton);
+            this.BindCommand(ViewModel, vm => vm.ClearUnauthorized, c => c.goBackMainPageButton);
         }
     }
 }

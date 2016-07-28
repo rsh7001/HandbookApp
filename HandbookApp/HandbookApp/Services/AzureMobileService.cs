@@ -16,91 +16,37 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
-using System.Text;
 using System.Threading.Tasks;
-using HandbookApp.Actions;
-using HandbookApp.States;
+using HandbookApp.Models;
+using HandbookApp.Models.ServerRequests;
+using HandbookApp.Models.ServerResponses;
+using HandbookApp.Models.ServerUtility;
 using Microsoft.WindowsAzure.MobileServices;
 using ModernHttpClient;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using ReactiveUI;
 using Splat;
+
 
 namespace HandbookApp.Services
 {
-    [JsonObject(MemberSerialization.OptIn)]
-    public class ServerUpdateMessage
+    public class AzureMobileService : IDisposable, IEnableLogger
     {
-        [JsonProperty]
-        public int ID { get; set; }
-
-        public DateTime Time { get; set; }
-
-        [JsonProperty]
-        public string Action { get; set; }
-
-        [JsonProperty]
-        public string ArticleID { get; set; }
-
-        [JsonProperty]
-        public string ArticleTitle { get; set; }
-
-        [JsonProperty]
-        public string ArticleContent { get; set; }
-
-        [JsonProperty]
-        public string BookpageID { get; set; }
-
-        [JsonProperty]
-        public string BookpageArticleID { get; set; }
-
-        [JsonProperty]
-        public string BookpageLinkTitle { get; set; }
-
-        [JsonProperty]
-        public List<string> BookpageLinkIDs { get; set; }
-
-        [JsonProperty]
-        public string BookID { get; set; }
-
-        [JsonProperty]
-        public string BookTitle { get; set; }
-
-        [JsonProperty]
-        public string BookStartingID { get; set; }
-
-        [JsonProperty]
-        public int BookOrder { get; set; }
-
-        [JsonProperty]
-        public string FullPageID { get; set; }
-
-        [JsonProperty]
-        public string FullPageContent { get; set; }
-
-        [JsonProperty]
-        public string FullPageTitle { get; set; }
-    }
-
-    public class AzureMobileService : IDisposable
-    {
-        private static string baseAddress = "http://192.168.72.70:56399/";
-        //private static string baseAddress = "https://stanleyhum.azurewebsites.net/";
-        private static string updateMessagesApi = "api/updates/";
-        private const string applicationHeaderJson = "application/json";
-        private const int timeoutDurationInMilliseconds = 19000; // TODO: Needs 19 seconds timeout to go to external website and download need to retry on first load
-        private HttpClient _httpClient;
-
         private MobileServiceClient _azureClient;
-        private IDictionary<string, string> _currentHeaders;
-        private IDictionary<string, string> _currentParameters;
+        private HttpClient _httpClient;
+        private static string TestMobileURL = "http://192.168.72.192:55506";
+        private static string ProductionMobileURL = "https://handbookmobileappservice.azurewebsites.net/";
+        private static string VerifyLicenceKeyAPI = "api/verifylicencekey";
+        private static string GetUpdatesAPI = "api/updates";
+        private static string PostUpdatesAPI = "api/postupdates";
+        private static string RefreshTokenAPI = "api/refreshtoken";
+        private static string LoadAppLogAPI = "api/loadapplog";
+        private static string ZumoAuthName = "X-ZUMO-AUTH";
+        private static string ZumoApiVersionName = "ZUMO-API-VERSION";
+        private static string ZumoApiVersion = "2.0.0";
+        private static string ContentJsonString = "application/json";
 
         public MobileServiceClient Client
         {
@@ -109,143 +55,347 @@ namespace HandbookApp.Services
 
         public AzureMobileService()
         {
-            //_azureClient = new MobileServiceClient(Constants.MobileURL);
-            _azureClient = new MobileServiceClient(baseAddress);
-            _currentHeaders = new Dictionary<string, string>();
-            _currentParameters = new Dictionary<string, string>();
-            _httpClient = new HttpClient(new NativeMessageHandler());
-            _httpClient.BaseAddress = new Uri(baseAddress);
-            _httpClient.DefaultRequestHeaders.Add("ZUMO-API-VERSION", "2.0.0");
-            _httpClient.DefaultRequestHeaders.Accept.Clear();
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(applicationHeaderJson));
+            initializeAzureMobileServiceClient();
+            initializeHttpClient();
         }
 
-        private IObservable<HttpResponseMessage> serverUpdateCommand()
+
+        public void SetAzureUserCredentials(string userId, string token)
         {
-            return Observable.FromAsync(() => _httpClient.PostAsync(updateMessagesApi, null));
+            _azureClient.CurrentUser = new MobileServiceUser(userId);
+            _azureClient.CurrentUser.MobileServiceAuthenticationToken = token;
+            _httpClient.DefaultRequestHeaders.Remove(ZumoAuthName);
+            _httpClient.DefaultRequestHeaders.Add(ZumoAuthName, token);
         }
 
-        //public IObservable<JToken> ServerUpdateCommand()
-        //{
-        //    return Observable.FromAsync(() => _azureClient.InvokeApiAsync("api/updates"));
-        //    return Observable.FromAsync(() => _azureClient.InvokeApiAsync(
-        //        apiName: updateMessagesApi,
-        //        content: new StringContent(""),
-        //        method: HttpMethod.Post,
-        //        requestHeaders: _currentHeaders,
-        //        parameters: _currentParameters
-        //        ));
-        //}
 
-        static bool serverupdating = false;
-
-        public void JsonServerUpdate()
+        public async Task<bool> VerifyLicenceKey(VerifyLicenceKeyMessage vlkm)
         {
-            serverUpdateCommand()
-                .Timeout(TimeSpan.FromMilliseconds(timeoutDurationInMilliseconds))
-                .Finally(() => {
-                    clearServerUpdate();
-                })
-                .Subscribe(
-                    res => {
-                        serverupdating = true;
-                        processHttpMessage(res);
-                    },
-                    ex => {
-                        serverupdating = false;
-                        LogHost.Default.Info("Exception: {0}", ex.Message);
-                    },
-                    () => {
-                        serverupdating = false;
-                        finishedServerUpdate();
+            bool result = false;
+
+            HttpResponseMessage response = null;
+            HttpRequestMessage req = null;
+
+            try
+            {
+                req = setupJSONRequest(VerifyLicenceKeyAPI, JsonConvert.SerializeObject(vlkm));
+                response = await _httpClient.SendAsync(req);
+                response.EnsureSuccessStatusCode();
+
+                result = true;
+                this.Log().Info("LicenceKey is Verified");
+            }
+            catch (Exception ex)
+            {
+                if (response == null)
+                {
+                    this.Log().InfoException("VerifyLicenceKey response is null", ex);
+                    throw new ServerExceptions.NetworkFailure();
+                }
+                else
+                {
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.Unauthorized:
+                            this.Log().InfoException("VerifyLicenceKey response code: Unauthorized", ex);
+                            throw new ServerExceptions.Unauthorized();
+                        case HttpStatusCode.BadRequest:
+                            this.Log().InfoException(string.Format("VerifyLicenceKey response code: BadRequest: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.ActionFailure();
+                        default:
+                            this.Log().InfoException(string.Format("VerifyLicenceKey response code: UnknownFailure: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.UnknownFailure(ex);
                     }
-                );
-        }
-
-        public async Task<bool> CheckLicenceKey()
-        {
-            LogHost.Default.Info("Azure Starting Checking will have 9 sec delay");
-            await Task.Delay(9000);
-            LogHost.Default.Info("Azure Finished Checking after 9 sec delay");
-            return true;
-        }
-
-        private void clearServerUpdate()
-        {
-            if(serverupdating)
-            {
-                // timed out
-                App.Store.Dispatch(new ClearLicensedAction());
-                serverupdating = false;
+                }
             }
-            else
+            finally
             {
-                App.Store.Dispatch(new ClearUpdatingDataAction());
-            }
-        }
+                if (req != null)
+                {
+                    req.Dispose();
+                }
 
-        private static void finishedServerUpdate()
-        {
-            App.Store.Dispatch(new SetLastUpdateTimeAction { UpdateTime = DateTimeOffset.Now });
-        }
-
-        private static void processHttpMessage(HttpResponseMessage response)
-        {
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                LogHost.Default.Info("Unauthorized Request");
-                App.Store.Dispatch(new LogoutAction());
-                return;
+                if (response != null)
+                {
+                    response.Dispose();
+                }
             }
 
-            if (response.StatusCode != HttpStatusCode.OK)
+            return result;
+        }
+
+
+        public async Task<List<ServerUpdateMessage>> GetUpdates()
+        {
+            List<ServerUpdateMessage> results = null;
+
+            HttpRequestMessage req = null;
+            HttpResponseMessage response = null;
+
+            try
             {
-                LogHost.Default.Info("Bad Request");
-                return;
+                req = setupJSONRequest(GetUpdatesAPI, "");
+                response = await _httpClient.SendAsync(req);
+                response.EnsureSuccessStatusCode();
+
+                results = await doSuccessfulGetUpdates(response);
+                this.Log().Info("GetUpdates results received: {0}", results.Count.ToString());
+            }
+            catch (Exception ex)
+            {
+                if (response == null)
+                {
+                    this.Log().InfoException("GetUpdates response is null", ex);
+                    throw new ServerExceptions.NetworkFailure();
+                }
+                else
+                {
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.Unauthorized:
+                            this.Log().InfoException("GetUpdates response code: Unauthorized", ex);
+                            throw new ServerExceptions.Unauthorized();
+                        case HttpStatusCode.BadRequest:
+                            this.Log().InfoException(string.Format("GetUpdates response code: BadRequest: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.ActionFailure();
+                        default:
+                            this.Log().InfoException(string.Format("GetUpdates response code: UnknownFailure: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.UnknownFailure(ex);
+                    }
+                }
+            }
+            finally
+            {
+                if (req != null)
+                {
+                    req.Dispose();
+                }
+
+                if (response != null)
+                {
+                    response.Dispose();
+                }
             }
 
-            response.Content.ReadAsStringAsync().ToObservable()
-                .Subscribe(
-                    res => { processJsonString(res); },
-                    ex => { LogHost.Default.Info("RequestReturned: {0}", ex.Message); },
-                    () => { /** TODO: **/ }
-                );
+            return results;
         }
 
-        private static void processJTokenMessage(JToken response)
+
+        public async Task<bool> PostUpdates(UpdateJsonMessage ujm)
         {
-            List<ServerUpdateMessage> messages = response.ToObject<List<ServerUpdateMessage>>();
+            bool result = false;
 
-            processMessages(messages);
+            HttpRequestMessage req = null;
+            HttpResponseMessage response = null;
+
+            try
+            {
+                req = setupJSONRequest(PostUpdatesAPI, JsonConvert.SerializeObject(ujm));
+                response = await _httpClient.SendAsync(req);
+                response.EnsureSuccessStatusCode();
+
+                result = true;
+                this.Log().Info("PostUpdates success");
+            }
+            catch (Exception ex)
+            {
+                if (response == null)
+                {
+                    this.Log().InfoException("PostUpdates response is null", ex);
+                    throw new ServerExceptions.NetworkFailure();
+                }
+                else
+                {
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.Unauthorized:
+                            this.Log().InfoException("PostUpdates response code: Unauthorized", ex);
+                            throw new ServerExceptions.Unauthorized();
+                        case HttpStatusCode.BadRequest:
+                        this.Log().InfoException(string.Format("PostUpdates response code: BadRequest: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.ActionFailure();
+                        default:
+                        this.Log().InfoException(string.Format("PostUpdates response code: UnknownFailure: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.UnknownFailure(ex);
+                    }
+                }
+            }
+            finally
+            {
+                if (req != null)
+                {
+                    req.Dispose();
+                }
+
+                if (response != null)
+                {
+                    response.Dispose();
+                }
+            }
+
+            return result;
         }
 
-        private static void processJsonString(string responseJson)
+
+        public async Task<string> RefreshToken()
         {
-            List<ServerUpdateMessage> messages = JsonConvert.DeserializeObject<List<ServerUpdateMessage>>(responseJson);
+            string result = null;
 
-            processMessages(messages);
+            HttpRequestMessage req = null;
+            HttpResponseMessage response = null;
+
+            try
+            {
+                req = setupJSONRequest(RefreshTokenAPI, "");
+                response = await _httpClient.SendAsync(req);
+                response.EnsureSuccessStatusCode();
+
+                result = await doSuccessfulRefreshToken(response);
+                this.Log().Info("RefreshToken success");
+            }
+            catch (Exception ex)
+            {
+                if (response == null)
+                {
+                    this.Log().InfoException("RefreshToken response is null", ex);
+                    throw new ServerExceptions.NetworkFailure();
+                }
+                else
+                {
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.Unauthorized:
+                            this.Log().InfoException("PostUpdates response code: Unauthorized", ex);
+                            throw new ServerExceptions.Unauthorized();
+                        case HttpStatusCode.BadRequest:
+                            this.Log().InfoException(string.Format("RefreshToken response code: BadRequest: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.ActionFailure();
+                        default:
+                            this.Log().InfoException(string.Format("RefreshToken response code: UnknownFailure: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.UnknownFailure(ex);
+                    }
+                }
+            }
+            finally
+            {
+                if (req != null)
+                {
+                    req.Dispose();
+                }
+                if (response != null)
+                {
+                    response.Dispose();
+                }
+            }
+            return result;
         }
 
-        private static void processMessages(List<ServerUpdateMessage> messages)
+
+        public async Task<bool> LoadAppLog(List<AppLogItemMessage> items)
         {
-            var addFullpages = messages
-                .Where(x => x.Action == "AddFullpageAction")
-                .Select(x => new Fullpage() { Id = x.FullPageID, Title = x.FullPageTitle, Content = new Xamarin.Forms.HtmlWebViewSource() { Html = x.FullPageContent } });
-            var updateFullpageAction = new AddFullpageRangeAction { Fullpages = addFullpages.ToList() };
-            App.Store.Dispatch(updateFullpageAction);
+            bool result = false;
 
-            var addBooks = messages
-                .Where(x => x.Action == "AddBookAction")
-                .Select(x => new Book() { Id = x.BookID, Title = x.BookTitle, StartingBookpage = x.BookStartingID, OrderIndex = x.BookOrder });
-            var updateBookAction = new AddBookRangeAction { Books = addBooks.ToList() };
-            App.Store.Dispatch(updateBookAction);
-            App.Store.Dispatch(new ClearUpdatingDataAction());
+            HttpRequestMessage req = null;
+            HttpResponseMessage response = null;
+
+            try
+            {
+                req = setupJSONRequest(LoadAppLogAPI, JsonConvert.SerializeObject(items));
+                response = await _httpClient.SendAsync(req);
+                response.EnsureSuccessStatusCode();
+
+                result = true;
+                this.Log().Info("LoadAppLog success");
+            }
+            catch (Exception ex)
+            {
+                if (response == null)
+                {
+                    this.Log().InfoException("LoadAppLog response is null", ex);
+                    throw new ServerExceptions.NetworkFailure();
+                }
+                else
+                {
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.Unauthorized:
+                            this.Log().InfoException("LoadAppLog response code: Unauthorized", ex);
+                            throw new ServerExceptions.Unauthorized();
+                        case HttpStatusCode.BadRequest:
+                            this.Log().InfoException(string.Format("LoadAppLog response code: BadRequest: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.ActionFailure();
+                        default:
+                            this.Log().InfoException(string.Format("LoadAppLog response code: UnknownFailure: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.UnknownFailure(ex);
+                    }
+                }
+            }
+            finally
+            {
+                if (req != null)
+                {
+                    req.Dispose();
+                }
+
+                if (response != null)
+                {
+                    response.Dispose();
+                }
+            }
+            return result;
         }
+
 
         public void Dispose()
         {
-            _httpClient.Dispose();
             _azureClient.Dispose();
+            _httpClient.Dispose();
+        }
+
+
+        private void initializeAzureMobileServiceClient()
+        {
+#if DEBUG
+            _azureClient = new MobileServiceClient(TestMobileURL);
+            _azureClient.AlternateLoginHost = new Uri(ProductionMobileURL);
+#else
+            _azureClient = new MobileServiceClient(ProductionMobileURL);
+#endif
+        }
+
+        private void initializeHttpClient()
+        {
+            _httpClient = new HttpClient(new NativeMessageHandler());
+#if DEBUG
+            _httpClient.BaseAddress = new Uri(TestMobileURL);
+#else
+            _httpClient.BaseAddress = new Uri(ProductionMobileURL);
+#endif
+            _httpClient.DefaultRequestHeaders.Add(ZumoApiVersionName, ZumoApiVersion);
+            _httpClient.DefaultRequestHeaders.Accept.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(ContentJsonString));
+        }
+
+        private HttpRequestMessage setupJSONRequest(string url, string content)
+        {
+            HttpRequestMessage result = new HttpRequestMessage(HttpMethod.Post, url);
+            result.Content = new StringContent(content);
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue(ContentJsonString);
+            return result;
+        }
+
+        private async Task<List<ServerUpdateMessage>> doSuccessfulGetUpdates(HttpResponseMessage response)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            List<ServerUpdateMessage> messages = JsonConvert.DeserializeObject<List<ServerUpdateMessage>>(content);
+            return messages;
+        }
+
+        private async Task<string> doSuccessfulRefreshToken(HttpResponseMessage response)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            TokenResponseMessage message = JsonConvert.DeserializeObject<TokenResponseMessage>(content);
+            return message.Token;
         }
     }
 }

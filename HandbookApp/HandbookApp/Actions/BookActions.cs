@@ -18,23 +18,16 @@ using System.Collections.Generic;
 using HandbookApp.States;
 using Redux;
 
+
 namespace HandbookApp.Actions
 {
-    public class AddBookAction : IAction
-    {
-        public string BookId { get; set; }
-        public string Title { get; set; }
-        public string StartingBookpage { get; set; }
-        public int OrderIndex { get; set; }
-    }
-
-    public class DeleteBookAction : IAction
-    {
-        public string BookId { get; set; }
-    }
-
     public class AddBookRangeAction : IAction
     {
         public List<Book> Books { get; set; }
+    }
+
+    public class DeleteBookRangeAction : IAction
+    {
+        public List<string> BookIds { get; set; }
     }
 }

@@ -17,6 +17,7 @@
 using System;
 using System.Reactive.Disposables;
 
+
 namespace HandbookApp.Utilities
 {
     public static class IObservableExtensions

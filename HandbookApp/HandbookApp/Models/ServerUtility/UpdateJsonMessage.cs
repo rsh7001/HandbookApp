@@ -14,23 +14,25 @@
 //    limitations under the License.
 //
 
-using System;
-using System.Threading.Tasks;
-using Redux;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 
-namespace HandbookApp.Utilities
+namespace HandbookApp.Models.ServerUtility
 {
-    public delegate Task AsyncActionsCreator<TState>(Dispatcher dispatcher, Func<TState> getState);
-
-    public static class StoreExtensions
+    [JsonObject(MemberSerialization.OptIn)]
+    public class UpdateJsonMessage
     {
-        /// <summary>
-        /// Extension on IStore to dispatch multiple actions via a thunk (from GuillaumeSalles/redux.NET/examples/async/Redux.Async example)
-        /// </summary>
-        public static Task Dispatch<TState>(this IStore<TState> store, AsyncActionsCreator<TState> actionsCreator)
-        {
-            return actionsCreator(store.Dispatch, store.GetState);
-        }
+        [JsonProperty]
+        public List<string> AddBookItemIds { get; set; }
+
+        [JsonProperty]
+        public List<string> DeleteBookItemIds { get; set; }
+
+        [JsonProperty]
+        public List<string> AddFullpageItemIds { get; set; }
+
+        [JsonProperty]
+        public List<string> DeleteFullpageItemIds { get; set; }
     }
 }

@@ -21,8 +21,41 @@ namespace HandbookApp.States
 {
     public class AppState
     {
-        public ImmutableDictionary<string, Book>Books { get; set;}
+        public ImmutableDictionary<string, Book> Books { get; set;}
         public ImmutableDictionary<string, Fullpage> Fullpages { get; set; }
+        public PostUpdateState CurrentPostUpdateState { get; set; }
         public HandbookState CurrentState { get; set; }
+
+        public static AppState CreateEmpty()
+        {
+            return new AppState {
+                Books = ImmutableDictionary<string, Book>.Empty,
+                Fullpages = ImmutableDictionary<string, Fullpage>.Empty,
+                CurrentPostUpdateState = PostUpdateState.CreateEmpty(),
+                CurrentState = HandbookState.CreateEmpty()
+            };
+        }
+
+        public static ImmutableDictionary<string, Book> CreateEmptyBooks()
+        {
+            return ImmutableDictionary<string, Book>.Empty;
+        }
+
+        public static ImmutableDictionary<string, Fullpage> CreateEmptyFullpages()
+        {
+            return ImmutableDictionary<string, Fullpage>.Empty;
+        }
+        
+        public static PostUpdateState CreateEmptyPostUpdateState()
+        {
+            return PostUpdateState.CreateEmpty();
+        }
+
+        public static HandbookState CreateEmptyHandbookState()
+        {
+            return HandbookState.CreateEmpty();
+        }
     }
+
+
 }

@@ -14,20 +14,20 @@
 //    limitations under the License.
 //
 
-using System.Threading.Tasks;
-using System.Reactive.Linq;
 using System.Collections.Immutable;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using Akavache;
+using HandbookApp.Actions;
 using HandbookApp.Reducers;
+using HandbookApp.Services;
 using HandbookApp.States;
 using HandbookApp.ViewModels;
-using Redux;
-using Xamarin.Forms;
 using Microsoft.WindowsAzure.MobileServices;
-using HandbookApp.Services;
-using HandbookApp.Views;
+using Redux;
 using Splat;
-using Akavache;
-using System;
+using Xamarin.Forms;
+
 
 namespace HandbookApp
 {
@@ -37,114 +37,62 @@ namespace HandbookApp
     }
 
 
-    public class App : Application
+    public class App : Application, IEnableLogger
     {
-        public static IStore<AppState> Store { get; private set; }
-        public static IAuthenticate Authenticator { get; private set; }
-        
+        public static IStore<AppState>   Store         { get; private set; }
+        public static IAuthenticate      Authenticator { get; private set; }
+
         public static AzureMobileService ServerService { get; private set; }
         
+
         public static void Init(IAuthenticate authenticator)
         {
             Authenticator = authenticator;
         }
+
 
         public App()
         {
          
             ServerService = new AzureMobileService();
 
-            BlobCache.ApplicationName = "HandbookApp";
+            OfflineService.Initialize();
+            LogStoreService.InitializeLogStore();
 
-            Locator.CurrentMutable.RegisterConstant(new AppDebugger { Level = LogLevel.Debug }, typeof(ILogger));
+            Locator.CurrentMutable.RegisterConstant(new LoggerService { Level = LogLevel.Info }, typeof(ILogger));
 
-            var initialCurrentState = BlobCache.UserAccount.GetObject<HandbookState>("currentstate").Catch(Observable.Return(getInitialCurrentState())).Wait();
-            var initialBooks = BlobCache.UserAccount.GetObject<ImmutableDictionary<string, Book>>("books").Catch(Observable.Return(getInitialBooks())).Wait();
-            var initialFullpages = BlobCache.UserAccount.GetObject<ImmutableDictionary<string, Fullpage>>("fullpages").Catch(Observable.Return(getInitialFullpages())).Wait();
+            var initialState = OfflineService.LoadOfflineAppState();
 
-            var initialState = new AppState {
-                Books = initialBooks,
-                Fullpages = initialFullpages,
-                CurrentState = initialCurrentState
-            };
+            if(initialState.CurrentState.IsLoggedIn)
+            {
+                ServerService.SetAzureUserCredentials(initialState.CurrentState.UserId, initialState.CurrentState.AuthToken);
+            }
             
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
+            App.Store.Dispatch(new SetNeedsUpdateAction());
 
             var bootstrapper = new AppBootstrapper();
 
             MainPage = bootstrapper.CreateMainPage();
         }
 
-        private ImmutableDictionary<string, Fullpage> getInitialFullpages()
-        {
-            return ImmutableDictionary<string, Fullpage>.Empty;
-        }
-
-        private ImmutableDictionary<string, Book> getInitialBooks()
-        {
-            return ImmutableDictionary<string, Book>.Empty;
-        }
-
-        private HandbookState getInitialCurrentState()
-        {
-            return new HandbookState {
-                OnLoginPage = false,
-                IsLoggedIn = false,
-                CheckingLogin = false,
-                IsUserSet = false,
-                UserId = "",
-                AuthToken = "",
-
-                OnLicenceKeyPage = false,
-                IsLicensed = false,
-                IsLicenceKeySet = false,
-                CheckingLicenceKey = false,
-                LicenceKey = "",
-
-                IsUpdatingData = false,
-                IsDataUpdated = false,
-                IsDataLoaded = false,
-                LastUpdateTime = new System.DateTimeOffset(1970, 1, 1, 0, 0, 0, new System.TimeSpan(-5, 0, 0))
-
-            };
-        }
-
-        private AppState getInitialAppState()
-        {
-            var initialState = new AppState {
-                Books = getInitialBooks(),
-                Fullpages = getInitialFullpages(),
-                CurrentState = getInitialCurrentState()
-                };
-            return initialState;
-        }
-
         protected override void OnStart()
         {
-            LogHost.Default.Info("OnStart()");
-            // Handle when your app starts
+            this.Log().Info("OnStart()");
         }
 
-        protected override void OnSleep()
+        protected async override void OnSleep()
         {
-            LogHost.Default.Info("OnSleep()");
-            var current = Store.GetState().CurrentState.Clone();
-            BlobCache.UserAccount.InsertObject("currentstate", current).Wait();
-            BlobCache.UserAccount.InsertObject("books", Store.GetState().Books).Wait();
-            BlobCache.UserAccount.InsertObject("fullpages", Store.GetState().Fullpages).Wait();
-            // This was causing problems because it shutdown all of BlobCache //BlobCache.Shutdown().Wait();
-            LogHost.Default.Info("Finished Writing to BlobCache");
-            LogHost.Default.Info("BlobCache Shutdown");
-            // Handle when your app sleeps
+            this.Log().Info("OnSleep()");
+
+            await OfflineService.SaveAppState();
+
+            this.Log().Info("Done()");
         }
 
         protected override void OnResume()
         {
-            LogHost.Default.Info("OnResume");
-            //var initialState = BlobCache.UserAccount.GetObject<AppState>("appstate").Catch(Observable.Return(getInitialAppState())).Wait();
-            //Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
-            //LogHost.Default.Info("Reloaded");
-            // Handle when your app resumes
+            this.Log().Info("OnResume");
         }
     }
 }

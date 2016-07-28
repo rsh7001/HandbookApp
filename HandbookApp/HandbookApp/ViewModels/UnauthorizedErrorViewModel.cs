@@ -18,49 +18,47 @@ using System;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using ReactiveUI;
 using HandbookApp.Actions;
 using HandbookApp.Utilities;
-using Microsoft.WindowsAzure.MobileServices;
-using System.Runtime.Serialization;
-using Splat;
+using ReactiveUI;
+
 
 namespace HandbookApp.ViewModels
 {
     [DataContract]
-    public class LoginViewModel : CustomBaseViewModel
+    public class UnauthorizedErrorViewModel : CustomBaseViewModel
     {
-        [IgnoreDataMember]
-        public ReactiveCommand<Unit> LoginGoogleProvider;
-        [IgnoreDataMember]
-        public ReactiveCommand<Unit> LoginMicrosoftProvider;
-        [IgnoreDataMember]
-        public ReactiveCommand<Unit> LoginFacebookProvider;
-        [IgnoreDataMember]
-        public ReactiveCommand<Unit> LoginTwitterProvider;
 
         [IgnoreDataMember]
-        private IObservable<bool> isloggedin;
+        public ReactiveCommand<Unit> ClearUnauthorized;
+
         [IgnoreDataMember]
         private IObservable<bool> cannavigatetomain;
 
+        [IgnoreDataMember]
+        private IObservable<bool> hasunauthorizederror;
 
-        public LoginViewModel(IScreen hostscreen = null, params object[] args) : base(hostscreen)
+        [IgnoreDataMember]
+        private IObservable<bool> isloggedin;
+
+
+        public UnauthorizedErrorViewModel(IScreen hostscreen = null, params object[] args) : base(hostscreen)
         {
+            _urlPathSegment = "Unauthorized Error";
             _viewModelName = this.GetType().ToString();
-            _urlPathSegment = "Login";
 
-            LoginGoogleProvider = ReactiveCommand.CreateAsyncTask(x => loginGoogleProviderImpl());
-            LoginMicrosoftProvider = ReactiveCommand.CreateAsyncTask(x => loginMicrosoftProviderImpl());
-            LoginFacebookProvider = ReactiveCommand.CreateAsyncTask(x => loginFacebookProviderImpl());
-            LoginTwitterProvider = ReactiveCommand.CreateAsyncTask(x => loginTwitterProviderImpl());
+            ClearUnauthorized = ReactiveCommand.CreateAsyncTask(x => clearHasUnauthorizedErrorImpl());
         }
-
 
         protected override void setupObservables()
         {
             base.setupObservables();
+
+            hasunauthorizederror = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.HasUnauthorizedError })
+                .Select(d => d.CurrentState.HasUnauthorizedError);
 
             isloggedin = App.Store
                 .DistinctUntilChanged(state => new { state.CurrentState.IsLoggedIn })
@@ -68,7 +66,8 @@ namespace HandbookApp.ViewModels
 
             cannavigatetomain = navigatedaway
                 .CombineLatest(navigating, (x, y) => !x && !y)
-                .CombineLatest(isloggedin, (a, b) => a && b);
+                .CombineLatest(hasunauthorizederror, (c, d) => c && !d)
+                .CombineLatest(isloggedin, (e, f) => e && !f);
         }
 
 
@@ -89,24 +88,12 @@ namespace HandbookApp.ViewModels
                 .DisposeWith(subscriptionDisposibles);
         }
 
-        private async Task loginTwitterProviderImpl()
+        
+        private async Task clearHasUnauthorizedErrorImpl()
         {
-            await App.Store.Dispatch(ServerActionCreators.LoginAction(MobileServiceAuthenticationProvider.Twitter));
-        }
-
-        private async Task loginFacebookProviderImpl()
-        {
-            await App.Store.Dispatch(ServerActionCreators.LoginAction(MobileServiceAuthenticationProvider.Facebook));
-        }
-
-        private async Task loginMicrosoftProviderImpl()
-        {
-            await App.Store.Dispatch(ServerActionCreators.LoginAction(MobileServiceAuthenticationProvider.MicrosoftAccount));
-        }
-
-        private async Task loginGoogleProviderImpl()
-        {
-            await App.Store.Dispatch(ServerActionCreators.LoginAction(MobileServiceAuthenticationProvider.Google));
+            var t1 = Task.Run(() => { App.Store.Dispatch(new LogoutAction()); });
+            var t2 = Task.Run(() => { App.Store.Dispatch(new ClearHasUnauthorizedErrorAction()); });
+            await Task.Run(() => { Task.WaitAll(t1, t2); });
         }
     }
 }

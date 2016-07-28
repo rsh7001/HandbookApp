@@ -14,23 +14,16 @@
 //    limitations under the License.
 //
 
-using System;
-using System.Threading.Tasks;
-using Redux;
+using ReactiveUI.XamForms;
 
 
-namespace HandbookApp.Utilities
+namespace HandbookApp.ViewModels
 {
-    public delegate Task AsyncActionsCreator<TState>(Dispatcher dispatcher, Func<TState> getState);
-
-    public static class StoreExtensions
+    public class MyRoutedViewHost : RoutedViewHost
     {
-        /// <summary>
-        /// Extension on IStore to dispatch multiple actions via a thunk (from GuillaumeSalles/redux.NET/examples/async/Redux.Async example)
-        /// </summary>
-        public static Task Dispatch<TState>(this IStore<TState> store, AsyncActionsCreator<TState> actionsCreator)
+        protected override bool OnBackButtonPressed()
         {
-            return actionsCreator(store.Dispatch, store.GetState);
+            return false;
         }
     }
 }

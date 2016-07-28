@@ -15,14 +15,9 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HandbookApp.States;
 using HandbookApp.Actions;
 using Redux;
-using Xamarin.Forms;
 using Splat;
 
 namespace HandbookApp.Reducers
@@ -30,17 +25,7 @@ namespace HandbookApp.Reducers
     public static class HandbookStateReducers
     {
         public static HandbookState HandbookStateReducer(HandbookState previousState, IAction action)
-        {
-            if (action is SetOnLoginPageAction)
-            {
-                return setOnLoginPageReducer(previousState, (SetOnLoginPageAction) action);
-            }
-
-            if (action is ClearOnLoginPageAction)
-            {
-                return clearOnLoginPageReducer(previousState, (ClearOnLoginPageAction) action);
-            }
-
+        { 
             if (action is LoginAction)
             {
                 return loginReducer(previousState, (LoginAction) action);
@@ -56,16 +41,6 @@ namespace HandbookApp.Reducers
                 return setCheckingLoginReducer(previousState, (SetCheckingLoginAction) action);
             }
 
-            if (action is SetOnLicenceKeyAction)
-            {
-                return setOnLicenceKeyReducer(previousState, (SetOnLicenceKeyAction) action);
-            }
-
-            if (action is ClearOnLicenceKeyAction)
-            {
-                return clearOnLicenceKeyReducer(previousState, (ClearOnLicenceKeyAction) action);
-            }
-
             if (action is SetLicenceKeyAction)
             {
                 return setLicenceKeyReducer(previousState, (SetLicenceKeyAction) action);
@@ -76,16 +51,15 @@ namespace HandbookApp.Reducers
                 return clearLicenceKeyReducer(previousState, (ClearLicenceKeyAction) action);
             }
 
-            if (action is CheckingLicenceKeyAction)
+            if (action is VerifyingLicenceKeyAction)
             {
-                return checkingLicenceKeyReducer(previousState, (CheckingLicenceKeyAction) action);
+                return checkingLicenceKeyReducer(previousState, (VerifyingLicenceKeyAction) action);
             }
 
-            if (action is CancelCheckingLicenceKeyAction)
+            if (action is ClearVerifyingLicenceKeyAction)
             {
-                return cancelCheckingLicenceKeyReducer(previousState, (CancelCheckingLicenceKeyAction) action);
+                return cancelCheckingLicenceKeyReducer(previousState, (ClearVerifyingLicenceKeyAction) action);
             }
-
 
             if (action is SetLicensedAction)
             {
@@ -113,74 +87,225 @@ namespace HandbookApp.Reducers
                 return setLastUpdateTimeReducer(previousState, (SetLastUpdateTimeAction) action);
             }
 
+
+            if (action is SetPostingUpdateDataAction)
+            {
+                return setPostingUpdateDataReducer(previousState, (SetPostingUpdateDataAction) action);
+            }
+
+            if (action is ClearPostingUpdateDataAction)
+            {
+                return clearPostingUpdateDataReducer(previousState, (ClearPostingUpdateDataAction) action);
+            }
+
+
+            if (action is SetRefreshingTokenAction)
+            {
+                return setRefreshingTokenReducer(previousState, (SetRefreshingTokenAction) action);
+            }
+
+            if (action is ClearRefreshingTokenAction)
+            {
+                return clearRefreshingTokenReducer(previousState, (ClearRefreshingTokenAction) action);
+            }
+
+            if (action is SetRefreshTokenAction)
+            {
+                return setRefreshTokenReducer(previousState, (SetRefreshTokenAction) action);
+            }
+
+
+            if (action is SetLoadingAppLogAction)
+            {
+                return setLoadingAppLogReducer(previousState, (SetLoadingAppLogAction) action);
+            }
+
+            if (action is ClearLoadingAppLogAction)
+            {
+                return clearLoadingAppLogReducer(previousState, (ClearLoadingAppLogAction) action);
+            }
+
+            if (action is SetHasLicensedErrorAction)
+            {
+                return setHasLicensedErrorReducer(previousState, (SetHasLicensedErrorAction) action);
+            }
+
+            if (action is ClearHasLicensedErrorAction)
+            {
+                return clearHasLicensedErrorReducer(previousState, (ClearHasLicensedErrorAction) action);
+            }
+
+            if (action is SetHasUnauthorizedErrorAction)
+            {
+                return setHasUnauthorizedErrorReducer(previousState, (SetHasUnauthorizedErrorAction)action);
+            }
+
+            if (action is ClearHasUnauthorizedErrorAction)
+            {
+                return clearHasUnauthorizedErrorReducer(previousState, (ClearHasUnauthorizedErrorAction)action);
+            }
+
+            if (action is SetNeedsUpdateAction)
+            {
+                return setNeedsUpdateReducer(previousState, (SetNeedsUpdateAction) action);
+            }
+
+            if (action is SetReloadedAction)
+            {
+                return setReloadedReducer(previousState, (SetReloadedAction) action);
+            }
+
+            if (action is ClearReloadedAction)
+            {
+                return clearReloadedReducer(previousState, (ClearReloadedAction) action);
+            }
+
             return previousState;
         }
 
-        private static HandbookState setOnLicenceKeyReducer(HandbookState previousState, SetOnLicenceKeyAction action)
+        private static HandbookState clearReloadedReducer(HandbookState previousState, ClearReloadedAction action)
         {
-            LogHost.Default.Info("setOnLicenceKeyReducer");
+            LogHost.Default.Info("ClearReloadedReducer");
             HandbookState newState = previousState.Clone();
-            LogHost.Default.Info("setOnLicenceKeyReducer2");
-            newState.OnLicenceKeyPage = true;
-            LogHost.Default.Info("setOnLicenceKeyReducer3");
+            newState.Reloaded = false;
             return newState;
         }
 
-        private static HandbookState clearOnLicenceKeyReducer(HandbookState previousState, ClearOnLicenceKeyAction action)
+        private static HandbookState setReloadedReducer(HandbookState previousState, SetReloadedAction action)
         {
-            LogHost.Default.Info("clearOnLicenceKeyReducer");
+            LogHost.Default.Info("SetReloadReducer");
             HandbookState newState = previousState.Clone();
-            newState.OnLicenceKeyPage = false;
+            newState.Reloaded = true;
             return newState;
         }
 
-        private static HandbookState clearOnLoginPageReducer(HandbookState previousState, ClearOnLoginPageAction action)
+        private static HandbookState setNeedsUpdateReducer(HandbookState previousState, SetNeedsUpdateAction action)
         {
-            LogHost.Default.Info("clearOnLoginPageReducer");
+            LogHost.Default.Info("SetNeedsUpdateReducer");
             HandbookState newState = previousState.Clone();
-            newState.OnLoginPage = false;
+            newState.IsDataUpdated = false;
             return newState;
         }
 
-        private static HandbookState setOnLoginPageReducer(HandbookState previousState, SetOnLoginPageAction action)
+        private static HandbookState clearHasUnauthorizedErrorReducer(HandbookState previousState, ClearHasUnauthorizedErrorAction action)
         {
-            LogHost.Default.Info("setOnLoginPageReducer");
+            LogHost.Default.Info("ClearHasUnauthorizedErrorReducer");
             HandbookState newState = previousState.Clone();
-            newState.OnLoginPage = true;
+            newState.HasUnauthorizedError = false;
+            return newState;
+        }
+
+        private static HandbookState setHasUnauthorizedErrorReducer(HandbookState previousState, SetHasUnauthorizedErrorAction action)
+        {
+            LogHost.Default.Info("SetHasUnauthorizedErrorReducer");
+            HandbookState newState = previousState.Clone();
+            newState.HasUnauthorizedError = true;
+            return newState;
+        }
+
+        private static HandbookState clearHasLicensedErrorReducer(HandbookState previousState, ClearHasLicensedErrorAction action)
+        {
+            LogHost.Default.Info("ClearHasLicensedErrorReducer");
+            HandbookState newState = previousState.Clone();
+            newState.HasLicensedError = false;
+            return newState;
+        }
+
+        private static HandbookState setHasLicensedErrorReducer(HandbookState previousState, SetHasLicensedErrorAction action)
+        {
+            LogHost.Default.Info("SetHasLicensedErrorReducer");
+            HandbookState newState = previousState.Clone();
+            newState.HasLicensedError = true;
+            return newState;
+        }
+
+
+        private static HandbookState clearLoadingAppLogReducer(HandbookState previousState, ClearLoadingAppLogAction action)
+        {
+            LogHost.Default.Info("ClearLoadingAppLogReducer");
+            HandbookState newState = previousState.Clone();
+            newState.LoadingAppLog = false;
+            return newState;
+        }
+
+        private static HandbookState setLoadingAppLogReducer(HandbookState previousState, SetLoadingAppLogAction action)
+        {
+            LogHost.Default.Info("SetLoadingAppLogReducer");
+            HandbookState newState = previousState.Clone();
+            newState.LoadingAppLog = true;
+            return newState;
+        }
+
+        private static HandbookState setRefreshTokenReducer(HandbookState previousState, SetRefreshTokenAction action)
+        {
+            LogHost.Default.Info("SetRefreshTokenReducer");
+            HandbookState newState = previousState.Clone();
+            newState.AuthToken = action.Token;
+            return newState;
+        }
+
+        private static HandbookState clearRefreshingTokenReducer(HandbookState previousState, ClearRefreshingTokenAction action)
+        {
+            LogHost.Default.Info("ClearRefreshingTokenReducer");
+            HandbookState newState = previousState.Clone();
+            newState.RefreshingToken = false;
+            return newState;
+        }
+
+        private static HandbookState setRefreshingTokenReducer(HandbookState previousState, SetRefreshingTokenAction action)
+        {
+            LogHost.Default.Info("SetRefreshingTokenReducer");
+            HandbookState newState = previousState.Clone();
+            newState.RefreshingToken = true;
+            return newState;
+        }
+
+        private static HandbookState clearPostingUpdateDataReducer(HandbookState previousState, ClearPostingUpdateDataAction action)
+        {
+            LogHost.Default.Info("ClearPostingUpdateDataReducer");
+            HandbookState newState = previousState.Clone();
+            newState.PostingUpdateData = false;
+            return newState;
+        }
+
+        private static HandbookState setPostingUpdateDataReducer(HandbookState previousState, SetPostingUpdateDataAction action)
+        {
+            LogHost.Default.Info("SetPostingUpdateDataReducer");
+            HandbookState newState = previousState.Clone();
+            newState.PostingUpdateData = true;
             return newState;
         }
 
         private static HandbookState setLastUpdateTimeReducer(HandbookState previousState, SetLastUpdateTimeAction action)
         {
-            LogHost.Default.Info("setLastUpdateTimeReducer");
+            LogHost.Default.Info("SetLastUpdateTimeReducer: {0}", action.UpdateTime.ToString("O"));
             HandbookState newState = previousState.Clone();
-            newState.IsUpdatingData = false;
+            newState.UpdatingData = false;
             newState.IsDataUpdated = true;
-            newState.IsDataLoaded = true;
             newState.LastUpdateTime = action.UpdateTime;
             return newState;
         }
 
         private static HandbookState clearUpdatingDataReducer(HandbookState previousState, ClearUpdatingDataAction action)
         {
-            LogHost.Default.Info("clearUpdatingDataReducer");
+            LogHost.Default.Info("ClearUpdatingDataReducer");
             HandbookState newState = previousState.Clone();
-            newState.IsUpdatingData = false;
+            newState.UpdatingData = false;
             return newState;
         }
 
         private static HandbookState setUpdatingDataReducer(HandbookState previousState, SetUpdatingDataAction action)
         {
-            LogHost.Default.Info("setUpdatingDataReducer");
+            LogHost.Default.Info("SetUpdatingDataReducer");
             HandbookState newState = previousState.Clone();
-            newState.IsUpdatingData = true;
+            newState.UpdatingData = true;
             return newState;
         }
 
 
         private static HandbookState clearLicensedReducer(HandbookState previousState, ClearLicensedAction action)
         {
-            LogHost.Default.Info("clearLicnsedReducer");
+            LogHost.Default.Info("ClearLicensedReducer");
             HandbookState newState = previousState.Clone();
             newState.IsLicensed = false;
             return newState;
@@ -188,44 +313,44 @@ namespace HandbookApp.Reducers
 
         private static HandbookState setLicensedReducer(HandbookState previousState, SetLicensedAction action)
         {
-            LogHost.Default.Info("setLicensedReducer");
+            LogHost.Default.Info("SetLicensedReducer");
             HandbookState newState = previousState.Clone();
-            newState.CheckingLicenceKey = false;
+            newState.VerifyingLicenceKey = false;
             newState.IsLicensed = true;
             return newState;
         }
 
 
-        private static HandbookState cancelCheckingLicenceKeyReducer(HandbookState previousState, CancelCheckingLicenceKeyAction action)
+        private static HandbookState cancelCheckingLicenceKeyReducer(HandbookState previousState, ClearVerifyingLicenceKeyAction action)
         {
-            LogHost.Default.Info("cancelCheckingLicenceKeyReducer");
+            LogHost.Default.Info("CancelCheckingLicenceKeyReducer");
             HandbookState newState = previousState.Clone();
-            newState.CheckingLicenceKey = false;
+            newState.VerifyingLicenceKey = false;
             return newState;
         }
 
-        private static HandbookState checkingLicenceKeyReducer(HandbookState previousState, CheckingLicenceKeyAction action)
+        private static HandbookState checkingLicenceKeyReducer(HandbookState previousState, VerifyingLicenceKeyAction action)
         {
-            LogHost.Default.Info("checkingLicenceKeyReducer");
+            LogHost.Default.Info("CheckingLicenceKeyReducer");
             HandbookState newState = previousState.Clone();
-            newState.CheckingLicenceKey = true;
+            newState.VerifyingLicenceKey = true;
             return newState;
         }
 
         private static HandbookState clearLicenceKeyReducer(HandbookState previousState, ClearLicenceKeyAction action)
         {
-            LogHost.Default.Info("clearLicenceKeyReducer");
+            LogHost.Default.Info("ClearLicenceKeyReducer");
             HandbookState newState = previousState.Clone();
             newState.LicenceKey = "";
             newState.IsLicenceKeySet = false;
             newState.IsLicensed = false;
-            newState.CheckingLicenceKey = false;
+            newState.VerifyingLicenceKey = false;
             return newState;
         }
 
         private static HandbookState setLicenceKeyReducer(HandbookState previousState, SetLicenceKeyAction action)
         {
-            LogHost.Default.Info("setLicenceKeyReducer: {0}", action.LicenceKey);
+            LogHost.Default.Info("SetLicenceKeyReducer");
             HandbookState newState = previousState.Clone();
             newState.LicenceKey = "";
             if (!String.IsNullOrEmpty(action.LicenceKey))
@@ -241,6 +366,7 @@ namespace HandbookApp.Reducers
 
         private static HandbookState setCheckingLoginReducer(HandbookState previousState, SetCheckingLoginAction action)
         {
+            LogHost.Default.Info("SetCheckingLoginReducer");
             HandbookState newState = previousState.Clone();
             newState.CheckingLogin = true;
             return newState;
@@ -248,7 +374,7 @@ namespace HandbookApp.Reducers
 
         private static HandbookState logoutReducer(HandbookState previousState, LogoutAction action)
         {
-            LogHost.Default.Info("logoutReducer");
+            LogHost.Default.Info("LogoutReducer");
             HandbookState newState = previousState.Clone();
             newState.UserId = "";
             newState.AuthToken = "";
@@ -258,16 +384,16 @@ namespace HandbookApp.Reducers
             newState.CheckingLogin = false;
 
             newState.IsDataUpdated = false;
-            newState.IsUpdatingData = false;
+            newState.UpdatingData = false;
 
             newState.IsLicensed = false;
-            newState.CheckingLicenceKey = false;
+            newState.VerifyingLicenceKey = false;
             return newState;
         }
 
         private static HandbookState loginReducer(HandbookState previousState, LoginAction action)
         {
-            LogHost.Default.Info("loginReducer");
+            LogHost.Default.Info("LoginReducer");
             HandbookState newState = previousState.Clone();
             newState.UserId = "";
             if (!String.IsNullOrEmpty(action.UserId))
@@ -289,10 +415,10 @@ namespace HandbookApp.Reducers
             newState.IsLoggedIn = true;
 
             newState.IsDataUpdated = false;
-            newState.IsUpdatingData = false;
+            newState.UpdatingData = false;
 
             newState.IsLicensed = false;
-            newState.CheckingLicenceKey = false;
+            newState.VerifyingLicenceKey = false;
             return newState;
         }
     }

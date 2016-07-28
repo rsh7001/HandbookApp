@@ -17,6 +17,7 @@
 using System;
 using Xamarin.Forms;
 
+
 namespace HandbookApp.States
 {
     public class Fullpage : IEquatable<Fullpage>

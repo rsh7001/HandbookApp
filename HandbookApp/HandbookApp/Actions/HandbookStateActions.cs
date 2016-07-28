@@ -15,51 +15,34 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Redux;
 
 namespace HandbookApp.Actions
 {
-    public class SetOnLoginPageAction : IAction { }
-
-    public class ClearOnLoginPageAction : IAction { }
-
     public class LoginAction : IAction
     {
         public string UserId { get; set; }
         public string AuthToken { get; set; }
     }
-
     public class LogoutAction : IAction { }
 
     public class SetCheckingLoginAction : IAction { }
 
-    public class SetOnLicenceKeyAction : IAction { }
-
-    public class ClearOnLicenceKeyAction : IAction { }
 
     public class SetLicenceKeyAction : IAction
     {
         public string LicenceKey { get; set; }
     }
-
     public class ClearLicenceKeyAction : IAction { }
 
-    public class CheckingLicenceKeyAction : IAction { }
-
-    public class CancelCheckingLicenceKeyAction : IAction { }
-
+    public class VerifyingLicenceKeyAction : IAction { }
+    public class ClearVerifyingLicenceKeyAction : IAction { }
 
     public class SetLicensedAction : IAction { }
-
     public class ClearLicensedAction : IAction { }
 
 
     public class SetUpdatingDataAction : IAction { }
-
     public class ClearUpdatingDataAction : IAction { }
 
     public class SetLastUpdateTimeAction : IAction
@@ -67,5 +50,33 @@ namespace HandbookApp.Actions
         public DateTimeOffset UpdateTime { get; set; }
     }
 
+
+    public class SetPostingUpdateDataAction : IAction { }
+    public class ClearPostingUpdateDataAction : IAction { }
+
+
+    public class SetRefreshingTokenAction : IAction { }
+    public class ClearRefreshingTokenAction : IAction { }
+
+    public class SetRefreshTokenAction : IAction
+    {
+        public string Token { get; set; }
+    }
+
+
+    public class SetLoadingAppLogAction : IAction { }
+    public class ClearLoadingAppLogAction : IAction { }
+
+
+    public class SetHasLicensedErrorAction : IAction { }
+    public class ClearHasLicensedErrorAction : IAction { }
+
+    public class SetHasUnauthorizedErrorAction : IAction { }
+    public class ClearHasUnauthorizedErrorAction : IAction { }
+
+    public class SetNeedsUpdateAction : IAction { }
+
+    public class SetReloadedAction : IAction { }
+    public class ClearReloadedAction : IAction { }
 
 }

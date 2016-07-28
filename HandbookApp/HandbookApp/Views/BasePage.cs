@@ -14,12 +14,8 @@
 //    limitations under the License.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Disposables;
-using System.Reflection.Emit;
-using System.Text;
+using HandbookApp.ViewModels;
 using ReactiveUI;
 using Xamarin.Forms;
 
@@ -27,7 +23,7 @@ using Xamarin.Forms;
 namespace HandbookApp.Views
 {
     public abstract class BasePage<TViewModel> : ContentPage, IViewFor<TViewModel>
-        where TViewModel : class
+        where TViewModel : class, ICustomBaseViewModel
     {
         protected readonly CompositeDisposable subscriptionDisposibles = new CompositeDisposable();
 
@@ -69,6 +65,8 @@ namespace HandbookApp.Views
             SetupObservables();
 
             SetupSubscriptions();
+
+            ViewModel.OnAppearing();
         }
 
         protected override void OnDisappearing()
@@ -76,6 +74,9 @@ namespace HandbookApp.Views
             base.OnDisappearing();
 
             subscriptionDisposibles.Clear();
+
+            ViewModel.OnDisappearing();
+
         }
     }
 }

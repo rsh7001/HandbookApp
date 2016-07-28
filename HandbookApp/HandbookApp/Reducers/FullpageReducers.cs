@@ -19,7 +19,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using HandbookApp.Actions;
 using HandbookApp.States;
+using Newtonsoft.Json;
 using Redux;
+using Splat;
 
 namespace HandbookApp.Reducers
 {
@@ -29,18 +31,30 @@ namespace HandbookApp.Reducers
         {
             if (action is AddFullpageRangeAction)
             {
-                return AddFullpageRangeReducer(previousState, (AddFullpageRangeAction)action);
+                return addFullpageRangeReducer(previousState, (AddFullpageRangeAction)action);
+            }
+
+            if (action is DeleteFullpageRangeAction)
+            {
+                return deleteFullpageRangeReducer(previousState, (DeleteFullpageRangeAction) action);
             }
 
             return previousState;
         }
 
-        private static ImmutableDictionary<string, Fullpage> AddFullpageRangeReducer(ImmutableDictionary<string, Fullpage> previousState, AddFullpageRangeAction action)
+        private static ImmutableDictionary<string, Fullpage> deleteFullpageRangeReducer(ImmutableDictionary<string, Fullpage> previousState, DeleteFullpageRangeAction action)
+        {
+            LogHost.Default.Info("DeleteFullpageRangeReducer: {0}", JsonConvert.SerializeObject(action.FullpageIds));
+            return previousState.RemoveRange(action.FullpageIds);
+        }
+
+        private static ImmutableDictionary<string, Fullpage> addFullpageRangeReducer(ImmutableDictionary<string, Fullpage> previousState, AddFullpageRangeAction action)
         {
             if(action.Fullpages.Count != 0)
             {
                 var itemlist = action.Fullpages
                     .Select(x => new KeyValuePair<string, Fullpage>(x.Id, x));
+                LogHost.Default.Info("AddFullpageRangeReducer: {0}", JsonConvert.SerializeObject(action.Fullpages.Select(x => x.Id).ToList()));
                 return previousState.SetItems(itemlist);
             }
 

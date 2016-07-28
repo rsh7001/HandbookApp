@@ -20,12 +20,9 @@ using Microsoft.WindowsAzure.MobileServices;
 
 using Android.App;
 using Android.Content.PM;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using Android.OS;
-using HandbookApp.Views;
 using Splat;
+
 
 namespace HandbookApp.Droid
 {
@@ -44,16 +41,6 @@ namespace HandbookApp.Droid
             }
             catch (Exception)
             {
-                // TODO: Return display error
-                if (provider == MobileServiceAuthenticationProvider.Google)
-                {
-                    return true;
-                }
-
-                if (provider == MobileServiceAuthenticationProvider.Facebook)
-                {
-                    return false;
-                }
             }
             return success;
         }

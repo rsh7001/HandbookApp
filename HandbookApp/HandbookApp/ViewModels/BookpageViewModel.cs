@@ -17,45 +17,42 @@
 using System;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using HandbookApp.Actions;
+using HandbookApp.Utilities;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Splat;
 using Xamarin.Forms;
 
+
 namespace HandbookApp.ViewModels
 {
     [DataContract]
-    public class BookpageViewModel : ReactiveObject, IRoutableViewModel
+    public class BookpageViewModel : CustomBaseViewModel
     {
         [Reactive][DataMember] public WebViewSource PageSource { get; set; }
 
-        [DataMember]
-        private string _urlPathSegment;
-        [DataMember]
-        public string UrlPathSegment
-        {
-            get { return _urlPathSegment; }
-        }
-
-        [IgnoreDataMember]
-        public IScreen HostScreen
-        {
-            get; protected set;
-        }
+        [IgnoreDataMember] private IObservable<bool> reloaded;
+        [IgnoreDataMember] private IObservable<bool> navigatetomain;
 
         [IgnoreDataMember]
         public ReactiveCommand<Unit> GoBack;
+
         [IgnoreDataMember]
         public ReactiveCommand<Unit> GoBookpage;
 
-        public BookpageViewModel(string url, IScreen hostscreen = null)
+
+        public BookpageViewModel(string url, IScreen hostscreen = null) : base(hostscreen)
         {
-            HostScreen = hostscreen ?? Locator.Current.GetService<IScreen>();
+            _viewModelName = this.GetType().ToString();
             
             GoBack = ReactiveCommand.CreateAsyncTask(x => goBackImpl());
-            GoBookpage = ReactiveCommand.CreateAsyncTask(x => goBookpage((string) x));
+            GoBookpage = ReactiveCommand.CreateAsyncTask(x => goBookpageImpl((string) x));
+
+            this.Log().Info("{0}: {1}: Constructor", _viewModelName, url);
 
             if(url.StartsWith("http"))
             {
@@ -73,9 +70,9 @@ namespace HandbookApp.ViewModels
             }
             else
             {
+                this.Log().Warn(string.Format("{0}: {1}: No Page",_viewModelName, url));
                 _urlPathSegment = "No Page";
             }
-            
         }
 
         private async Task goBackImpl()
@@ -83,6 +80,7 @@ namespace HandbookApp.ViewModels
             int lastVmIndex = HostScreen.Router.NavigationStack.Count - 1;
             int backVmIndex = lastVmIndex - 1;
             IRoutableViewModel vm;
+
             if (backVmIndex <= 0)
             {
                 vm = HostScreen.Router.NavigationStack.First();
@@ -96,10 +94,42 @@ namespace HandbookApp.ViewModels
             await HostScreen.Router.NavigateBack.ExecuteAsyncTask(vm);
         }
 
-        private async Task goBookpage(string url)
+        private async Task goBookpageImpl(string url)
         {
             var vm = new BookpageViewModel(url, HostScreen);
             await HostScreen.Router.Navigate.ExecuteAsyncTask(vm);
+        }
+
+        protected override void setupObservables()
+        {
+            base.setupObservables();
+
+            reloaded = App.Store
+                .DistinctUntilChanged(state => new { state.CurrentState.Reloaded })
+                .Select(d => d.CurrentState.Reloaded);
+
+            navigatetomain = navigatedaway
+                .CombineLatest(navigating, (x, y) => !x && !y)
+                .CombineLatest(reloaded, (a, b) => a && b);
+
+        }
+
+        protected override void setupSubscriptions()
+        {
+            base.setupSubscriptions();
+
+            navigatetomain
+                .Throttle(TimeSpan.FromMilliseconds(100))
+                .DistinctUntilChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(async x => {
+                    if (x)
+                    {
+                        App.Store.Dispatch(new ClearReloadedAction());
+                        await NavigateToMainAsync();
+                    }
+                })
+                .DisposeWith(subscriptionDisposibles);
         }
     }
 }

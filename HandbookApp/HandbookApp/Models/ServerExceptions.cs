@@ -15,22 +15,20 @@
 //
 
 using System;
-using System.Threading.Tasks;
-using Redux;
 
-
-namespace HandbookApp.Utilities
+namespace HandbookApp.Models
 {
-    public delegate Task AsyncActionsCreator<TState>(Dispatcher dispatcher, Func<TState> getState);
-
-    public static class StoreExtensions
+    public class ServerExceptions
     {
-        /// <summary>
-        /// Extension on IStore to dispatch multiple actions via a thunk (from GuillaumeSalles/redux.NET/examples/async/Redux.Async example)
-        /// </summary>
-        public static Task Dispatch<TState>(this IStore<TState> store, AsyncActionsCreator<TState> actionsCreator)
+        public class Unauthorized : Exception { }
+
+        public class NetworkFailure : Exception { }
+
+        public class ActionFailure : Exception { }
+
+        public class UnknownFailure : Exception
         {
-            return actionsCreator(store.Dispatch, store.GetState);
+            public UnknownFailure(Exception ex) : base("Unknown Failure with Inner Exception", ex) { }
         }
     }
 }
