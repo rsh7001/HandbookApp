@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<vs:BasePage x:TypeArguments="vms:MainViewModel"
+             xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vs="clr-namespace:HandbookApp.Views;assembly=HandbookApp"
+             xmlns:vms="clr-namespace:HandbookApp.ViewModels;assembly=HandbookApp"
+             x:Class="HandbookApp.Views.MainView"
+             NavigationPage.HasBackButton="False">
+  <ContentPage.Content>
+    <ScrollView>
+      <StackLayout>
+        <Label x:Name="updateTime" FontSize="Micro" TextColor="Red" HorizontalOptions="Start"/>
+        <Label Text="CHONY Handbook App" FontAttributes="Bold" FontSize="Medium" VerticalOptions="Center" HorizontalOptions="Center"/>
+        <ActivityIndicator x:Name="updatingSpinner" IsVisible="True" />
+        <ListView x:Name="booksList" SeparatorVisibility="None" >
+          <ListView.ItemTemplate>
+            <DataTemplate>
+              <ViewCell>
+                <Button Text="{Binding Model.Title}" Command="{Binding OpenThisBook}"/>
+              </ViewCell>
+            </DataTemplate>
+          </ListView.ItemTemplate>
+        </ListView>
+      </StackLayout>  
+    </ScrollView>
+  </ContentPage.Content>
+</vs:BasePage>

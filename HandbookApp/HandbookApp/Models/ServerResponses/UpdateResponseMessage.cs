@@ -15,24 +15,25 @@
 //
 
 
-using System;
+using Newtonsoft.Json;
 
-namespace HandbookApp.States
+namespace HandbookApp.Models.ServerResponses
 {
-    public class Article : IEquatable<Article>
+    public enum UpdateResponseMessageCode
     {
-        public string Id { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+        Updated,
+        NoUserIdGiven,
+        NoUserIdFound,
+        UpdatesException
+    }
 
-        public bool Equals(Article a)
-        {
-            if (a == null)
-            {
-                return false;
-            }
+    [JsonObject(MemberSerialization.OptIn)]
+    public class UpdateResponseMessage
+    {
+        [JsonProperty]
+        public UpdateResponseMessageCode Code { get; set; }
 
-            return (Id == a.Id) && (Title == a.Title) && (Content == a.Content);
-        }
+        [JsonProperty]
+        public string Message { get; set; }
     }
 }

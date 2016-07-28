@@ -15,57 +15,84 @@
 //
 
 using System.Collections.Immutable;
-
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using Akavache;
+using HandbookApp.Actions;
+using HandbookApp.Reducers;
+using HandbookApp.Services;
+using HandbookApp.States;
+using HandbookApp.ViewModels;
+using Microsoft.WindowsAzure.MobileServices;
 using Redux;
+using Splat;
 using Xamarin.Forms;
 
-using HandbookApp.States;
-using HandbookApp.Reducers;
-using HandbookApp.ViewModels;
-using ReactiveUI;
 
 namespace HandbookApp
 {
-    public class App : Application
+    public interface IAuthenticate
     {
-        public static IStore<AppState> Store { get; private set; }
+        Task<bool> Authenticate(MobileServiceAuthenticationProvider provider);
+    }
+
+
+    public class App : Application, IEnableLogger
+    {
+        public static IStore<AppState>   Store         { get; private set; }
+        public static IAuthenticate      Authenticator { get; private set; }
+
+        public static AzureMobileService ServerService { get; private set; }
+        
+
+        public static void Init(IAuthenticate authenticator)
+        {
+            Authenticator = authenticator;
+        }
 
 
         public App()
         {
-            var initialState = new AppState {
-                Articles = ImmutableDictionary<string, Article>.Empty,
-                Bookpages = ImmutableDictionary<string, Bookpage>.Empty,
-                Books = ImmutableDictionary<string, Book>.Empty
-            };
+         
+            ServerService = new AzureMobileService();
 
+            OfflineService.Initialize();
+            LogStoreService.InitializeLogStore();
+
+            Locator.CurrentMutable.RegisterConstant(new LoggerService { Level = LogLevel.Info }, typeof(ILogger));
+
+            var initialState = OfflineService.LoadOfflineAppState();
+
+            if(initialState.CurrentState.IsLoggedIn)
+            {
+                ServerService.SetAzureUserCredentials(initialState.CurrentState.UserId, initialState.CurrentState.AuthToken);
+            }
+            
             Store = new Store<AppState>(ApplicationReducers.ReduceApplication, initialState);
+            App.Store.Dispatch(new SetNeedsUpdateAction());
 
             var bootstrapper = new AppBootstrapper();
 
-            //bootstrapper.CreateMainPage();
-
-            //var bootstrapper = (AppBootstrapper) RxApp.SuspensionHost.AppState;
-
-            var mainPage = bootstrapper.CreateMainPage();
-
-            // The root page of your application
-            MainPage = mainPage;
+            MainPage = bootstrapper.CreateMainPage();
         }
 
         protected override void OnStart()
         {
-            // Handle when your app starts
+            this.Log().Info("OnStart()");
         }
 
-        protected override void OnSleep()
+        protected async override void OnSleep()
         {
-            // Handle when your app sleeps
+            this.Log().Info("OnSleep()");
+
+            await OfflineService.SaveAppState();
+
+            this.Log().Info("Done()");
         }
 
         protected override void OnResume()
         {
-            // Handle when your app resumes
+            this.Log().Info("OnResume");
         }
     }
 }

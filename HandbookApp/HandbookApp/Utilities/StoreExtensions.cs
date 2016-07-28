@@ -14,30 +14,23 @@
 //    limitations under the License.
 //
 
-using System.Collections.Generic;
-using HandbookApp.States;
+using System;
+using System.Threading.Tasks;
 using Redux;
 
 
-namespace HandbookApp.Actions
+namespace HandbookApp.Utilities
 {
-    public class AddBookpageAction : IAction
-    {
-        public string PageId { get; set; }
-        public string PageTitle { get; set; }
-        public string PageArticleId { get; set; }
-        public string PageLinksTitle { get; set; }
-        public List<string> Links { get; set; }
-    }
+    public delegate Task AsyncActionsCreator<TState>(Dispatcher dispatcher, Func<TState> getState);
 
-
-    public class DeleteBookpageAction : IAction
+    public static class StoreExtensions
     {
-        public string PageId { get; set; }
-    }
-
-    public class AddBookpageRangeAction : IAction
-    {
-        public List<Bookpage> Bookpages { get; set; }
+        /// <summary>
+        /// Extension on IStore to dispatch multiple actions via a thunk (from GuillaumeSalles/redux.NET/examples/async/Redux.Async example)
+        /// </summary>
+        public static Task Dispatch<TState>(this IStore<TState> store, AsyncActionsCreator<TState> actionsCreator)
+        {
+            return actionsCreator(store.Dispatch, store.GetState);
+        }
     }
 }

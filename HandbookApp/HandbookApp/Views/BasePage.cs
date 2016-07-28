@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Disposables;
-using System.Reflection.Emit;
-using System.Text;
-//
+﻿//
 //  Copyright 2016  R. Stanley Hum <r.stanley.hum@gmail.com>
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +14,16 @@ using System.Text;
 //    limitations under the License.
 //
 
+using System.Reactive.Disposables;
+using HandbookApp.ViewModels;
 using ReactiveUI;
 using Xamarin.Forms;
+
 
 namespace HandbookApp.Views
 {
     public abstract class BasePage<TViewModel> : ContentPage, IViewFor<TViewModel>
-        where TViewModel : class
+        where TViewModel : class, ICustomBaseViewModel
     {
         protected readonly CompositeDisposable subscriptionDisposibles = new CompositeDisposable();
 
@@ -45,26 +42,14 @@ namespace HandbookApp.Views
 
         public TViewModel ViewModel
         {
-            get
-            {
-                return (TViewModel)GetValue(ViewModelProperty);
-            }
-            set
-            {
-                SetValue(ViewModelProperty, value);
-            }
+            get { return (TViewModel)GetValue(ViewModelProperty); }
+            set { SetValue(ViewModelProperty, value); }
         }
          
         object IViewFor.ViewModel
         {
-            get
-            {
-                return ViewModel;
-            }
-            set
-            {
-                ViewModel = (TViewModel)value;
-            }
+            get { return ViewModel; }
+            set { ViewModel = (TViewModel)value; }
         }
 
         protected virtual void SetupViewElements() { }
@@ -80,6 +65,8 @@ namespace HandbookApp.Views
             SetupObservables();
 
             SetupSubscriptions();
+
+            ViewModel.OnAppearing();
         }
 
         protected override void OnDisappearing()
@@ -87,6 +74,9 @@ namespace HandbookApp.Views
             base.OnDisappearing();
 
             subscriptionDisposibles.Clear();
+
+            ViewModel.OnDisappearing();
+
         }
     }
 }

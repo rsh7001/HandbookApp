@@ -21,6 +21,8 @@ using HandbookApp.Actions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Splat;
+using Newtonsoft.Json;
 
 namespace HandbookApp.Reducers
 {
@@ -29,63 +31,32 @@ namespace HandbookApp.Reducers
 
         public static ImmutableDictionary<string, Book> BookReducer(ImmutableDictionary<string, Book> previousState, IAction action)
         {
-            if (action is AddBookAction)
-            {
-                return AddBookReducer(previousState, (AddBookAction)action);
-            }
-
-            if (action is DeleteBookAction)
-            {
-                return DeleteBookReducer(previousState, (DeleteBookAction)action);
-            }
-
             if (action is AddBookRangeAction)
             {
-                return AddBookRangeReducer(previousState, (AddBookRangeAction)action);
+                return addBookRangeReducer(previousState, (AddBookRangeAction)action);
             }
 
+            if (action is DeleteBookRangeAction)
+            {
+                return deleteBookRangeReducer(previousState, (DeleteBookRangeAction) action);
+            }
             return previousState;
         }
 
-        private static ImmutableDictionary<string, Book> AddBookRangeReducer(ImmutableDictionary<string, Book> previousState, AddBookRangeAction action)
+        private static ImmutableDictionary<string, Book> deleteBookRangeReducer(ImmutableDictionary<string, Book> previousState, DeleteBookRangeAction action)
+        {
+            LogHost.Default.Info("DeleteBookRangeAction: {0}", JsonConvert.SerializeObject(action.BookIds));
+            return previousState.RemoveRange(action.BookIds);
+        }
+
+        private static ImmutableDictionary<string, Book> addBookRangeReducer(ImmutableDictionary<string, Book> previousState, AddBookRangeAction action)
         {
             if (action.Books.Count != 0)
             {
                 var itemlist = action.Books
                     .Select(x => new KeyValuePair<string, Book>(x.Id, x));
+                LogHost.Default.Info("AddBookRangeAction: {0}", JsonConvert.SerializeObject(action.Books.Select(x => x.Id).ToList()));
                 return previousState.SetItems(itemlist);
-            }
-
-            return previousState;
-        }
-
-        public static ImmutableDictionary<string, Book> AddBookReducer(ImmutableDictionary<string, Book> previousState, AddBookAction action)
-        {
-            var bookItem = new Book {
-                Id = action.BookId,
-                Title = action.Title,
-                StartingBookpage = action.StartingBookpage,
-                OrderIndex = action.OrderIndex
-            };
-
-            if(!previousState.ContainsKey(action.BookId))
-            {
-                return previousState.Add(action.BookId, bookItem);
-            }
-
-            if(!previousState[action.BookId].Equals(bookItem))
-            {
-                return previousState.SetItem(action.BookId, bookItem);
-            }
-
-            return previousState;
-        }
-
-        public static ImmutableDictionary<string, Book> DeleteBookReducer(ImmutableDictionary<string, Book> previousState, DeleteBookAction action)
-        {
-            if(previousState.ContainsKey(action.BookId))
-            {
-                return previousState.Remove(action.BookId);
             }
 
             return previousState;

@@ -16,26 +16,27 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using HandbookApp.Models.ServerRequests;
 
-namespace HandbookApp.States
+namespace HandbookApp.Services
 {
-    public class Bookpage : IEquatable<Bookpage>
+    public static class LogStoreService
     {
-        public string Id { get; set; }
-        public string Title { get; set; }
-        public string ArticleId { get; set; }
-        public string LinksTitle { get; set; }
-        public List<string> Links { get; set; }
+        public static ImmutableList<AppLogItemMessage> LogStore = ImmutableList<AppLogItemMessage>.Empty;
 
-        public bool Equals(Bookpage a)
+        public static void InitializeLogStore()
         {
-            if(a == null)
-            {
-                return false;
-            }
-            return (Id == a.Id) && (Title == a.Title) && (ArticleId == a.ArticleId) && (Links.SequenceEqual(a.Links));
-
+            LogStore = OfflineService.LoadOfflineLogStore();
         }
+
+        public static void Clear()
+        {
+            LogStore = ImmutableList<AppLogItemMessage>.Empty;
+        }
+
     }
 }

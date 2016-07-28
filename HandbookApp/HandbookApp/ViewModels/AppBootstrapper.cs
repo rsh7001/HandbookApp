@@ -13,9 +13,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
+
 using HandbookApp.Views;
 using ReactiveUI;
-using ReactiveUI.XamForms;
 using Splat;
 using Xamarin.Forms;
 
@@ -35,19 +35,24 @@ namespace HandbookApp.ViewModels
 
             LogHost.Default.Level = LogLevel.Debug;
 
-            Router.Navigate.Execute(new MainViewViewModel(this));
+            Router.Navigate.Execute(new MainViewModel(this));
         }
 
         private void RegisterParts(IMutableDependencyResolver dependencyResolver)
         {
             dependencyResolver.RegisterConstant(this, typeof(IScreen));
 
-            dependencyResolver.Register(() => new ReactiveMainPage(), typeof(IViewFor<MainViewViewModel>));
+            dependencyResolver.Register(() => new MainView(), typeof(IViewFor<MainViewModel>));
+            dependencyResolver.Register(() => new BookpagePage(), typeof(IViewFor<BookpageViewModel>));
+            dependencyResolver.Register(() => new LoginPage(), typeof(IViewFor<LoginViewModel>));
+            dependencyResolver.Register(() => new LicenseKeyPage(), typeof(IViewFor<LicenseKeyViewModel>));
+            dependencyResolver.Register(() => new UnauthorizedErrorPage(), typeof(IViewFor<UnauthorizedErrorViewModel>));
+            dependencyResolver.Register(() => new LicensingErrorPage(), typeof(IViewFor<LicensingErrorViewModel>));
         }
 
         public Page CreateMainPage()
         {
-            return new RoutedViewHost();
+            return new MyRoutedViewHost();
         }
     }
 }

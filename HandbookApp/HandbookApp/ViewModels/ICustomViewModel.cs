@@ -14,29 +14,12 @@
 //    limitations under the License.
 //
 
-using System.Collections.Generic;
 
-using Redux;
-
-using HandbookApp.States;
-
-
-namespace HandbookApp.Actions
+namespace HandbookApp.ViewModels
 {
-    public class AddArticleAction : IAction
+    public interface ICustomBaseViewModel
     {
-        public string ArticleId { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
-    }
-
-    public class DeleteArticleAction : IAction
-    {
-        public string ArticleId { get; set; }
-    }
-
-    public class AddArticleRangeAction : IAction
-    {
-        public List<Article> Articles { get; set; }
+        void OnAppearing();
+        void OnDisappearing();
     }
 }
