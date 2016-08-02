@@ -23,8 +23,10 @@ namespace HandbookApp.Models.ServerRequests
     {
         [JsonProperty]
         public string LogDateTime { get; set; }
+
         [JsonProperty]
         public string LogName { get; set; }
+
         [JsonProperty]
         public string LogDataJson { get; set; }
     }

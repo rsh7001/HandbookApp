@@ -17,6 +17,7 @@
 
 using Newtonsoft.Json;
 
+
 namespace HandbookApp.Models.ServerResponses
 {
     public enum LicenceKeyResponseMessageCode
