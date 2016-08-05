@@ -29,7 +29,7 @@ namespace HandbookApp.Services
         
         public LogLevel Level { get; set; }
 
-        public void Write([Localizable(false)] string message, LogLevel logLevel)
+        public void Write(string message, LogLevel logLevel)
         {
             if((int)logLevel < (int) Level)
                 return;

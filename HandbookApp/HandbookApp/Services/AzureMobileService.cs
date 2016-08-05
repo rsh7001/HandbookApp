@@ -36,7 +36,9 @@ namespace HandbookApp.Services
     {
         private MobileServiceClient _azureClient;
         private HttpClient _httpClient;
+#if DEBUG
         private static string TestMobileURL = "http://192.168.72.192:55506";
+#endif
         private static string ProductionMobileURL = "https://handbookmobileappservice.azurewebsites.net/";
         private static string VerifyLicenceKeyAPI = "api/verifylicencekey";
         private static string GetUpdatesAPI = "api/updates";
