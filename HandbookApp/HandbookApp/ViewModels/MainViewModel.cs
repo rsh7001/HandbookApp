@@ -59,6 +59,8 @@ namespace HandbookApp.ViewModels
         [IgnoreDataMember] private IObservable<bool> checklgin;
         [IgnoreDataMember] private IObservable<bool> updatingdata;
         [IgnoreDataMember] private IObservable<bool> dataupdated;
+        [IgnoreDataMember] private IObservable<bool> isbackgroundtaskrunning;
+
         [IgnoreDataMember] private IObservable<List<Book>> books;
 
 
@@ -165,6 +167,10 @@ namespace HandbookApp.ViewModels
                 .CombineLatest(navigating, (x, y) => !x && !y)
                 .CombineLatest(haslicensederror, (g, h) => g && !h)
                 .CombineLatest(hasunauthorizederror, (i, j) => i && j);
+
+            isbackgroundtaskrunning = checkinglk
+                .CombineLatest(checklgin, (x, y) => x || y)
+                .CombineLatest(updatingdata, (a, b) => a || b);
 
 
             // Update Interval Timer
@@ -319,6 +325,18 @@ namespace HandbookApp.ViewModels
                     }
                 )
                 .DisposeWith(subscriptionDisposibles);       
+
+            isbackgroundtaskrunning
+                .Throttle(throttleTime)
+                .DistinctUntilChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(
+                    x => {
+                        BackgroundTaskRunning = x;
+                    }
+                )
+                .DisposeWith(subscriptionDisposibles);
+
         }
     }
 }
