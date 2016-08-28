@@ -150,6 +150,16 @@ namespace HandbookApp.Reducers
                 return setNeedsUpdateReducer(previousState, (SetNeedsUpdateAction) action);
             }
 
+            if (action is SetResettingUpdatesAction)
+            {
+                return setResettingUpdatesReducer(previousState, (SetResettingUpdatesAction) action);
+            }
+
+            if (action is ClearResettingUpdatesAction)
+            {
+                return clearResettingUpdatesReducer(previousState, (ClearResettingUpdatesAction) action);
+            }
+
             if (action is SetReloadedAction)
             {
                 return setReloadedReducer(previousState, (SetReloadedAction) action);
@@ -161,6 +171,22 @@ namespace HandbookApp.Reducers
             }
 
             return previousState;
+        }
+
+        private static HandbookState clearResettingUpdatesReducer(HandbookState previousState, ClearResettingUpdatesAction action)
+        {
+            LogHost.Default.Info("ClearResettingUpdatesReducer");
+            HandbookState newState = previousState.Clone();
+            newState.ResettingUpdates = false;
+            return newState;
+        }
+
+        private static HandbookState setResettingUpdatesReducer(HandbookState previousState, SetResettingUpdatesAction action)
+        {
+            LogHost.Default.Info("SetResettingUpdatesReducer");
+            HandbookState newState = previousState.Clone();
+            newState.ResettingUpdates = true;
+            return newState;
         }
 
         private static HandbookState clearReloadedReducer(HandbookState previousState, ClearReloadedAction action)

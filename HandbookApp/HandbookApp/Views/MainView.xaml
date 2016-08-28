@@ -21,6 +21,7 @@
             </DataTemplate>
           </ListView.ItemTemplate>
         </ListView>
+        <Button x:Name="settingsButton" Text="Settings" HorizontalOptions="Fill" />
       </StackLayout>  
     </ScrollView>
   </ContentPage.Content>
