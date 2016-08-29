@@ -42,6 +42,7 @@ namespace HandbookApp.Actions
         private static bool postingUpdateData = false;
         private static bool loadingAppLog = false;
         private static bool fullupdating = false;
+        private static bool resettingUpdates = false;
 
 
         public static AsyncActionsCreator<AppState> LoginAction(MobileServiceAuthenticationProvider provider)
@@ -82,6 +83,8 @@ namespace HandbookApp.Actions
 
                 await doLoadAppLog(dispatch, getState);
 
+                await OfflineService.SaveAppState();
+
                 fullupdating = false;
             };
         }
@@ -121,6 +124,15 @@ namespace HandbookApp.Actions
 
             };
         }
+
+        public static AsyncActionsCreator<AppState> ServerResetUpdatesAction()
+        {
+            return async (dispatch, getState) => {
+                await doResetUpdates(dispatch, getState);
+            };
+        }
+         
+
 
 
         private async static Task doLogin(Dispatcher dispatch, Func<AppState> getState, MobileServiceAuthenticationProvider provider)
@@ -446,6 +458,57 @@ namespace HandbookApp.Actions
             loadingAppLog = false;
         }
 
+        private async static Task doResetUpdates(Dispatcher dispatch, Func<AppState> getState)
+        {
+            if (!getState().CurrentState.IsLicensed || resettingUpdates)
+            {
+                return;
+            }
+
+            resettingUpdates = true;
+
+            dispatch(new SetResettingUpdatesAction());
+            
+            bool success = false;
+            try
+            {
+                success = await App.ServerService.ResetUpdates();
+
+                if(success)
+                {
+                    await App.Store.Dispatch(ServerActionCreators.ServerFullUpdateAction());
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is ServerExceptions.NetworkFailure)
+                {
+                    // Do Nothing extra
+                }
+                else if (ex is ServerExceptions.ActionFailure)
+                {
+                    // Do Nothing extra
+                }
+                else if (ex is ServerExceptions.Unauthorized)
+                {
+                    dispatch(new SetHasUnauthorizedErrorAction());
+                }
+                else if (ex is ServerExceptions.UnknownFailure)
+                {
+                    if (ex.InnerException != null)
+                    {
+                        //Log Inner Exception
+                    }
+                }
+                else
+                {
+                    // Log Unknown exception
+                }
+            }
+
+            dispatch(new ClearResettingUpdatesAction());
+            resettingUpdates = false;
+        }
 
         private static void processServerUpdateMessages(List<ServerUpdateMessage> messages)
         {

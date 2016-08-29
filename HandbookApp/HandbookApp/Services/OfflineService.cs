@@ -102,7 +102,7 @@ namespace HandbookApp.Services
                 BlobCache.UserAccount.InsertObject("currentstate", currentHandbookState).Wait();
                 BlobCache.UserAccount.InsertObject("books", books).Wait();
                 BlobCache.UserAccount.InsertObject("fullpages", fullpages).Wait();
-                BlobCache.UserAccount.Flush();
+                BlobCache.UserAccount.Flush().Wait();
             });
 
             LogHost.Default.Info("OfflineService: SaveAppState: Done Save AppState");

@@ -59,12 +59,16 @@ namespace HandbookApp
             OfflineService.Initialize();
             LogStoreService.InitializeLogStore();
 
-            Locator.CurrentMutable.RegisterConstant(new LoggerService { Level = LogLevel.Info }, typeof(ILogger));
+            Locator.CurrentMutable.RegisterConstant(new LoggerService { Level = LogLevel.Debug }, typeof(ILogger));
 
             var initialState = OfflineService.LoadOfflineAppState();
 
+
             if(initialState.CurrentState.IsLoggedIn)
             {
+                this.Log().Debug("InitialState.UserId: {0}", initialState.CurrentState.UserId);
+                this.Log().Debug("InitialState.AuthToken: {0}", initialState.CurrentState.AuthToken);
+
                 ServerService.SetAzureUserCredentials(initialState.CurrentState.UserId, initialState.CurrentState.AuthToken);
             }
             

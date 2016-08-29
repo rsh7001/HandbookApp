@@ -76,6 +76,9 @@ namespace HandbookApp.Actions
 
     public class SetNeedsUpdateAction : IAction { }
 
+    public class SetResettingUpdatesAction : IAction { }
+    public class ClearResettingUpdatesAction : IAction { }
+
     public class SetReloadedAction : IAction { }
     public class ClearReloadedAction : IAction { }
 

@@ -45,6 +45,8 @@ namespace HandbookApp.States
         public bool RefreshingToken { get; set; }
         public bool LoadingAppLog { get; set; }
 
+        public bool ResettingUpdates { get; set; }
+
         public bool Reloaded { get; set; }
         
         
@@ -97,6 +99,8 @@ namespace HandbookApp.States
             this.RefreshingToken = old.RefreshingToken;
             this.LoadingAppLog = old.LoadingAppLog;
 
+            this.ResettingUpdates = old.ResettingUpdates;
+
             this.Reloaded = old.Reloaded;
         }
 
@@ -133,6 +137,8 @@ namespace HandbookApp.States
                 PostingUpdateData = false,
                 RefreshingToken = false,
                 LoadingAppLog = false,
+
+                ResettingUpdates = false,
 
                 Reloaded = false
             };

@@ -17,8 +17,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using HandbookApp.Actions;
 using HandbookApp.States;
 using HandbookApp.Utilities;
@@ -43,6 +45,8 @@ namespace HandbookApp.ViewModels
 
         [DataMember][Reactive] public List<MainViewBookTileViewModel> Handbooks { get; set; }
         [DataMember][Reactive] public bool BackgroundTaskRunning { get; set; }
+
+        [IgnoreDataMember] public ReactiveCommand<Unit> SettingsPage;
 
         [IgnoreDataMember] private IObservable<bool> canGoToLicenseKeyView;
         [IgnoreDataMember] private IObservable<bool> canGoToLoginView;
@@ -80,6 +84,8 @@ namespace HandbookApp.ViewModels
                     property: x => x.LastUpdateTime,
                     scheduler: RxApp.MainThreadScheduler
                 );
+
+            SettingsPage = ReactiveCommand.CreateAsyncTask(x => gotoSettingsPageImpl());
         }
 
 
@@ -190,6 +196,14 @@ namespace HandbookApp.ViewModels
                         checkRefreshToken();
                     });
         }
+
+
+        private async Task gotoSettingsPageImpl()
+        {
+            var vm = new SettingsViewModel(HostScreen);
+            await HostScreen.Router.Navigate.ExecuteAsyncTask(vm);
+        }
+
 
         private void checkUpdates()
         {
