@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" package="com.stanleyhum.HandbookApp" android:versionCode="1" android:versionName="1.0a">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" package="com.stanleyhum.HandbookApp" android:versionCode="2" android:versionName="1.0a2">
 	<uses-sdk android:minSdkVersion="15" />
 	<application android:label="HandbookApp"></application>
 </manifest>
