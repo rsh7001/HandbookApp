@@ -18,7 +18,7 @@ Changelog for HandbookApp
 
 
 
-2016-08-XX: Release 1.0a2
+2016-08-29: Release 1.0a2
 -------------------------
 
 1. Random iOS Unauthorized access
