@@ -37,10 +37,11 @@ namespace HandbookApp.Services
         private MobileServiceClient _azureClient;
         private HttpClient _httpClient;
 #if DEBUG
-        private static string TestMobileURL = "http://192.168.72.192:55506";
+        private static string TestMobileURL = "http://192.168.0.75:55506";
 #endif
         private static string ProductionMobileURL = "https://handbookmobileappservice.azurewebsites.net/";
         private static string VerifyLicenceKeyAPI = "api/verifylicencekey";
+        private static string ResetUpdatesAPI = "api/resetupdates";
         private static string GetUpdatesAPI = "api/updates";
         private static string PostUpdatesAPI = "api/postupdates";
         private static string RefreshTokenAPI = "api/refreshtoken";
@@ -126,6 +127,59 @@ namespace HandbookApp.Services
             return result;
         }
 
+        public async Task<bool> ResetUpdates()
+        {
+            bool result = false;
+
+            HttpRequestMessage req = null;
+            HttpResponseMessage response = null;
+
+            try
+            {
+                req = setupJSONRequest(ResetUpdatesAPI, "");
+                response = await _httpClient.SendAsync(req);
+                response.EnsureSuccessStatusCode();
+
+                result = true;
+                this.Log().Info("ResetUpdates success");
+            }
+            catch (Exception ex)
+            {
+                if (response == null)
+                {
+                    this.Log().InfoException("ResetUdpates response is null", ex);
+                    throw new ServerExceptions.NetworkFailure();
+                }
+                else
+                {
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.Unauthorized:
+                            this.Log().InfoException("ResetUpdates response code: Unauthorized", ex);
+                            throw new ServerExceptions.Unauthorized();
+                        case HttpStatusCode.BadRequest:
+                            this.Log().InfoException(string.Format("ResetUpdates response code: BadRequest: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.ActionFailure();
+                        default:
+                            this.Log().InfoException(string.Format("ResetUpdates response code: UnknownFailure: {0}", await response.Content.ReadAsStringAsync()), ex);
+                            throw new ServerExceptions.UnknownFailure(ex);
+                    }
+                }
+            }
+            finally
+            {
+                if (req != null)
+                {
+                    req.Dispose();
+                }
+                if (response != null)
+                {
+                    response.Dispose();
+                }
+            }
+
+            return result;
+        }
 
         public async Task<List<ServerUpdateMessage>> GetUpdates()
         {

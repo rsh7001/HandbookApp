@@ -48,6 +48,7 @@ namespace HandbookApp.ViewModels
             dependencyResolver.Register(() => new LicenseKeyPage(), typeof(IViewFor<LicenseKeyViewModel>));
             dependencyResolver.Register(() => new UnauthorizedErrorPage(), typeof(IViewFor<UnauthorizedErrorViewModel>));
             dependencyResolver.Register(() => new LicensingErrorPage(), typeof(IViewFor<LicensingErrorViewModel>));
+            dependencyResolver.Register(() => new SettingsView(), typeof(IViewFor<SettingsViewModel>));
         }
 
         public Page CreateMainPage()

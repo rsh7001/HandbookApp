@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<vs:BasePage x:TypeArguments="vms:SettingsViewModel"
+             xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vs="clr-namespace:HandbookApp.Views;assembly=HandbookApp"
+             xmlns:vms="clr-namespace:HandbookApp.ViewModels;assembly=HandbookApp"
+             x:Class="HandbookApp.Views.SettingsView"
+             NavigationPage.HasBackButton="False">
+  <ContentPage.Content>
+    <StackLayout VerticalOptions="Center">
+      <Button x:Name="logoutButton" Text="Logout" HorizontalOptions="Fill" />
+      <Button x:Name="resetLicenceKeyButton" Text="Reset Licence Key" HorizontalOptions="Fill" />
+      <Button x:Name="resetContentsButton" Text="Refresh Contents" HorizontalOptions="Fill" />
+      <Button x:Name="returnMainPageButton" Text="Return To MainPage" HorizontalOptions="Fill" />
+    </StackLayout>
+  </ContentPage.Content>
+</vs:BasePage>

@@ -17,6 +17,7 @@
 using HandbookApp.ViewModels;
 using HandbookApp.Utilities;
 using ReactiveUI;
+using Xamarin.Forms;
 
 
 namespace HandbookApp.Views
@@ -33,6 +34,7 @@ namespace HandbookApp.Views
             this.OneWayBind(ViewModel, vm => vm.BackgroundTaskRunning, c => c.updatingSpinner.IsRunning);
             this.OneWayBind(ViewModel, vm => vm.LastUpdateTime, c => c.updateTime.Text);
             this.OneWayBind(ViewModel, vm => vm.Handbooks, c => c.booksList.ItemsSource);
+            this.OneWayBind(ViewModel, vm => vm.SettingsPage, c => c.settingsButton.Command);
         }
 
     }
